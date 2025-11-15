@@ -822,6 +822,10 @@
 				const dashboards_keys = Object.keys(this.dashboards);
 				console.log("dashboards_keys: ", dashboards_keys);
 				
+				if(dashboards_keys.length == 0){
+					action = 'add_dashboard';
+				}
+				
 				if(action == 'add_dashboard'){
 					let new_grid_id = null;
 					var new_grid_index = 0;
@@ -3691,7 +3695,7 @@
 
 									const yScale = d3.scaleLinear()
 										.domain([d3.min(log_data, d => d.v), d3.max(log_data, d => d.v)])
-										.range([rect.height - 20, 0]);
+										.range([rect.height - 20, 10]);
 						
 						
 									var g = svg.append("g")
