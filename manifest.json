@@ -29,13 +29,18 @@
   "options": {
     "default": {
 	  "Black and white": false,
+	  "Background color": "",
       "Debugging": false
     },
     "schema": {
       "properties": {
 		"Black and white": {
-          "description": "Show all photos in black and white. This does not permanently change the photos, it's just an effect.",
+          "description": "Show everything in black and white.",
           "type": "boolean"
+        },
+		"Background color": {
+          "description": "If you choose your own dashboard background color, pick one that works for both light and dark text.",
+          "type": "text"
         },
         "Debugging": {
           "description": "Advanced. Enable this to see much more detail in the internal log about what this add-on is doing.",
@@ -47,13 +52,14 @@
     }
   },
   "short_name": "Dashboard",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "web_accessible_resources": [
     "css/*.css",
 	"icons/*.svg",
 	"icons/*/*.svg",
 	"icons/*/*/*.svg",
     "images/*.svg",
+	"images/*.png",
     "js/*.js",
     "views/*.html"
   ]

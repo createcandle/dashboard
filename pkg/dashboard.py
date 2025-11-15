@@ -90,6 +90,7 @@ class DashboardAPIHandler(APIHandler):
 
         self.animations = True
         self.greyscale = False
+        self.background_color = ""
         
         self.cups_printer_available = False
         self.peripage_printer_available = False
@@ -233,50 +234,15 @@ class DashboardAPIHandler(APIHandler):
             if self.DEBUG:
                 print("-Debug preference was in config: " + str(self.DEBUG))
 
-        if 'Interval' in config:
-            self.interval = int(config['Interval'])
-            if self.DEBUG:
-                print("-Interval preference was in config: " + str(self.interval))
-                
-        if 'Screensaver delay' in config:
-            self.screensaver_delay = int(config['Screensaver delay'])
-            if self.DEBUG:
-                print("-Screensaver delay preference was in config: " + str(self.screensaver_delay))
-
-        if 'Fit to screen' in config:
-            self.fit_to_screen = str(config['Fit to screen']) # can be "cover", "contain" or "mix"
-            if self.DEBUG:
-                print("-Fit to screen preference was in config: " + str(self.fit_to_screen))
-                
-        if "Animations and effects" in config:
-            self.animations = bool(config['Animations and effects']) # can be "cover", "contain" or "mix"
-            if self.DEBUG:
-                print("Animations preference was in config: " + str(self.animations))
-                
         if "Black and white" in config:
             self.greyscale = bool(config["Black and white"]) # can be "cover", "contain" or "mix"
             if self.DEBUG:
                 print("Black and white preference was in config: " + str(self.greyscale))
                 
-        if 'Show date' in config:
-            self.show_date = bool(config['Show date'])
+        if "Background color" in config:
+            self.background_color = str(config["Background color"]) # can be "cover", "contain" or "mix"
             if self.DEBUG:
-                print("-Date preference was in config: " + str(self.show_date))
-
-        if 'Show clock' in config:
-            self.show_clock = bool(config['Show clock'])
-            if self.DEBUG:
-                print("-Clock preference was in config: " + str(self.show_clock))
-
-        if 'Show weather' in config:
-            self.show_weather = bool(config['Show weather'])
-            if self.DEBUG:
-                print("-Weather preference was in config: " + str(self.show_weather))
-
-        if 'Show Voco timers' in config:
-            self.show_voco_timers = bool(config['Show Voco timers'])
-            if self.DEBUG:
-                print("-Date preference was in config: " + str(self.show_date))
+                print("Background color preference was in config: " + str(self.background_color))
 
 
 
@@ -338,15 +304,9 @@ class DashboardAPIHandler(APIHandler):
                                   content=json.dumps({'state': state, 
                                                       'dashboards': self.persistent_data['dashboards'],
                                                       'icons': self.icons_data,
-                                                      'interval': self.interval,
-                                                      'screensaver_delay': self.screensaver_delay, 
-                                                      'fit_to_screen': self.fit_to_screen,
-                                                      'show_voco_timers': self.show_voco_timers,
-                                                      'peripage_printer_available': self.peripage_printer_available, 
-                                                      'cups_printer_available': self.cups_printer_available, 
-                                                      'weather_addon_exists': self.weather_addon_exists, 
                                                       'animations': self.animations,
                                                       'greyscale': self.greyscale,
+                                                      'background_color': self.background_color,
                                                       'debug': self.DEBUG
                                                     }),
                                 )

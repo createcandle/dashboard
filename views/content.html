@@ -13,19 +13,13 @@
 				
 				
 						<div style="max-width:150px" class="extension-dashboard-template-container">
-							<div data-template-name="log" class="extension-dashboard-template extension-dashboard-widget-log extension-dashboard-flex-column">
-						        <strong class="extension-dashboard-widget-log_title-needs-rename">Log title</strong>
-								<div class="extension-dashboard-widget-log_source-needs-log extension-dashboard-flex-center extension-dashboard-flex-column extension-dashboard-flex-grow"></div>
-							</div>
-						</div>
-						
-				
-						<div style="max-width:150px" class="extension-dashboard-template-container">
 							<div data-template-name="property-switch" class="extension-dashboard-template extension-dashboard-widget-property-switch">
 						        <input type="checkbox" name="extension-dashboard-widget-changeme" id="extension-dashboard-widget-changeme" class="extension-dashboard-widget-switch_state-needs-update extension-dashboard-hidden-widget-checkbox extension-dashboard-hidden">
 						        <label for="extension-dashboard-widget-changeme">
-									<span class="extension-dashboard-widget-thing-icon-container extension-dashboard-widget-icon-needs-icon"></span>
-									<strong class="extension-dashboard-widget-thing_title-needs-rename">Widget name</strong>
+									<span class="extension-dashboard-widget-thing-icon-container extension-dashboard-widget-icon-needs-icon">
+										<img src="/extensions/dashboard/icons/material_light_icons/wall-lamp-outline.svg" class="extension-dashboard-widget-remove-me" alt="Lamp icon" style="width: 100%;margin-top: 5rem;">
+									</span>
+									<strong class="extension-dashboard-widget-thing_title-needs-rename">Switch widget</strong>
 									<!--<span data-o="opened" data-c="closed"></span>-->
 									<small></small>
 						        </label>
@@ -41,7 +35,7 @@
 									<div>
 								        <input type="checkbox" name="extension-dashboard-widget-changeme" id="extension-dashboard-widget-changeme" class="extension-dashboard-widget-switch_state-needs-update extension-dashboard-hidden">
 								        <label for="extension-dashboard-widget-changeme">
-											<strong class="extension-dashboard-widget-thing_title-needs-rename">Widget name</strong>
+											<strong class="extension-dashboard-widget-thing_title-needs-rename">Switch slider widget</strong>
 											<small></small>
 										</label>
 									</div>
@@ -66,13 +60,14 @@
 									<div class="extension-dashboard-widget-title-container">
 								        <input type="checkbox" name="extension-dashboard-widget-changeme" id="extension-dashboard-widget-changeme" class="extension-dashboard-widget-title-container extension-dashboard-widget-switch_state-needs-update extension-dashboard-hidden">
 								        <label for="extension-dashboard-widget-changeme">
-											<strong class="extension-dashboard-widget-thing_title-needs-rename">Widget name</strong>
+											<strong class="extension-dashboard-widget-thing_title-needs-rename">Color light widget</strong>
 											<small></small>
 										</label>
 									</div>
 								
 									<div class="extension-dashboard-widget-color-container extension-dashboard-flex-center">
 										<input type="color" class="extension-dashboard-widget-color-needs-update">
+										<img src="/extensions/dashboard/images/color_wheel.png" class="extension-dashboard-widget-remove-me" alt="color picker">
 									</div>
 								
 									<div class="extension-dashboard-widget-slider-container extension-dashboard-flex-center extension-dashboard-flex-grow">
@@ -87,7 +82,14 @@
 						</div>
 					
 					
-					
+						<div style="max-width:150px" class="extension-dashboard-template-container">
+							<div data-template-name="log" class="extension-dashboard-template extension-dashboard-widget-log extension-dashboard-flex-column">
+						        <strong class="extension-dashboard-widget-log_title-needs-rename">Log title</strong>
+								<div class="extension-dashboard-widget-log_source-needs-log extension-dashboard-flex-center extension-dashboard-flex-column extension-dashboard-flex-grow">
+									<img src="/extensions/dashboard/images/log_example.svg" class="extension-dashboard-widget-remove-me" alt="example log visualisation">
+								</div>
+							</div>
+						</div>
 					
 				
 						<div style="max-width:150px" class="extension-dashboard-template-container">
@@ -98,18 +100,18 @@
 				  					      <div class="extension-dashboard-icon extension-dashboard-widget-icon-weather"></div>
 				  					      <div class="extension-dashboard-widget-heading">
 				  					        <!--<h5 class="extension-dashboard-date">1 Feb 2019</h5>-->
-				  					        <h2 class="extension-dashboard-widget-weather_description-needs-update">Cloudy</h2>
+				  					        <h2 class="extension-dashboard-widget-weather_description-needs-update">Weather widget</h2>
 				  					      </div>
 									    </div>
 									</div>
 									<div>
 									    <div class="extension-dashboard-flex-wrap extension-dashboard-widget-split-compact extension-dashboard-flex-center">
 									      <div class="extension-dashboard-flex-center">
-									        <strong class="extension-dashboard-widget-temperature-value-container"><span class="extension-dashboard-widget-temperature-needs-update">26</span>°<!--<sup>C</sup>--></strong>
+									        <strong class="extension-dashboard-widget-temperature-value-container"><span class="extension-dashboard-widget-temperature-needs-update">00</span>°<!--<sup>C</sup>--></strong>
 									        <p>Temperature</p>
 									      </div>
 									      <div class="extension-dashboard-flex-center">
-									        <strong class="extension-dashboard-widget-humidity-value-container"><span class="extension-dashboard-widget-humidity-needs-update">48.2</span>%</strong>
+									        <strong class="extension-dashboard-widget-humidity-value-container"><span class="extension-dashboard-widget-humidity-needs-update">00</span>%</strong>
 									        <p>Humidity</p>
 									      </div>
 									    </div>
@@ -171,7 +173,7 @@
 					          	<div class="extension-dashboard-widget-split-compact">
 									
 									<div class="extension-dashboard-widget-thermostat-setpoint-display extension-dashboard-flex-center">
-							        	<strong><span class="extension-dashboard-widget-temperature-value"><span class="extension-dashboard-widget-temperature-needs-update">26,7</span>°</span><span class="extension-dashboard-widget-setpoint-arrow">➝ </span><span class="extension-dashboard-widget-setpoint-container"><input type="number" steps="0.5" value="21" class="extension-dashboard-widget-setpoint-needs-update" /><span class="extension-dashboard-widget-setpoint-degrees">°</span></span></strong>
+							        	<strong><span class="extension-dashboard-widget-temperature-value"><span class="extension-dashboard-widget-temperature-needs-update">00,0</span>°</span><span class="extension-dashboard-widget-setpoint-arrow"> ➝ </span><span class="extension-dashboard-widget-setpoint-container"><input type="number" step="0.5" value="20.5" class="extension-dashboard-widget-setpoint-needs-update" /><span class="extension-dashboard-widget-setpoint-degrees">°</span></span></strong>
 									</div>
 									
 									<div class="extension-dashboard-widget-thermostat-setpoint-buttons">
@@ -186,14 +188,14 @@
 						<div style="width:150px" class="extension-dashboard-template-container">
 							<div data-template-name="clock" class="extension-dashboard-template extension-dashboard-widget-clock">
 								<div class="extension-dashboard-widget-split">
-					                <div class="extension-dashboard-widget-clock-time extension-dashboard-flex-center">19:35</div>
+					                <div class="extension-dashboard-widget-clock-time extension-dashboard-flex-center">00:00</div>
 									<div class="extension-dashboard-flex-center">
 						                <div class="extension-dashboard-widget-clock-date">
 						                    <div class="extension-dashboard-widget-clock-date-day"></div>
 						                    <div class="extension-dashboard-widget-clock-date-container">
-						                        <span class="extension-dashboard-widget-clock-date-date">29</span>
+						                        <span class="extension-dashboard-widget-clock-date-date">0</span>
 						                        <span class="extension-dashboard-widget-clock-date-spacer">&nbsp;</span>
-						                        <span class="extension-dashboard-widget-clock-date-month">July</span>
+						                        <span class="extension-dashboard-widget-clock-date-month">Jan</span>
 						                    </div>
 						                </div>
 									</div>
@@ -205,9 +207,9 @@
 					
 						<div style="max-width:150px" class="extension-dashboard-template-container">
 							<div data-template-name="text" class="extension-dashboard-template extension-dashboard-widget-text">
-						        <h2 class="extension-dashboard-widget-large_title-needs-rename">Dashboard title</h2>
+						        <h2 class="extension-dashboard-widget-large_title-needs-rename">Text + optional link widget</h2>
 								<div class="extension-dashboard-widget-link-needs-rename"></div>
-								<p class="extension-dashboard-widget-additional_text-needs-rename">Additional text</p>
+								<p class="extension-dashboard-widget-additional_text-needs-rename">Additional optional text</p>
 							</div>
 						</div>
 					
@@ -237,17 +239,8 @@
 			
 			
             <div id="extension-dashboard-main-container">
-				<div id="extension-dashboard-tab-menu">
-				</div>
-				<div id="extension-dashboard-tabs">
-					
-					<div id="extension-dashboard-tab-grid0" class="extension-dashboard-tab extension-dashboard-tab-selected">
-						<div id="extension-dashboard-grid0" class="container-fluid">
-							
-						</div>
-					</div>
-					
-	            </div>
+				<div id="extension-dashboard-tab-menu"></div>
+				<div id="extension-dashboard-tabs"></div>
 				
 				<div id="extension-dashboard-log-tooltip"></div>
 				

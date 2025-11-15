@@ -137,6 +137,7 @@ body.screensaver #extension-dashboard-main-page{
 
 #extension-dashboard-content-container h3{
 	margin-top:3rem;
+	font-weight:100;
 }
 
 .zoom {
@@ -299,18 +300,17 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 .extension-dashboard-template-container{
 	padding:1rem;
 	border-radius:1rem;
-	border:1px solid blue;
 	margin:1rem;
 	min-width:150px;
 	min-height:150px;
-	background-color:rgba(0,0,0,.5);
+	background-color:#bdc8d2;
 	cursor:pointer;
-	box-sizing:border-box;
 }
 
 #extension-dashboard-templates{
     display: flex;
 	overflow:auto;
+	overflow-x: scroll;
 }
 
 #extension-dashboard-templates .extension-dashboard-template *{
@@ -370,13 +370,23 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 }
 
 
+.extension-dashboard-modal-thing-select,
+.extension-dashboard-modal-thing-selector-property-container > select,
+.extension-dashboard-modal-log-selector{
+	font-size: 1.4rem;
+	padding: 1rem;
+	max-width: 100%;
+	border-radius:.5rem;
+}
+
+
 #extension-dashboard-widget-modal #extension-dashboard-widget-modal-save-button{
 	background-color: #378c19;
 }
 
 
 .extension-dashboard-widget-modal-highlighted-template{
-	background-color:green;
+	background-color:#378c19;
 	box-sizing: content-box;
 }
 
@@ -385,7 +395,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 /*   TRASH   */
 
-#extension-dashboard-trash{
+.extension-dashboard-trash{
 	width:5.6rem;
 	height:5.6rem;
 	background-image:url('../images/trash.svg');
@@ -395,9 +405,13 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	transition: background .5s ease-in;
 	transition: all .3s ease-in;
 }
-#extension-dashboard-trash:hover{
+.extension-dashboard-trash:hover{
 	background-position:center 70%;
 }
+
+
+
+
 
 /*  ADD WIDGET BUTTON  */
 
@@ -444,7 +458,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	max-height:90vh;
 	max-width:90vw;
 	border:none;
-	background-color:#ccc;
+	background-color:#aaa;
 }
 #extension-dashboard-widget-modal::backdrop{
 	background-color:rgba(0,0,0,.9);
@@ -452,10 +466,14 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 #extension-dashboard-widget-modal > div{
 	flex-direction:column;
 	justify-content: space-between;
+	box-sizing:border-box;
+	height:100%;
 }
 
 #extension-dashboard-widget-modal-content{
 	overflow:auto;
+	flex-grow:1;
+	box-sizing: border-box;
 }
 
 
@@ -496,6 +514,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 .extension-dashboard-widget-ui-rename-container input{
 	display:block;
+	padding: 1rem 1.5rem;
 	margin:1.5rem 0;
 }
 
@@ -520,11 +539,24 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	cursor:pointer;
 }
 
+.extension-dashboard-widget-ui-icon-picker-tags-button{
+	margin-left:1rem;
+}
+
+.extension-dashboard-widget-ui-icon-picker-close-button{
+	margin-left:auto;
+}
+
+.extension-dashboard-widget-ui-icon-picker-container:not(.extension-dashboard-widget-ui-icon-picker-show-close-button) .extension-dashboard-widget-ui-icon-picker-close-button{
+	display:none;
+}
+
+
 .extension-dashboard-widget-ui-icon-picker-search{
 	padding:1rem;
 	font-size:120%;
 	min-width:250px;
-	margin-bottom:1rem;
+	margin-top:1rem;
 	border-radius:1rem;
 	border:none;
 }
@@ -551,6 +583,11 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 .extension-dashboard-widget-ui-icon-picker-images-container > img{
 	margin:.5rem;
 	cursor:pointer;
+	transition-delay: 1s;
+	transition: transform .2s ease-in;
+}
+.extension-dashboard-widget-ui-icon-picker-images-container > img:hover {
+	transform: scale(2.5);
 }
 
 .extension-dashboard-widget-ui-icon-current-image{
@@ -583,7 +620,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	border: 8rem solid transparent;
 }
 
-.extension-dashboard-widget-property-switch input:not(:checked) + label .extension-dashboard-widget-thing-icon-container{
+.extension-dashboard-widget-property-switch input:checked + label .extension-dashboard-widget-thing-icon-container{
 	filter: invert(1);
 	opacity:1;
 }
@@ -666,11 +703,9 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 /*  WEATHER  */
 
+/*
 #extension-dashboard-weather-container{
     padding-top:2rem;
-    /*position:absolute;
-    bottom:0;
-    right:0;*/
     display:flex;
     flex-direction:column;
     position: fixed;
@@ -699,11 +734,12 @@ body:not(.developer) .extension-dashboard-show-if-developer,
     font-size:5rem;
     font-weight:bold;
 }
-
+*/
 
 
 /*  fade in animation  */
 
+/*
 #extension-dashboard-clock.extension-dashboard-show,
 #extension-dashboard-date.extension-dashboard-show {
   display: block;
@@ -714,7 +750,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
   0% { opacity: 0; }
   100% { opacity: 1; }
 }
-
+*/
 
 
 
@@ -759,9 +795,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 
 
-
-
-/*  SHOW THUMBNAIL OVERVIEW BUTTON  */
+/*  EDIT DASHBOARD BUTTON  */
 
 #extension-dashboard-edit-button-container{
     position: fixed;
@@ -793,6 +827,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 /*  START SCREENSAVER BUTTON  */
 
+/*
 #extension-dashboard-start-screensaver-button-container{
 	display:none;
     position: fixed;
@@ -834,11 +869,10 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 }
 
 
-
 #extension-dashboard-main-page:not(.extension-dashboard-has-animations) .extension-dashboard-current-picture{
     opacity:1;
 }
-
+*/
 
 
 
@@ -855,11 +889,6 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	width:auto;
 }
 
-/*
-#extension-dashboard-print-button{
-	background: rgba(255,255,255,.15) no-repeat center/50% url(../images/printer.svg);
-}*/
-
 #extension-dashboard-print-button-container:hover #extension-dashboard-print-button{
 	background-color:rgba(255,255,255,.4);
 }
@@ -867,7 +896,6 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 body.cups-printing:not(.screensaver) #extension-dashboard-print-button-container{
 	display:block;
 }
-
 
 #extension-dashboard-print-button-confirm-container{
 	display:none;
@@ -1018,6 +1046,7 @@ body.cups-printing:not(.screensaver) #extension-dashboard-print-button-container
 
 /*  SELECTED DASHBOARD INDICATOR  */
 
+/*
 #extension-dashboard-selected-dashboard-indicator-container{
 	display:flex;
 	align-items:center;
@@ -1046,7 +1075,6 @@ body.screensaver #extension-dashboard-selected-dashboard-indicator-container{
 	justify-content:center;
 	border-radius:1rem;
 	padding:1rem 2rem;
-	/*border:2px solid black;*/
 	background-color:rgba(255,255,255,.1);
 	border-radius:1rem;
 }
@@ -1067,6 +1095,9 @@ body.screensaver #extension-dashboard-selected-dashboard-indicator-container{
 	width:1rem;
 	margin:.5rem;
 }
+*/
+
+
 
 /*  Back button  */
 
@@ -1811,6 +1842,7 @@ h1 {
 
 /*  THUMBNAIL  */
 
+/*
 .extension-dashboard-list-thumbnail{
 	cursor:pointer;
 	max-width: calc(100% - 10px);
@@ -1842,6 +1874,7 @@ h1 {
 .extension-dashboard-thumbnail-delete-button:hover{
     opacity:1;
 }
+*/
 
 /*
 .extension-dashboard-thumbnail-print-button{
@@ -1870,6 +1903,7 @@ h1 {
 /*  DROPZONE */
 
 
+/*
 #extension-dashboard-dropzone {
 	display:none;
     height: 10rem;
@@ -1891,7 +1925,6 @@ h1 {
 #extension-dashboard-photos-file-selector-overlay,
 #extension-dashboard-photos-file-selector{
     font-size: 0;
-    /*padding: 1rem 2rem;*/
     width: 5.6rem;
     height: 5.6rem;
     border: none;
@@ -1921,7 +1954,7 @@ h1 {
 .kiosk #extension-dashboard-photos-file-selector-overlay{
     display:none;
 }
-
+*/
 
 
 
@@ -3116,7 +3149,7 @@ h1 {
 
 #extension-dashboard-content .extension-dashboard-widget-setpoint-needs-update{
 	background-color:transparent;
-	width:50px;
+	width:70px;
     text-align: right;
     color: #ff574e;
     font-weight: bold;
@@ -3133,12 +3166,22 @@ h1 {
     left: -2rem;
 	top:-1rem;
 	color:red;
+	pointer-events:none;
 }
 
 
 .grid-stack-item-content .extension-dashboard-widget-thermostat {
 	padding-bottom:1rem;
 	box-sizing:border-box;
+}
+
+.extension-dashboard-widget-thermostat strong{
+	display:flex;
+	align-items:center;
+	justify-content:center;
+}
+.grid-stack-item:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-thermostat strong{
+	flex-direction:column;
 }
 
 .extension-dashboard-widget-thermostat strong,
@@ -3167,6 +3210,18 @@ h1 {
 	overflow:hidden;
 }
 
+.grid-stack-item[gs-w][gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-temperature-value{
+	max-width:100px;
+}
+
+.extension-dashboard-widget-setpoint-arrow{
+	display:inline-block;
+}
+.grid-stack-item[gs-w]:not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-arrow{
+	padding: 1rem .5rem 1rem 2rem;
+}
+
+
 .grid-stack-item[gs-w]:not(.grid-stack-sub-grid) .extension-dashboard-widget-temperature-value,
 #extension-dashboard-content .grid-stack-item[gs-h="3"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-thermostat-setpoint-display > strong *,
 #extension-dashboard-content .grid-stack-item[gs-h]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-needs-update,
@@ -3193,7 +3248,7 @@ h1 {
 }
 
 #extension-dashboard-content .grid-stack-item[gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-needs-update{
-	width:100px;
+	width:115px;
 	height:80px;
 }
 
