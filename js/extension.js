@@ -930,8 +930,14 @@
 				
 				//trash_zone_container_el.appendChild(trash_zone_el);
 				//tabs_menu_el.appendChild(trash_zone_container_el);
+				
+				
+				let widget_management_container_el = document.createElement('div');
+				widget_management_container_el.classList.add('extension-dashboard-flex');
+				
 				tabs_menu_el.appendChild(trash_zone_el);
 				
+				widget_management_container_el.appendChild(trash_zone_el);
 				
 				// ADD BUTTON TO ADD WIDGET
 				
@@ -942,10 +948,17 @@
 				add_widget_button_el.addEventListener('click', () => {
 					this.add_main_widget();
 				})
-				tabs_menu_el.appendChild(add_widget_button_el);
 				
+				//tabs_menu_el.appendChild(add_widget_button_el);
+				
+				widget_management_container_el.appendChild(add_widget_button_el);
+				
+				tabs_menu_el.appendChild(widget_management_container_el);
 				
 				console.log("update_sidebar: dashboards_keys.length: ", dashboards_keys.length);
+				
+				let tab_buttons_container_container = document.createElement('div');
+				tab_buttons_container_container.classList.add('extension-dashboard-flex-center');
 				
 				let tab_buttons_container = document.createElement('div');
 				tab_buttons_container.setAttribute('id','extension-dashboard-tab-buttons-container');
@@ -955,7 +968,6 @@
 				if(tabs_container_el){
 					
 					// hide all the tabs first
-					
 					for(let tc = 0; tc < tabs_container_el.children.length; tc++){
 						tabs_container_el.children[tc].classList.remove('extension-dashboard-tab-selected');
 					}
@@ -1043,7 +1055,8 @@
 				}
 				
 				if(dashboards_keys.length > 1){
-					tabs_menu_el.appendChild(tab_buttons_container);
+					//tabs_menu_el.appendChild(tab_buttons_container);
+					tab_buttons_container_container.appendChild(tab_buttons_container);
 				}
 				
 				
@@ -1059,9 +1072,11 @@
 				add_dashboard_button_el.addEventListener('click', () => {
 					this.update_sidebar('add_dashboard');
 				})
-				tabs_menu_el.appendChild(add_dashboard_button_el);
+				//tabs_menu_el.appendChild(add_dashboard_button_el);
 				
+				tab_buttons_container_container.appendChild(add_dashboard_button_el);
 				
+				tabs_menu_el.appendChild(tab_buttons_container_container);
 				
 			}
 		}
@@ -2096,30 +2111,33 @@
 		  
 														// Draw color wheel
 														function drawColorWheel() {
-														  const radius = canvas.width / 2;
-														  const imageData = ctx.createImageData(canvas.width, canvas.height);
+															if(canvas.width > 10 && canvas.height > 10){
+	  														  const radius = canvas.width / 2;
+	  														  const imageData = ctx.createImageData(canvas.width, canvas.height);
 
-														  for (let x = 0; x < canvas.width; x++) {
-														    for (let y = 0; y < canvas.height; y++) {
-														      const dx = x - radius;
-														      const dy = y - radius;
-														      const distance = Math.sqrt(dx * dx + dy * dy);
-														      const angle = Math.atan2(dy, dx);
+	  														  for (let x = 0; x < canvas.width; x++) {
+	  														    for (let y = 0; y < canvas.height; y++) {
+	  														      const dx = x - radius;
+	  														      const dy = y - radius;
+	  														      const distance = Math.sqrt(dx * dx + dy * dy);
+	  														      const angle = Math.atan2(dy, dx);
 
-														      if (distance <= radius) {
-														        const hue = (angle + Math.PI) / (2 * Math.PI);
-														        const saturation = distance / radius;
-														        const rgb = hslToRgb(hue, saturation, 0.5);
-														        const index = (y * canvas.width + x) * 4;
-														        imageData.data[index] = rgb[0];
-														        imageData.data[index + 1] = rgb[1];
-														        imageData.data[index + 2] = rgb[2];
-														        imageData.data[index + 3] = 255;
-														      }
-														    }
-														  }
+	  														      if (distance <= radius) {
+	  														        const hue = (angle + Math.PI) / (2 * Math.PI);
+	  														        const saturation = distance / radius;
+	  														        const rgb = hslToRgb(hue, saturation, 0.5);
+	  														        const index = (y * canvas.width + x) * 4;
+	  														        imageData.data[index] = rgb[0];
+	  														        imageData.data[index + 1] = rgb[1];
+	  														        imageData.data[index + 2] = rgb[2];
+	  														        imageData.data[index + 3] = 255;
+	  														      }
+	  														    }
+	  														  }
 
-														  ctx.putImageData(imageData, 0, 0);
+	  														  ctx.putImageData(imageData, 0, 0);
+															}
+														  
 														}
 
 														// Convert HSL to RGB
@@ -2555,12 +2573,17 @@
 							let icon_container_el = document.createElement('div');
 							icon_container_el.classList.add('extension-dashboard-widget-ui-icon-container');
 							
-							const icons_per_page = 100;
+							let icons_per_page = 100;
+							
+							if(window.innerWidth > 1000 && window.innerHeight > 600){
+								icons_per_page = 200;
+							}
+							
 							
 							widget_ui_el.appendChild(icon_container_el);
 					
 							for (const [what_icon_is_needed, value] of Object.entries(needs['icon'])) {
-								//console.log(`what_icon_is_needed: ${what_icon_is_needed}: ${value}`);
+								console.log(`what_icon_is_needed: ${what_icon_is_needed}: ${value}`);
 						
 								let icon_wrapper_el = document.createElement('div');
 								icon_wrapper_el.classList.add('extension-dashboard-widget-ui-icon-wrapper');
@@ -2580,9 +2603,7 @@
 									selected_icon_image_el.setAttribute('src','/extensions/dashboard/icons' + value);
 									icon_wrapper_el.classList.add('extension-dashboard-widget-ui-icon-has-been-selected');
 								}
-								selected_icon_image_el.addEventListener('click', () => {
-									icon_wrapper_el.classList.remove('extension-dashboard-widget-ui-icon-has-been-selected');
-								})
+								
 								
 								icon_output_el.appendChild(selected_icon_image_el);
 								
@@ -2599,6 +2620,12 @@
 								icon_picker_container_el.classList.add('extension-dashboard-widget-ui-icon-picker-container');
 								
 								
+								selected_icon_image_el.addEventListener('click', () => {
+									icon_wrapper_el.classList.remove('extension-dashboard-widget-ui-icon-has-been-selected');
+									setTimeout(() => {
+										icon_picker_container_el.scrollIntoView({ behavior: "smooth", block: "center" });
+									},300);
+								})
 								
 								
 								
@@ -2608,13 +2635,22 @@
 								icon_picker_header_el.classList.add('extension-dashboard-widget-ui-icon-picker-header');
 								icon_picker_header_el.classList.add('extension-dashboard-flex-between');
 								
+								/*
 								let icon_picker_search_tab_button_el = document.createElement('div');
 								icon_picker_search_tab_button_el.classList.add('extension-dashboard-widget-ui-icon-picker-search-button');
 								icon_picker_search_tab_button_el.classList.add('text-button');
 								icon_picker_search_tab_button_el.textContent = 'Search';
 
 								icon_picker_header_el.appendChild(icon_picker_search_tab_button_el);
+								*/
 								
+								
+								let icon_search_input_el = document.createElement('input');
+								icon_search_input_el.setAttribute('type','search');
+								icon_search_input_el.setAttribute('placeholder','Search for an icon');
+								icon_search_input_el.classList.add('extension-dashboard-widget-ui-icon-picker-search');
+								
+								icon_picker_header_el.appendChild(icon_search_input_el);
 								
 								let icon_picker_tags_tab_button_el = document.createElement('div');
 								icon_picker_tags_tab_button_el.classList.add('extension-dashboard-widget-ui-icon-picker-tags-button');
@@ -2648,10 +2684,6 @@
 								
 								
 								
-								let icon_search_input_el = document.createElement('input');
-								icon_search_input_el.setAttribute('type','search');
-								icon_search_input_el.setAttribute('placeholder','Search for an icon');
-								icon_search_input_el.classList.add('extension-dashboard-widget-ui-icon-picker-search');
 								
 								
 								
@@ -2674,17 +2706,19 @@
 								icon_picker_container_el.appendChild(icon_picker_folders_container_el);
 
 								
-								icon_picker_container_el.appendChild(icon_search_input_el);
+								//icon_picker_container_el.appendChild(icon_search_input_el);
 								
 								
 								// add icon picker header buttons event listeners
+								/*
 								icon_picker_search_tab_button_el.addEventListener('click', () => {
 									icon_search_input_el.style.display = 'inline-block';
 									icon_picker_folders_container_el.style.display = 'none';
 								});
+								*/
 								
 								icon_picker_tags_tab_button_el.addEventListener('click', () => {
-									icon_search_input_el.style.display = 'none';
+									//icon_search_input_el.style.display = 'none';
 									icon_picker_folders_container_el.style.display = 'inline-block';
 								});
 								
@@ -2911,7 +2945,12 @@
 						//	widget_ui_el.innerHTML = 'This widget does not have any settings';
 						//}
 						
-						modal_ui_container_el.appendChild(widget_ui_el);
+						if(widget_ui_el.innerHTML != ''){
+							modal_ui_container_el.appendChild(widget_ui_el);
+						}
+						else{
+							modal_ui_container_el.innerHTML = '';
+						}
 						
 					}
 				}
@@ -3625,13 +3664,13 @@
 
 									if(rect.width > 50 && log_data.length > 100){
 										if(this.debug){
-											console.log("log_data.length before pruning: ", log_data.length);
+											console.log("dashboard debug: log_data.length before pruning: ", log_data.length);
 										}
-										while(log_data.length > Math.floor(rect.width / 3) ){
+										while(log_data.length > Math.floor(rect.width / 4) ){
 											log_data.shift();
 										}
 										if(this.debug){
-											console.log("log_data.length after pruning: ", log_data.length);
+											console.log("dashboard debug: log_data.length after pruning: ", log_data.length);
 										}
 									}
 						

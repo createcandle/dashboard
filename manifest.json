@@ -39,8 +39,8 @@
           "type": "boolean"
         },
 		"Background color": {
-          "description": "If you choose your own dashboard background color, pick one that works for both light and dark text.",
-          "type": "text"
+          "description": "If you choose your own dashboard background color, pick one that works for both light and dark text. The default is '#0d3b5c'.",
+          "type": "string"
         },
         "Debugging": {
           "description": "Advanced. Enable this to see much more detail in the internal log about what this add-on is doing.",
@@ -52,7 +52,7 @@
     }
   },
   "short_name": "Dashboard",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "web_accessible_resources": [
     "css/*.css",
 	"icons/*.svg",

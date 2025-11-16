@@ -110,6 +110,15 @@ body.screensaver #extension-dashboard-main-page{
 */
 
 
+#extension-dashboard-view input::placeholder { color: rgba(0,0,0,.3); }
+
+#extension-dashboard-view input:focus::placeholder {
+	color: transparent;
+}
+
+#extension-dashboard-view button{
+	letter-spacing:0.7px;
+}
 
 #extension-dashboard-icon{
     display: inline-block;
@@ -137,6 +146,7 @@ body.screensaver #extension-dashboard-main-page{
 
 #extension-dashboard-content-container h3{
 	margin-top:3rem;
+	margin-bottom:4rem;
 	font-weight:100;
 }
 
@@ -216,23 +226,26 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 #extension-dashboard-tab-menu{
 	display:flex;
 	justify-content: center;
-	padding:1rem 9.6rem;
+	padding:0 9.6rem;
+	align-items:center;
 }
 
 .extension-dashboard-editing #extension-dashboard-tab-menu{
 	justify-content:space-around;
+	height:9.6rem;
 }
 
 #extension-dashboard-tab-buttons-container > div,
 #extension-dashboard-tab-menu > div:not(#extension-dashboard-tab-buttons-container){
-	margin: 1rem;
 	border-radius:1rem;
 	cursor:pointer;
 	color:white;
 }
+/*
 #extension-dashboard-tab-menu > div:not(#extension-dashboard-tab-buttons-container):not(#extension-dashboard-add-widget-button){
 	background-color:rgba(255,255,255,.4);
 }
+*/
 
 
 /*  #extension-dashboard-tab-menu > div:not(#extension-dashboard-trash):not(#extension-dashboard-tab-buttons-container)  */
@@ -242,9 +255,11 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	line-height: 3rem;
 }
 
-#extension-dashboard-tab-buttons-container > div:hover,
-#extension-dashboard-tab-menu > div:not(#extension-dashboard-tab-buttons-container):not(#extension-dashboard-add-widget-button):hover{
-	background-color:rgba(255,255,255,.7);
+/*
+#extension-dashboard-tab-menu > div:not(#extension-dashboard-tab-buttons-container):not(#extension-dashboard-add-widget-button):hover
+*/
+#extension-dashboard-tab-buttons-container > div:hover{
+	background-color:rgba(255,255,255,.5);
 }
 
 
@@ -276,10 +291,14 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	height:100%;
 	width:100%;
 	overflow:auto;
+	padding: .5rem;
+	box-sizing:border-box;
 }
 
 #extension-dashboard-tab-buttons-container{
-	background-color:none;
+	background-color:transparent;
+	height:9.6rem;
+	align-items:center;
 }
 /*
 #extension-dashboard-tab-buttons-container > div{
@@ -305,6 +324,12 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	min-height:150px;
 	background-color:#bdc8d2;
 	cursor:pointer;
+	transition: transform .2s ease-out;
+}
+
+.extension-dashboard-template-container:hover{
+	transform: translate(0, -10px);
+	transition: transform .2s ease-in;
 }
 
 #extension-dashboard-templates{
@@ -373,7 +398,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 .extension-dashboard-modal-thing-select,
 .extension-dashboard-modal-thing-selector-property-container > select,
 .extension-dashboard-modal-log-selector{
-	font-size: 1.4rem;
+	font-size: 1.6rem;
 	padding: 1rem;
 	max-width: 100%;
 	border-radius:.5rem;
@@ -382,6 +407,11 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 #extension-dashboard-widget-modal #extension-dashboard-widget-modal-save-button{
 	background-color: #378c19;
+	letter-spacing:0.7px;
+}
+
+#extension-dashboard-widget-modal-cancel-button{
+	letter-spacing:0.7px;
 }
 
 
@@ -404,6 +434,9 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	background-repeat:no-repeat;
 	transition: background .5s ease-in;
 	transition: all .3s ease-in;
+	border-radius:50%;
+	background-color: #7dafd2;
+	margin: 0 2rem;
 }
 .extension-dashboard-trash:hover{
 	background-position:center 70%;
@@ -458,7 +491,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	max-height:90vh;
 	max-width:90vw;
 	border:none;
-	background-color:#aaa;
+	background-color: #0d3b5c;
 }
 #extension-dashboard-widget-modal::backdrop{
 	background-color:rgba(0,0,0,.9);
@@ -474,6 +507,22 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	overflow:auto;
 	flex-grow:1;
 	box-sizing: border-box;
+}
+
+#extension-dashboard-widget-modal-ui-container,
+#extension-dashboard-widget-modal-title{
+	color:#eee;
+}
+#extension-dashboard-widget-modal-title{
+	font-weight:100;
+	letter-spacing: 1px;
+}
+
+#extension-dashboard-widget-modal-ui-container{
+	margin:1.5rem 0;
+	padding: 2rem;
+	background-color: rgba(255, 255, 255, .1);
+	border-radius: 1rem;
 }
 
 
@@ -493,11 +542,6 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 
 
-#extension-dashboard-widget-modal-ui-container{
-	border-left: 1px solid grey;
-	padding-left: 1rem;
-}
-
 #extension-dashboard-widget-modal-ui-container:empty{
 	display:none;
 }
@@ -507,15 +551,18 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 }
 
 .extension-dashboard-widget-ui h4{
-	margin-bottom:.3rem;
+	margin-bottom:.5rem;
 	text-transform: capitalize;
+	font-weight:100;
+	color: rgba(255, 255, 255, .8);
 }
 
 
 .extension-dashboard-widget-ui-rename-container input{
 	display:block;
-	padding: 1rem 1.5rem;
-	margin:1.5rem 0;
+	padding: 1rem;
+	margin-bottom:1.5rem;
+	background-color:white;
 }
 
 
@@ -527,8 +574,8 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	border:1px solid white;
 	padding:1rem;
 	border-radius:1rem;
-	margin:1rem 0 3rem 0;
-	background-color:rgba(0,0,0,.1);
+	margin:.5rem 0 3rem 0;
+	background-color:rgba(255,255,255,.5);
 }
 .extension-dashboard-widget-ui-icon-has-been-selected .extension-dashboard-widget-ui-icon-picker-container{
 	display:none;
@@ -537,6 +584,10 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 .extension-dashboard-widget-ui-icon-output-image{
 	width:100px;
 	cursor:pointer;
+}
+
+.extension-dashboard-widget-ui-icon-output-image:not([src]){
+	display:none;
 }
 
 .extension-dashboard-widget-ui-icon-picker-tags-button{
@@ -554,11 +605,11 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 .extension-dashboard-widget-ui-icon-picker-search{
 	padding:1rem;
-	font-size:120%;
+	font-size: 1.6rem;
 	min-width:250px;
-	margin-top:1rem;
-	border-radius:1rem;
+	border-radius:.5rem;
 	border:none;
+	background-color:white;
 }
 
 .extension-dashboard-widget-ui-icon-picker-folder-button{
@@ -567,13 +618,19 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	margin:0 .5rem .5rem 0;
 	font-size:90%;
 	border-radius:10px;
-	background-color:rgba(255,255,255,.2);
+	background-color:rgba(0,0,0,.4);
 	cursor:pointer;
 }
 
 .extension-dashboard-widget-ui-icon-picker-folder-button:hover{
-	background-color:rgba(255,255,255,.6);
+	background-color:rgba(0,0,0,.6);
 }
+
+.extension-dashboard-widget-ui-icon-picker-folders-container{
+	margin-top:1.5rem;
+}
+
+
 
 .extension-dashboard-widget-ui-icon-picker-images-container{
 	border:1px solid white;
@@ -608,8 +665,8 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	opacity:.6;
 	transition: all .3s ease-in;
     box-sizing: border-box;
-    border: 2rem solid transparent;
-	border-top: 4rem solid transparent;
+    border: 3rem solid transparent;
+	border-top: 5rem solid transparent;
 }
 
 #extension-dashboard-content .grid-stack-item[gs-w="2"][gs-h="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-thing-icon-container,
@@ -787,11 +844,17 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	width:56px;
 	height:56px;
 	background-image: url('../images/add_dashboard.svg');
-	background-size:70%;
-	background-repeat:no-repeat;
-	background-position:center;
+    background-size: 50%;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: .5rem;
+    margin-left: 1.5rem;
+    border-radius: 50%;
+    background-color: #7dafd2;
 }
-
+#extension-dashboard-add-dashboard-button:hover{
+	background-color:rgba(255,255,255,.5);
+}
 
 
 
@@ -1473,6 +1536,11 @@ body:not(.screensaver) .extension-dashboard-effect{
 	flex-grow:10!important;
 	display: flex;
 }
+
+.extension-dashboard-flex-grow100{
+	flex-grow:100!important;
+}
+
 
 .grid-stack-item[gs-h="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-thrit,
 .grid-stack-item[gs-h="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-thrit,
@@ -2241,8 +2309,8 @@ h1 {
     height: 10px;
     background-color: #ff574e;
     border-radius: 10px;
-    top: 2.5rem;
-    right: 20px;
+    top: 2rem;
+    right: 2rem;
     transition: 200ms;
 }
 
@@ -2593,6 +2661,13 @@ h1 {
 .extension-dashboard-widget-property-color .extension-dashboard-widget-color-needs-update{
 	position:absolute;
 	pointer-events:none;
+    border: none;
+    box-sizing: border-box;
+    padding: 0;
+    background-color: transparent;
+    border-radius: 20px;
+    height: 40px;
+    width: 40px;
 }
 
 #extension-dashboard-content .grid-stack-item:not([gs-w]):not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-title-container{
@@ -2832,8 +2907,8 @@ h1 {
 .extension-dashboard-widget-icon-play-button-container{
     display: inline-block;
     position: relative;
-    width: 50px;
-    height: 50px;
+    width: 45px;
+    height: 45px;
 	text-align:left;
 	border-radius: 20px;
 	padding: 1.5rem 1rem 1rem 1.5rem;
@@ -2842,8 +2917,8 @@ h1 {
 .extension-dashboard-widget-icon-play-button{
     display: inline-block;
     position: absolute;
-    width: 50px;
-    height: 50px;
+    width: 45px;
+    height: 45px;
     background: #fff;
     transition: clip-path .3s ease;
 	cursor:pointer;
@@ -2913,6 +2988,7 @@ h1 {
 	flex-grow:10;
 	text-align:center;
 	box-sizing:border-box;
+	height:100%;
 }
 
 #extension-dashboard-content input[type="range"] {
