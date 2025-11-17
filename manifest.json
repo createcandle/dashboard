@@ -28,12 +28,21 @@
   "name": "Dashboard",
   "options": {
     "default": {
+	  "Start with Dashboard": false,
 	  "Black and white": false,
 	  "Background color": "",
       "Debugging": false
     },
     "schema": {
       "properties": {
+  		"Start with Dashboard": {
+            "description": "Immediately show the dashboard instead of the things overview.",
+            "type": "boolean"
+        },
+  		"Hide animations": {
+            "description": "If you don't like things like rain animations in the weather widget, you can disable these flourishes here.",
+            "type": "boolean"
+        },
 		"Black and white": {
           "description": "Show everything in black and white.",
           "type": "boolean"
@@ -52,7 +61,7 @@
     }
   },
   "short_name": "Dashboard",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "web_accessible_resources": [
     "css/*.css",
 	"icons/*.svg",

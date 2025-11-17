@@ -89,6 +89,7 @@ class DashboardAPIHandler(APIHandler):
         self.seconds_offset_from_utc = -time.timezone
 
         self.animations = True
+        self.start_with_dashboard = False
         self.greyscale = False
         self.background_color = ""
         
@@ -234,6 +235,17 @@ class DashboardAPIHandler(APIHandler):
             if self.DEBUG:
                 print("-Debug preference was in config: " + str(self.DEBUG))
 
+        
+        if "Start with Dashboard" in config:
+            self.start_with_dashboard = bool(config["Start with Dashboard"]) # can be "cover", "contain" or "mix"
+            if self.DEBUG:
+                print("Start with Dashboard preference was in config: " + str(self.start_with_dashboard))
+                
+        if "Hide animations" in config:
+            self.animations = !bool(config["Hide animations"]) # can be "cover", "contain" or "mix"
+            if self.DEBUG:
+                print("Animations preference was in config: " + str(self.animations)
+
         if "Black and white" in config:
             self.greyscale = bool(config["Black and white"]) # can be "cover", "contain" or "mix"
             if self.DEBUG:
@@ -305,6 +317,7 @@ class DashboardAPIHandler(APIHandler):
                                                       'dashboards': self.persistent_data['dashboards'],
                                                       'icons': self.icons_data,
                                                       'animations': self.animations,
+                                                      'start_with_background':self.start_with_dashboard,
                                                       'greyscale': self.greyscale,
                                                       'background_color': self.background_color,
                                                       'debug': self.DEBUG
@@ -339,9 +352,9 @@ class DashboardAPIHandler(APIHandler):
                             # GET LOGS DATA
                             #
                             elif action == 'get_logs_data':
-                                print("GETTING LOG DATA")
+                                #print("GETTING LOG DATA")
                                 
-                                print("self.user_profile: ", self.user_profile)
+                                #print("self.user_profile: ", self.user_profile)
                                 
                                 state = False
                                 raw_boolean_log_data = ''
@@ -350,7 +363,7 @@ class DashboardAPIHandler(APIHandler):
                                 if 'log_ids' in request.body:
                                     try:
                                         log_ids = request.body['log_ids'];
-                                        print("log_ids: ", log_ids)
+                                        #print("log_ids: ", log_ids)
                                         
                                         if len(log_ids) and os.path.exists(self.logs_db_path):
                                             
@@ -362,38 +375,55 @@ class DashboardAPIHandler(APIHandler):
                                             
                                             epoch_time = int(time.time()) - (3600 * 24)
                                             epoch_time = epoch_time * 1000
-                                            print("get_log_data: log_ids: ", log_ids);
-                                            print("get_log_data: 24 hours ago milliseconds timestamp: ", epoch_time);
+                                            #print("get_log_data: log_ids: ", log_ids);
+                                            #print("get_log_data: 24 hours ago milliseconds timestamp: ", epoch_time);
                                             
                                             # WHERE ID IN (2, 3, 4, 7, 11, 34)
                                             # sqlite3 ~/.webthings/log/logs.sqlite3 'SELECT * FROM metricsNumber WHERE id == 13 AND date > 1762049555000';
                                             
                                             sqlite_binary_path = run_command('which sqlite3')
                                             sqlite_binary_path = sqlite_binary_path.rstrip()
-                                            print("SQLITE binary path: ", sqlite_binary_path)
+                                            #print("SQLITE binary path: ", sqlite_binary_path)
                                             
                                             boolean_command_to_run = sqlite_binary_path + " " + str(self.logs_db_path) + " 'SELECT * FROM metricsBoolean WHERE id IN (" + str(log_ids_string) + ") AND date > " + str(epoch_time) + "';"
-                                            print("get_log_data: SQLITE boolean_command to run: ", boolean_command_to_run)
+                                            #print("get_log_data: SQLITE boolean_command to run: ", boolean_command_to_run)
                                             raw_boolean_log_data = run_command(boolean_command_to_run)
                                             
-                                            print("raw_boolean_log_data: ", raw_boolean_log_data)
+                                            #print("raw_boolean_log_data: ", raw_boolean_log_data)
+                                            
+                                            if 'database is locked' in raw_boolean_log_data:
+                                                time.sleep(2)
+                                                raw_boolean_log_data = run_command(boolean_command_to_run)
+                                                
                                             
                                             numeric_command_to_run = sqlite_binary_path + " " + str(self.logs_db_path) + " 'SELECT * FROM metricsNumber WHERE id IN (" + str(log_ids_string) + ") AND date > " + str(epoch_time) + "';"
-                                            print("get_log_data: SQLITE numeric_command to run: ", numeric_command_to_run)
+                                            #print("get_log_data: SQLITE numeric_command to run: ", numeric_command_to_run)
                                             raw_numeric_log_data = run_command(numeric_command_to_run)
                                         
-                                            print("raw_numeric_log_data: ", raw_numeric_log_data)
+                                            #print("raw_numeric_log_data: ", raw_numeric_log_data)
+                                            
+                                            if 'database is locked' in raw_numeric_log_data:
+                                                time.sleep(2)
+                                                raw_numeric_log_data = run_command(numeric_command_to_run)
+                                            
+                                            if 'database is locked' in raw_boolean_log_data:
+                                                raw_boolean_log_data = ''
+                                                
+                                            if 'database is locked' in raw_numeric_log_data:
+                                                raw_numeric_log_data = ''
                                             
                                             #query_string = "SELECT * FROM metricsBoolean WHERE id IN (" + str(log_ids_string) + ") AND date > " + str(epoch_time) + ";"
                                             #raw_numeric_log_data = subprocess.check_output([str(sqlite_binary_path), str(self.logs_db_path), query_string])
                                         
                                         
                                             #print("raw_numeric_log_data: ", raw_numeric_log_data)
-                                        
-                                            state = True
+                                            
+                                            if raw_numeric_log_data != '' or raw_boolean_log_data != '': # better to return something if possible, so at least part of the logs show up
+                                                state = True
                                         
                                     except Exception as ex:
-                                        print("caught error getting data from sqlite: ", ex);
+                                        if self.DEBUG:
+                                            print("caught error getting log data from sqlite: ", ex);
 
                                    
                                 
@@ -412,7 +442,8 @@ class DashboardAPIHandler(APIHandler):
                             
                                 
                             else:
-                                print("unsupported action: " + str(action))
+                                if self.DEBUG:
+                                    print("unsupported action: " + str(action))
                                 return APIResponse(status=500)
                                 
                             
