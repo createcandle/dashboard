@@ -242,9 +242,9 @@ class DashboardAPIHandler(APIHandler):
                 print("Start with Dashboard preference was in config: " + str(self.start_with_dashboard))
                 
         if "Hide animations" in config:
-            self.animations = !bool(config["Hide animations"]) # can be "cover", "contain" or "mix"
+            self.animations = not bool(config["Hide animations"]) # can be "cover", "contain" or "mix"
             if self.DEBUG:
-                print("Animations preference was in config: " + str(self.animations)
+                print("Animations preference was in config: " + str(self.animations))
 
         if "Black and white" in config:
             self.greyscale = bool(config["Black and white"]) # can be "cover", "contain" or "mix"
