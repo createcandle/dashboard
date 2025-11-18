@@ -29,6 +29,7 @@
   "options": {
     "default": {
 	  "Start with Dashboard": false,
+	  "Hide animations": false,
 	  "Black and white": false,
 	  "Background color": "",
       "Debugging": false
@@ -61,7 +62,7 @@
     }
   },
   "short_name": "Dashboard",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "web_accessible_resources": [
     "css/*.css",
 	"icons/*.svg",

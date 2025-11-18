@@ -2374,7 +2374,7 @@ h1 {
     position: absolute;
     width: 10px;
     height: 10px;
-    background-color: #ff574e;
+    background-color: #fa7204;
     border-radius: 10px;
     top: 2rem;
     right: 2rem;
@@ -4522,7 +4522,7 @@ body:not(.developer) .extension-dashboard-widget-dial-name-container{
 	height:100%;
 }
 
-.extension-dashboard-widget-title-container{
+.extension-dashboard-widget-absolute-title-container{
 	padding:1.5rem;
 	position:absolute;
 	font-weight:100;
