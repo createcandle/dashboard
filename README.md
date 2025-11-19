@@ -20,3 +20,6 @@ https://gist.github.com/Dither/d2801f7b22d5602fff38821c2177e301
 
 Drifting clouds
 https://codepen.io/Blando/pen/xGdLgQ
+
+Clock
+https://codepen.io/nilsynils/pen/EZzyVB
