@@ -1,0 +1,25 @@
+
+/*
+.extension-dashboard-template *,
+*/
+.extension-dashboard-widget-thermostat-setpoint-buttons > div,
+.grid-stack>.grid-stack-item>.grid-stack-item-content{
+	box-shadow: inset 40px 40px 90px rgba(0, 0, 0, .2), inset 10px 10px 30px rgba(0, 0, 0, .5), 20px 20px 30px rgba(0, 0, 0, .4), 40px 40px 60px rgba(0, 0, 0, .4);
+}
+
+#extension-dashboard-content{
+	color: #bababa;
+	letter-spacing: .5px;
+}
+
+.grid-stack>.grid-stack-item>.grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button){
+	background-color:transparent;
+}
+
+.extension-dashboard-widget-property-switch label,
+.extension-dashboard-widget-property-switch label::before,
+.extension-dashboard-widget-thermostat-setpoint-buttons > div{
+	background-color:transparent;
+}
+
+

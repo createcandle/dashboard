@@ -1,12 +1,25 @@
+
+/*
 #extension-dashboard-view .clicked{
 	border-left:10px solid white;
 	background-color:rgba(255,255,255,.1);
 }
 
+
 #extension-dashboard-overview{
 	margin-top:6rem;
-    /*max-width: calc(100% - 2rem);*/
 }
+*/
+
+#extension-dashboard-view input:not([type]), 
+#extension-dashboard-view input[type=''], 
+#extension-dashboard-view input[type='number'], 
+#extension-dashboard-view input[type='text']{
+	height:auto;
+	margin:0;
+}
+
+
 
 #extension-dashboard-main-page{
 	width:100vw;
@@ -22,14 +35,14 @@
 	align-items: flex-end;
 }
 
-body.screensaver #extension-dashboard-main-page{
-	z-index:3;
-}
+
+
 
 
 
 /*  Candle theme zoom support/fix  */
 
+/*
 .zoom1 .extension-dashboard-picture{
     zoom:.84;
 }
@@ -40,6 +53,7 @@ body.screensaver #extension-dashboard-main-page{
     zoom:.63;
 }
 
+
 .zoom1 #extension-dashboard-date-container{
     font-size:2.5rem;
 }
@@ -49,6 +63,9 @@ body.screensaver #extension-dashboard-main-page{
 .zoom3 #extension-dashboard-date-container{
     font-size:3rem;
 }
+*/
+
+
 
 .extension-dashboard-flex {
     display: flex;
@@ -216,6 +233,7 @@ body.screensaver #extension-dashboard-main-page{
 	font-size: 1.6rem;
 	color: #555;
 	height:auto;
+	letter-spacing: .5px;
 }
 
 
@@ -266,7 +284,6 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 #extension-dashboard-tab-menu.extension-dashboard-wide-menu{
 	padding-left:1.5rem;
 	padding-right:1.5rem;
-	background-color:rgba(0,0,0,.1);
 }
 
 .extension-dashboard-editing #extension-dashboard-tab-menu{
@@ -315,14 +332,14 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 #extension-dashboard-tab-menu > div:not(#extension-dashboard-tab-buttons-container):not(#extension-dashboard-add-widget-button):hover
 */
 #extension-dashboard-tab-buttons-container > div:hover{
-	background-color:rgba(255,255,255,.5);
+	background-color:#7dafd2;
 	color:white;
 }
 
 
 .extension-dashboard-tab-button{
 	margin: .5rem;
-	background-color:rgba(255,255,255,.02);
+	background-color:rgba(0,0,0,.05);
 	white-space:nowrap;
 	/*
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.12);
@@ -339,7 +356,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 .extension-dashboard-tab-button-selected{
 	color:#eee;
 	/*border-bottom:1px solid white;*/
-	background-color:rgba(255,255,255,.25);
+	background-color:rgba(0,0,0,.25);
 	/*
 	box-shadow:  -9px -9px 18px #0b324e,
 	             9px 9px 18px #0f446a;
@@ -409,7 +426,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 
 .extension-dashboard-template-container{
-	border-radius:1rem;
+	border-radius:2.5rem;
 	margin:1rem;
 	min-width:150px;
 	min-height:150px;
@@ -788,10 +805,10 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	border-top: 5rem solid transparent;
 }
 
-#extension-dashboard-content .grid-stack-item[gs-w="2"][gs-h="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-thing-icon-container,
-#extension-dashboard-content .grid-stack-item[gs-w="3"][gs-h="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-thing-icon-container,
-#extension-dashboard-content .grid-stack-item[gs-w="2"][gs-h="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-thing-icon-container,
-#extension-dashboard-content .grid-stack-item[gs-w="3"][gs-h="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-thing-icon-container{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"][gs-h="2"] .extension-dashboard-widget-thing-icon-container,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="2"] .extension-dashboard-widget-thing-icon-container,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"][gs-h="3"] .extension-dashboard-widget-thing-icon-container,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="3"] .extension-dashboard-widget-thing-icon-container{
     /*border: 4rem solid transparent;*/
 	border: 8rem solid transparent;
 }
@@ -804,9 +821,125 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 
 
+/*   SQUARE BOX   */
+
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]) .extension-dashboard-style-square-outer{
+	width:calc(50% - 3rem);
+	padding-bottom:calc(50% - 3rem);
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-style-square-outer,
+.extension-dashboard-style-square-outer{
+	width:100%;
+	padding-bottom:100%;
+	position: relative;
+}
+.extension-dashboard-style-square-inner{
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
 
 
 
+
+
+/*
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h])  .extension-dashboard-style-square-outer{
+	
+}
+*/
+
+
+/*  BASIC STYLES  */
+
+.extension-dashboard-widget-style-round{
+	border-radius:50%!important;
+}
+.extension-dashboard-widget-style-overflow-hidden{
+	overflow:hidden;
+}
+
+.extension-dashboard-style-cursor-pointer{
+	cursor:pointer;
+}
+
+
+.extension-dashboard-style-padding,
+.extension-dashboard-style-thick-padding{
+	padding:1.5rem;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-style-padding,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-style-thick-padding{
+	padding:1rem;
+}
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-style-thick-padding{
+	padding:3rem;
+}
+
+.extension-dashboard-style-rounded{
+	border-radius:1rem;
+}
+
+.extension-dashboard-style-switch{
+	background-color:#7dafd2;
+	cursor:pointer;
+}
+.extension-dashboard-style-button{
+	padding:1rem 1.5rem;
+	border-radius:1rem;
+	background-color:#7dafd2;
+	color:white;
+	cursor:pointer;
+}
+.extension-dashboard-style-button:hover{
+	background-color:rgba(0,0,0,.3)!important;
+}
+span.extension-dashboard-style-button{
+	display:inline-block;
+}
+.extension-dashboard-style-hover-bg-button{
+	cursor:pointer;
+}
+.extension-dashboard-style-button:hover,
+.extension-dashboard-style-hover-bg-button:hover{
+	background-color:#7dafd2!important;
+}
+
+.extension-dashboard-style-hover-bg-darker:hover{
+	background-color:rgba(0,0,0,.3)!important;
+}
+
+.extension-dashboard-style-invisible-overlay{
+	position:absolute;
+	width:100%;
+	height:100%;
+	z-index:5;
+}
+
+
+
+/*   CHECKBOX CONTENT TOGGLE   */
+
+input[type="checkbox"]:not(:checked) + label .extension-dashboard-widget-checkbox-toggle-checked-content-color-white{
+	color:#eee;
+}
+/*
+input[type="checkbox"]:not(:checked) + label::before {
+    content: "";
+}
+*/
+
+input[type="checkbox"]:not(:checked) + label .extension-dashboard-widget-checkbox-toggle-checked-content,
+input[type="checkbox"]:checked + label .extension-dashboard-widget-checkbox-toggle-unchecked-content,
+input[type="checkbox"]:checked ~ .extension-dashboard-widget-checkbox-toggle-unchecked-content,
+input[type="checkbox"]:not(:checked) ~ .extension-dashboard-widget-checkbox-toggle-checked-content{
+	display:none!important;
+}
 
 
 
@@ -843,7 +976,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	color:white;
 }
 
-.grid-stack-item[gs-w="2"][gs-h="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-clock-time{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"][gs-h="2"] .extension-dashboard-widget-clock-time{
 	font-size:8rem;
 }
 
@@ -853,10 +986,10 @@ body:not(.developer) .extension-dashboard-show-if-developer,
     font-size:2rem;
 }
 
-.grid-stack-item[gs-w="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-clock-date-day{
-	font-size:3rem;
-}
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"] .extension-dashboard-widget-clock-date-day{
+	font-size:2rem;
 
+}
 
 .extension-dashboard-widget-clock-date-container{
     display:flex;
@@ -866,94 +999,6 @@ body:not(.developer) .extension-dashboard-show-if-developer,
     
 }
 
-
-
-
-
-
-
-
-
-
-/*  WEATHER  */
-
-/*
-#extension-dashboard-weather-container{
-    padding-top:2rem;
-    display:flex;
-    flex-direction:column;
-    position: fixed;
-    left: 2rem;
-    bottom: 2rem;
-	animation-name: extension-dashboard-weather-burnin-prevention;
-	animation-duration: 3600s;
-	animation-iteration-count: infinite;
-	animation-timing-function: linear;
-}
-@keyframes extension-dashboard-weather-burnin-prevention {
-  0%    {bottom: 2rem; left: 2rem}
-  25%   {bottom: 2rem; left: 2.5rem;}
-  50%   {bottom: 2.5rem; left: 2.5rem;}
-  75%   {bottom: 2.5rem; left: 2rem;}
-  100%  {bottom: 2rem; left: 2rem;}
-}
-
-
-#extension-dashboard-weather-temperature{
-    background-image: url('../images/temperature-icon.svg');
-    background-position: left 65%;
-    background-size: 3rem;
-    background-repeat:no-repeat;
-    padding-left:3.8rem;
-    font-size:5rem;
-    font-weight:bold;
-}
-*/
-
-
-/*  fade in animation  */
-
-/*
-#extension-dashboard-clock.extension-dashboard-show,
-#extension-dashboard-date.extension-dashboard-show {
-  display: block;
-  animation: extension-dashboard-fade-in 2s;
-}
-
-@keyframes extension-dashboard-fade-in {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
-*/
-
-
-
-/*   OVERLAY BUTTONS  */
-
-
-
-
-/*  NEXT BUTTON  */
-/*
-#extension-dashboard-next-dashboard-button-container{
-    position: fixed;
-    bottom: 9.6rem;
-    right: 0rem;
-    width:7.6rem;
-    height:7.6rem;
-}
-#extension-dashboard-next-dashboard-button{
-    width:5.6rem;
-    height:5.6rem;
-    background: rgba(255,255,255,.15) no-repeat center/30% url(/images/right-arrow.png);
-    cursor:pointer;
-	margin-top:2rem;
-	cursor:pointer;
-}
-#extension-dashboard-next-dashboard-button:hover{
-	background-color:rgba(255,255,255,.5);
-}
-*/
 
 
 
@@ -993,9 +1038,6 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 }
 .extension-dashboard-editing #extension-dashboard-edit-button{
 	background: no-repeat center/100% url(/images/done.svg);
-}
-#extension-dashboard-edit-button:hover{
-	background-color:rgba(255,255,255,.4);
 }
 
 
@@ -1055,11 +1097,11 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 /*  CUPS PRINTING BUTTON */
 
+
+
 #extension-dashboard-print-button-container{
 	display:none;
     position: fixed;
-    /*bottom: 0rem;
-    right: 9.6rem;*/
 	right:2rem;
 	bottom:23rem;
     height:7.6rem;
@@ -1601,11 +1643,11 @@ body:not(.screensaver) .extension-dashboard-effect{
 	transition: left 0s,top 0s,height 0s,width 0s
 }
 
-.grid-stack>.grid-stack-item[gs-y="0"] {
+.grid-stack>.grid-stack-item:not(.grid-stack-sub-grid)[gs-y="0"] {
 	top: 0
 }
 
-.grid-stack>.grid-stack-item[gs-x="0"] {
+.grid-stack>.grid-stack-item:not(.grid-stack-sub-grid)[gs-x="0"] {
 	left: 0
 }
 
@@ -1621,305 +1663,98 @@ body:not(.screensaver) .extension-dashboard-effect{
 .extension-dashboard-widget-split > div,
 .extension-dashboard-widget-thrit > div{
 	min-width:100px;
-	min-height:70px;
-	flex-grow:1;
+	min-height:40px;
 	box-sizing:border-box;
 }
-.grid-stack-item[gs-h="2"] .extension-dashboard-widget-split > div,
-.grid-stack-item[gs-h="2"] .extension-dashboard-widget-thrit > div{
+/*
+.extension-dashboard-widget-split > div{
 	flex-grow:1;
 }
 
-.grid-stack-item[gs-w="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-weather-description-container{
-	padding:1rem 0 0 2rem;
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"] .extension-dashboard-widget-split > div,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"] .extension-dashboard-widget-thrit > div{
+	flex-grow:1;
+}
+*/
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"] .extension-dashboard-widget-weather-description-container{
+	padding:1.5rem;
 	justify-content:center;
 }
 
-.grid-stack-item[gs-w="2"]:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-split > div{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h]) .extension-dashboard-widget-split > div{
 	width:50%;
 	/*height:100%;*/
 }
 
 /*
-.grid-stack-item[gs-w="3"]:not([gs-h="2"]) .extension-dashboard-widget-thrit{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h="2"]) .extension-dashboard-widget-thrit{
 	
 }
 
-.grid-stack-item[gs-w="3"]:not([gs-h="2"]) .extension-dashboard-widget-thrit > div,
-.grid-stack-item[gs-w="3"]:not([gs-h="3"]) .extension-dashboard-widget-thrit > div{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h="2"]) .extension-dashboard-widget-thrit > div,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h="3"]) .extension-dashboard-widget-thrit > div{
 	width:33.3%;
 	height:100%;
 }
 */
 
-.extension-dashboard-flex-grow{
-	flex-grow:1;
-}
-.extension-dashboard-flex-grow10{
-	flex-grow:10!important;
-	display: flex;
-}
 
-.extension-dashboard-flex-grow100{
-	flex-grow:100!important;
+
+
+.extension-dashboard-widget-value-subtext{
+	font-size:80%;
+	margin-bottom:2rem;
 }
 
 
-.grid-stack-item[gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-thrit{
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-thrit{
 	height:100%;
 	flex-direction:column;
 }
 
-.grid-stack-item[gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-thrit > div{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-thrit > div{
 	width:100%;
-	height:25%;
-	flex-grow:1;
+	flex-basis:20%;
 }
 
-.grid-stack-item[gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-thrit > div.extension-dashboard-widget-volume-container{
-	flex-grow:10;
-}
 
-.grid-stack-item[gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-split-compact{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-split-compact{
 	height:100%;
 	flex-direction:column;
 }
 
-.grid-stack-item[gs-h="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-split,
-.grid-stack-item[gs-h="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-split,
-.grid-stack-item[gs-h="4"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-split{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"] .extension-dashboard-widget-split,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"] .extension-dashboard-widget-split,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="4"] .extension-dashboard-widget-split{
 	flex-direction:column;
 	height:100%;
 	flex-wrap:initial;
 }
 
-.grid-stack-item:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-split-compact{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]) .extension-dashboard-widget-split-compact{
 	width:100%;
 	height:100%;
 }
 
-.grid-stack-item:not([gs-h="2"]):not(.grid-stack-sub-grid) .extension-dashboard-widget-split-compact > div{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h="2"]) .extension-dashboard-widget-split-compact > div{
 	/*height:50%;*/
 	min-height:1px;
 }
-.grid-stack-item:not([gs-h="2"]):not([gs-w="3"]):not(.grid-stack-sub-grid) .extension-dashboard-widget-split-compact > div{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h="2"]):not([gs-w="3"]) .extension-dashboard-widget-split-compact > div{
 	width:100%;
 }
 
-.grid-stack-item:not([gs-w="3"]):not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-weather p{
-	display:none;
-}
-
-.grid-stack-item:not([gs-w]):not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-weather .extension-dashboard-widget-split{
-	width:100%;
-}
-
-.grid-stack-item:not([gs-w]):not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-weather .extension-dashboard-widget-split > div{
-	flex-grow:1;
-}
-
-.grid-stack-item:not([gs-w]):not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact{
-	width:100%;
-}
-
-.grid-stack-item:not([gs-w]):not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact > div{
-	width:50%;
-}
-
-
-#extension-dashboard-templates .extension-dashboard-widget-weather,
-.grid-stack-item[gs-w][gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-weather{
-	background-image: url('../images/weather_landscape.svg');
-	background-repeat:no-repeat;
-	background-size:cover;
-	background-position: center bottom;
-	color:#bbb;
-}
-.grid-stack-item[gs-w][gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-weather{
-	transition: background 10s ease-in-out;
-}
-
-
-.grid-stack-item[gs-w][gs-h="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-weather{
-	background-position: center 85%;
-}
-
-.extension-dashboard-night .grid-stack-item[gs-w][gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-weather{
-	background-position: center 0%;
-}
-
-.grid-stack-item[gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact > div{
-	flex-direction:column;
-}
-
-.grid-stack-item[gs-h="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-weather .extension-dashboard-widget-split{
-	padding-bottom: 7rem;
-	padding-top: 3rem;
-}
-.grid-stack-item[gs-h="4"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-weather .extension-dashboard-widget-split{
-	padding-bottom: 14rem;
-	padding-top: 6rem;
-}
-
-.extension-dashboard-widget-weather strong{
-	margin:0 1rem;
-}
-
-.grid-stack-item[gs-w]:not(.grid-stack-sub-grid) .extension-dashboard-widget-weather .extension-dashboard-widget-weather_description-needs-update{
-	font-size:3rem;
-}
-
-
-body.developer .extension-dashboard-widget-weather_description-needs-update:empty::after{
-	content:'Weather';
-}
-
-
-
-.extension-dashboard-widget-temperature-value-container,
-.grid-stack-item[gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact > div strong{
-	font-size:200%;
-	color:white;
-}
-.grid-stack-item[gs-w="2"]:not([gs-h="2"]):not(.grid-stack-sub-grid) .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact > div strong.extension-dashboard-widget-temperature-value-container,
-.grid-stack-item[gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact > div strong.extension-dashboard-widget-temperature-value-container{
-	font-size:300%;
-}
-.grid-stack-item[gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact > div strong.extension-dashboard-widget-temperature-value-container{
-	font-size: 400%;
-}
-
-.grid-stack-item[gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact > div p{
-	margin-top:.5rem;
-}
-
-
-
-
-
-.grid-stack-item[gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-media-player{
-	display:flex;
-	flex-direction:column;
-}
-
-.grid-stack-item[gs-w="2"]:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-media-player .extension-dashboard-widget-thrit{
-	display:flex;
-	flex-direction:column;
-}
-
-.grid-stack-item[gs-h="2"]:not([gs-h="3"]):not([gs-w]) .extension-dashboard-widget-media-player-artist-container,
-.grid-stack-item[gs-w="3"]:not([gs-h]) .extension-dashboard-widget-media-player-artist-container,
-.grid-stack-item:not([gs-h]):not([gs-w="3"]) .extension-dashboard-widget-media-player-artist-container{
-	display:none;
-}
 
 
 
 
 
 
-.extension-dashboard-widget-media-player p{
-	margin: 0.5rem 0;
-	padding-right:1rem;
-}
 
-.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w="2"]):not([gs-h="2"]) .extension-dashboard-widget-media-player .extension-dashboard-widget-icon-disc{
-	width:40px;
-	height:40px;
-}
+/*    MORE GRIDSTACK    */
 
-.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]) .extension-dashboard-widget-media-player .extension-dashboard-widget-icon-disc{
-	display:none;
-}
-.grid-stack-item[gs-w="2"]:not(.grid-stack-sub-grid):not([gs-h="2"]) .extension-dashboard-widget-media-player-artist{
-	padding-left:1rem;
-}
-
-
-.extension-dashboard-widget-media-player-artist{
-	color:#333;
-}
-
-.grid-stack-item[gs-w="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-media-player-artist{
-	padding-right:1rem;
-	flex-grow:1;
-}
-
-.grid-stack-item[gs-w="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-icon-disc{
-	margin-left: 2.5rem;
-}
-
-
-
-
-
-
-/*
-.grid-stack-item:not([gs-w]):not([gs-h]) .grid-stack-item-content{
-	background-color:green;
-	border:1px solid green;
-}
-*/
-
-
-
-
-
-/* Optional styles for demos 
-.btn-primary {
-  color: #fff;
-  background-color: #007bff;
-}
-
-.btn {
-  display: inline-block;
-  padding: .375rem .75rem;
-  line-height: 1.5;
-  border-radius: .25rem;
-}
-
-a {
-  text-decoration: none;
-}
-
-h1 {
-  font-size: 2.5rem;
-  margin-bottom: .5rem;
-}
-
-
-
-.sidebar {
-  background: rgb(215, 243, 215);
-  padding: 25px 0;
-  height: 100px;
-  text-align: center;
-}
-.sidebar > .grid-stack-item,
-.sidebar-item {
-  width: 100px;
-  height: 50px;
-  border: 2px dashed green;
-  text-align: center;
-  line-height: 35px;
-  background: rgb(192, 231, 192);
-  cursor: default;
-  display: inline-block;
-}
-*/
-/*
-.grid-stack {
-  background: #f6f8fa;
-}
-*/
-
-/*
-.sidebar > .grid-stack-item,
-.grid-stack-item-content {
-	background-color: rgba(255,255,255,.6);
-	box-shadow: .6em 1em 10px rgba(0, 0, 0, .15), inset -.6em -1em 10px rgba(255, 255, 255, .1);
-}
-*/
 
 .grid-stack-item-content{
 	max-width:100%;
@@ -1931,80 +1766,21 @@ h1 {
 	overflow:hidden;
 }
 
-/*
-.card-header {
-  margin: 0;
-  cursor: move;
-  min-height: 25px;
-  background-color: #16af91;
-}
-.card-header:hover {
-  background-color: #149b80;
-}
-*/
-
-/*
-.ui-draggable-disabled.ui-resizable-disabled > .grid-stack-item-content {
-  background-color: #777;
-}
-*/
 
 .grid-stack-item-removing {
-  opacity: 0.5;
+	opacity: 0.5;
 }
-/*
-.trash {
-  height: 100px;
-  background: rgba(255, 0, 0, 0.1) center center url(data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjY0cHgiIGhlaWdodD0iNjRweCIgdmlld0JveD0iMCAwIDQzOC41MjkgNDM4LjUyOSIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNDM4LjUyOSA0MzguNTI5OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxnPgoJPGc+CgkJPHBhdGggZD0iTTQxNy42ODksNzUuNjU0Yy0xLjcxMS0xLjcwOS0zLjkwMS0yLjU2OC02LjU2My0yLjU2OGgtODguMjI0TDMwMi45MTcsMjUuNDFjLTIuODU0LTcuMDQ0LTcuOTk0LTEzLjA0LTE1LjQxMy0xNy45ODkgICAgQzI4MC4wNzgsMi40NzMsMjcyLjU1NiwwLDI2NC45NDUsMGgtOTEuMzYzYy03LjYxMSwwLTE1LjEzMSwyLjQ3My0yMi41NTQsNy40MjFjLTcuNDI0LDQuOTQ5LTEyLjU2MywxMC45NDQtMTUuNDE5LDE3Ljk4OSAgICBsLTE5Ljk4NSw0Ny42NzZoLTg4LjIyYy0yLjY2NywwLTQuODUzLDAuODU5LTYuNTY3LDIuNTY4Yy0xLjcwOSwxLjcxMy0yLjU2OCwzLjkwMy0yLjU2OCw2LjU2N3YxOC4yNzQgICAgYzAsMi42NjQsMC44NTUsNC44NTQsMi41NjgsNi41NjRjMS43MTQsMS43MTIsMy45MDQsMi41NjgsNi41NjcsMi41NjhoMjcuNDA2djI3MS44YzAsMTUuODAzLDQuNDczLDI5LjI2NiwxMy40MTgsNDAuMzk4ICAgIGM4Ljk0NywxMS4xMzksMTkuNzAxLDE2LjcwMywzMi4yNjQsMTYuNzAzaDIzNy41NDJjMTIuNTY2LDAsMjMuMzE5LTUuNzU2LDMyLjI2NS0xNy4yNjhjOC45NDUtMTEuNTIsMTMuNDE1LTI1LjE3NCwxMy40MTUtNDAuOTcxICAgIFYxMDkuNjI3aDI3LjQxMWMyLjY2MiwwLDQuODUzLTAuODU2LDYuNTYzLTIuNTY4YzEuNzA4LTEuNzA5LDIuNTctMy45LDIuNTctNi41NjRWODIuMjIxICAgIEM0MjAuMjYsNzkuNTU3LDQxOS4zOTcsNzcuMzY3LDQxNy42ODksNzUuNjU0eiBNMTY5LjMwMSwzOS42NzhjMS4zMzEtMS43MTIsMi45NS0yLjc2Miw0Ljg1My0zLjE0aDkwLjUwNCAgICBjMS45MDMsMC4zODEsMy41MjUsMS40Myw0Ljg1NCwzLjE0bDEzLjcwOSwzMy40MDRIMTU1LjMxMUwxNjkuMzAxLDM5LjY3OHogTTM0Ny4xNzMsMzgwLjI5MWMwLDQuMTg2LTAuNjY0LDguMDQyLTEuOTk5LDExLjU2MSAgICBjLTEuMzM0LDMuNTE4LTIuNzE3LDYuMDg4LTQuMTQxLDcuNzA2Yy0xLjQzMSwxLjYyMi0yLjQyMywyLjQyNy0yLjk5OCwyLjQyN0gxMDAuNDkzYy0wLjU3MSwwLTEuNTY1LTAuODA1LTIuOTk2LTIuNDI3ICAgIGMtMS40MjktMS42MTgtMi44MS00LjE4OC00LjE0My03LjcwNmMtMS4zMzEtMy41MTktMS45OTctNy4zNzktMS45OTctMTEuNTYxVjEwOS42MjdoMjU1LjgxNVYzODAuMjkxeiIgZmlsbD0iI2ZmOWNhZSIvPgoJCTxwYXRoIGQ9Ik0xMzcuMDQsMzQ3LjE3MmgxOC4yNzFjMi42NjcsMCw0Ljg1OC0wLjg1NSw2LjU2Ny0yLjU2N2MxLjcwOS0xLjcxOCwyLjU2OC0zLjkwMSwyLjU2OC02LjU3VjE3My41ODEgICAgYzAtMi42NjMtMC44NTktNC44NTMtMi41NjgtNi41NjdjLTEuNzE0LTEuNzA5LTMuODk5LTIuNTY1LTYuNTY3LTIuNTY1SDEzNy4wNGMtMi42NjcsMC00Ljg1NCwwLjg1NS02LjU2NywyLjU2NSAgICBjLTEuNzExLDEuNzE0LTIuNTY4LDMuOTA0LTIuNTY4LDYuNTY3djE2NC40NTRjMCwyLjY2OSwwLjg1NCw0Ljg1MywyLjU2OCw2LjU3QzEzMi4xODYsMzQ2LjMxNiwxMzQuMzczLDM0Ny4xNzIsMTM3LjA0LDM0Ny4xNzJ6IiBmaWxsPSIjZmY5Y2FlIi8+CgkJPHBhdGggZD0iTTIxMC4xMjksMzQ3LjE3MmgxOC4yNzFjMi42NjYsMCw0Ljg1Ni0wLjg1NSw2LjU2NC0yLjU2N2MxLjcxOC0xLjcxOCwyLjU2OS0zLjkwMSwyLjU2OS02LjU3VjE3My41ODEgICAgYzAtMi42NjMtMC44NTItNC44NTMtMi41NjktNi41NjdjLTEuNzA4LTEuNzA5LTMuODk4LTIuNTY1LTYuNTY0LTIuNTY1aC0xOC4yNzFjLTIuNjY0LDAtNC44NTQsMC44NTUtNi41NjcsMi41NjUgICAgYy0xLjcxNCwxLjcxNC0yLjU2OCwzLjkwNC0yLjU2OCw2LjU2N3YxNjQuNDU0YzAsMi42NjksMC44NTQsNC44NTMsMi41NjgsNi41N0MyMDUuMjc0LDM0Ni4zMTYsMjA3LjQ2NSwzNDcuMTcyLDIxMC4xMjksMzQ3LjE3MnogICAgIiBmaWxsPSIjZmY5Y2FlIi8+CgkJPHBhdGggZD0iTTI4My4yMiwzNDcuMTcyaDE4LjI2OGMyLjY2OSwwLDQuODU5LTAuODU1LDYuNTctMi41NjdjMS43MTEtMS43MTgsMi41NjItMy45MDEsMi41NjItNi41N1YxNzMuNTgxICAgIGMwLTIuNjYzLTAuODUyLTQuODUzLTIuNTYyLTYuNTY3Yy0xLjcxMS0xLjcwOS0zLjkwMS0yLjU2NS02LjU3LTIuNTY1SDI4My4yMmMtMi42NywwLTQuODUzLDAuODU1LTYuNTcxLDIuNTY1ICAgIGMtMS43MTEsMS43MTQtMi41NjYsMy45MDQtMi41NjYsNi41Njd2MTY0LjQ1NGMwLDIuNjY5LDAuODU1LDQuODUzLDIuNTY2LDYuNTdDMjc4LjM2NywzNDYuMzE2LDI4MC41NSwzNDcuMTcyLDI4My4yMiwzNDcuMTcyeiIgZmlsbD0iI2ZmOWNhZSIvPgoJPC9nPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+Cjwvc3ZnPgo=) no-repeat;
-}
-*/
 
-/* make nested grid have slightly darker bg take almost all space (need some to tell them apart) so items inside can have similar to external size+margin */
 .grid-stack > .grid-stack-item.grid-stack-sub-grid > .grid-stack-item-content {
-  background: rgba(0,0,0,0.1);
-  inset: 0 2px;
+	background: rgba(0,0,0,0.1);
+	inset: 0 2px;
 }
 
-/*
-.grid-stack-item-content::before{
-	content:url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
-    position:absolute;
-    width:100%;
-    left: 0;
-	top: 0;
-  	background-color:red;
-}
-*/
 
 .grid-stack.grid-stack-nested {
-  background: none;
-  inset: 0;
+	background: none;
+	inset: 0;
 }
-
-.grid-stack.show-dimensions .grid-stack-item:after {
-   content: '1x1';
-   position: absolute;
-   top: 50%;
-   left: 50%;
-   transform: translate(-50%, -50%);
-   padding: 2px;
-   color: black;
-   background-color: white;
-   pointer-events: none; /* to not interfere with dragging the item */
-}
-
-.grid-stack.show-dimensions .grid-stack-item[gs-h]::after {
-   content: '1x' attr(gs-h);
-}
-
-.grid-stack.show-dimensions .grid-stack-item[gs-w]::after {
-   content: attr(gs-w) 'x1';
-}
-
-.grid-stack.show-dimensions .grid-stack-item[gs-h][gs-w]::after {
-   content: attr(gs-w) 'x' attr(gs-h);
-}
-
 
 
 
@@ -2042,26 +1818,10 @@ h1 {
 	margin-bottom:1rem;
     position:relative;
 }
-/*
-.extension-dashboard-printer-available .extension-dashboard-list-item{
-    margin-bottom:4rem;
-}
-*/
 
 .extension-dashboard-list-item > span{
 	word-wrap: break-word;
 }
-
-
-
-/*  ADD RANDOM PHOTO BUTTON  */
-/*
-#extension-dashboard-add-random-photo-button{
-	display:block;
-	margin-top:2rem;
-	margin-left:auto;
-}
-*/
 
 
 
@@ -2202,38 +1962,16 @@ h1 {
 
 @media screen and (max-width: 640px) {
 
-    #extension-dashboard-photos-list{
-        padding:2rem 0;
-		background:none;
-    }
-    .extension-dashboard-list-item,
-	.extension-dashboard-list-thumbnail-container{
-    	width:13rem;
-    }
-	
+	/*
     #extension-dashboard-view li{
         margin:.5rem;
     }
+	*/
 }
 
 
 @media screen and (min-width: 801px) {
-	#extension-dashboard-view-picture-holder{
-		position:absolute;
-		left:0;
-		top: 0;
-		height:100vh; 
-		width:100vw;
-		animation: extensionDashboardWidgetWeatherBGslide 20s linear infinite;
-	}
-	
 	/*
-	#extension-dashboard-content{
-		left:9.6rem;
-		top:0;
-	}
-	*/
-	
 	#extension-dashboard-view{
 		top:0;
 		left:9.6rem;
@@ -2248,24 +1986,16 @@ h1 {
 		width: calc(100% - 19.8rem);
         margin-left:9.6rem;
 	}
-	
+	*/
 	/*
 	.extension-dashboard-tab{
 		width: calc(100% - 12rem);
 	}
-	*/
+	
 	body:not(.kiosk) #extension-dashboard-dropzone {
 		display:flex;
 	}
-	
-	.extension-dashboard-inline{
-		display:inline-block;
-	}
-	
-	#extension-dashboard-response{
-		width: calc(100% - 22rem);
-	}
-	
+	*/
 	
 	#extension-dashboard-widget-modal{
 		padding:1rem 2rem;
@@ -2290,52 +2020,6 @@ h1 {
 
 
 
-
-
-
-
-.extension-dashboard-widget-property-switch {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    width: 340px;
-    margin: 30px auto;
-}
-
-.extension-dashboard-widget-property-switch {
-    position: relative;
-    height: 100%;
-	min-height: 140px;
-    width: 100%;
-	min-width: 140px;
-    margin: 0;
-}
-/*
-.extension-dashboard-widget-property-switch span {
-    position: relative;
-}
-.extension-dashboard-widget-property-switch span::before, .extension-dashboard-widget-property-switch span::after {
-    text-transform: uppercase;
-    font-size: 12px;
-    position: absolute;
-    left: 0;
-}
-.extension-dashboard-widget-property-switch span::before {
-    content: attr(data-o);
-    opacity: 0;
-}
-.extension-dashboard-widget-property-switch span::after {
-    content: attr(data-c);
-}
-
-.extension-dashboard-widget-property-switch strong {
-    display: block;
-    font-size: 16px;
-	padding-top:2rem;
-	padding-left:1.5rem;
-}
-*/
-
 .extension-dashboard-widget-property-switch label,
 .extension-dashboard-widget-property-slider label,
 .extension-dashboard-widget-property-color  label{
@@ -2343,15 +2027,11 @@ h1 {
 	width:100%;
 	padding: 1px;
 	background-color: #97bedb;
+	background-color: rgb(151,190,219,0.04);
 	padding-bottom:1rem;
 	box-sizing:border-box;
 }
-/*
-.extension-dashboard-widget-property-switch label {
-    box-shadow: 1px 0 10px 10px rgba(0, 0, 0, 0.03);
-    border-radius: 30px;
-}
-*/
+
 .extension-dashboard-widget-property-switch label::before {
     border-radius: 30px;
     position: absolute;
@@ -2387,143 +2067,17 @@ h1 {
     content: "";
 }
 
-
-
-
-
-/*
-.extension-dashboard-widget-property-switch label .extension-dashboard-a {
-    width: 23px;
-    height: 10px;
-    background-color: #3976f6;
-    display: block;
-    position: absolute;
-    border-radius: 2px;
-    top: 30px;
-    background-image: linear-gradient(0deg, white 2px, transparent 2px);
-    background-size: 17px 9px;
-    background-position: 3px -2px;
-    background-repeat: no-repeat;
-}
-.extension-dashboard-widget-property-switch label .extension-dashboard-a::after, .extension-dashboard-widget-property-switch label .extension-dashboard-a::before {
-    content: "";
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    border-width: 3px;
-    border-style: solid;
-    border-color: transparent transparent #3976f6;
-    top: 10px;
-    border-radius: 50%;
-    transform: rotate(72deg);
-    display: block;
-}
-.extension-dashboard-widget-property-switch label .extension-dashboard-a::after {
-    left: 14px;
-}
-.extension-dashboard-widget-property-switch label .extension-dashboard-a::before {
-    left: 6px;
-}
-.extension-dashboard-widget-property-switch label .extension-dashboard-r {
-    width: 23px;
-    height: 9px;
-    background-color: #3976f6;
-    display: block;
-    position: absolute;
-    border-radius: 3px;
-    top: 30px;
-}
-.extension-dashboard-widget-property-switch label .extension-dashboard-r::after, .extension-dashboard-widget-property-switch label .extension-dashboard-r::before {
-    content: "";
-    border-width: 2px;
-    border-style: solid;
-    border-color: rgba(57, 118, 246, 0.61) transparent transparent;
-    border-radius: 50%;
-    position: absolute;
-    display: block;
-}
-.extension-dashboard-widget-property-switch label .extension-dashboard-r::after {
-    width: 22px;
-    height: 20px;
-    top: -11px;
-    left: -2px;
-}
-.extension-dashboard-widget-property-switch label .extension-dashboard-r::before {
-    width: 16px;
-    height: 20px;
-    top: -6px;
-    left: 1px;
-}
-.extension-dashboard-widget-property-switch label .extension-dashboard-l {
-    width: 22px;
-    height: 13px;
-    background-color: #3976f6;
-    display: block;
-    position: absolute;
-    border-radius: 22px 22px 0 0;
-    top: 30px;
-}
-.extension-dashboard-widget-property-switch label .extension-dashboard-l::before {
-    content: "";
-    width: 3px;
-    height: 8px;
-    background-color: rgba(57, 118, 246, 0.61);
-    display: block;
-    top: -8px;
-    position: absolute;
-    border-radius: 3px;
-    left: 9px;
-}
-.extension-dashboard-widget-property-switch label .extension-dashboard-l::after {
-    content: "";
-    position: absolute;
-    width: 10px;
-    height: 4px;
-    background: rgba(57, 118, 246, 0.61);
-    border-radius: 0 0 9px 9px;
-    top: 14px;
-    left: 6px;
-}
-*/
-
 .extension-dashboard-widget-property-switch input:not(:checked) + label::before,
 .extension-dashboard-widget-property-slider input:not(:checked) + label::before,
 .extension-dashboard-widget-property-color  input:not(:checked) + label::before {
     content: "";
-	/*
-    background: linear-gradient(to bottom, #59a2fb 0%, #3976f6 100%);
-	*/
 }
 .extension-dashboard-widget-property-switch input:checked + label *,
 .extension-dashboard-widget-property-slider input:checked + label *,
 .extension-dashboard-widget-property-color  input:checked + label *{
     color: white;
 }
-/*
-.extension-dashboard-widget-property-switch input:checked + label i {
-    background-color: white;
-}
-.extension-dashboard-widget-property-switch input:checked + label i::before, .extension-dashboard-widget-property-switch input:checked + label i::after {
-    background-color: rgba(255, 255, 255, 0.61);
-}
-.extension-dashboard-widget-property-switch input:checked + label i.f {
-    background-image: linear-gradient(0deg, rgba(89, 162, 251, 0.61) 2px, transparent 2px), linear-gradient(0deg, rgba(89, 162, 251, 0.61) 12px, transparent 0);
-}
-.extension-dashboard-widget-property-switch input:checked + label i.a {
-    background-image: linear-gradient(0deg, rgba(89, 162, 251, 0.61) 2px, transparent 2px);
-}
-.extension-dashboard-widget-property-switch input:checked + label i.a::before, .extension-dashboard-widget-property-switch input:checked + label i.a::after {
-    background-color: rgba(255, 255, 255, 0);
-    border-color: transparent transparent rgba(255, 255, 255, 0.61);
-}
-.extension-dashboard-widget-property-switch input:checked + label i.r {
-    background-color: white;
-}
-.extension-dashboard-widget-property-switch input:checked + label i.r::before, .extension-dashboard-widget-property-switch input:checked + label i.r::after {
-    background-color: rgba(255, 255, 255, 0);
-    border-color: rgba(255, 255, 255, 0.61) transparent transparent;
-}
-*/
+
 .extension-dashboard-widget-property-switch input:not(:checked) + label small,
 .extension-dashboard-widget-property-slider input:not(:checked) + label small,
 .extension-dashboard-widget-property-color  input:not(:checked) + label small{
@@ -2531,6 +2085,7 @@ h1 {
     height: 15px;
     background-color: #3976f6;
 }
+
 .extension-dashboard-widget-property-switch input:not(:checked) + label small::before,
 .extension-dashboard-widget-property-slider input:not(:checked) + label small::before,
 .extension-dashboard-widget-property-color  input:not(:checked) + label small::before{
@@ -2543,13 +2098,6 @@ h1 {
     position: absolute;
 }
 
-/*
-.extension-dashboard-widget-property-switch input:checked + label span{
-	filter: drop-shadow(3px 3px 2px rgba(255, 255, 255, .7));
-}
-*/
-
-
 .extension-dashboard-widget-property-switch input:checked + label span::before,
 .extension-dashboard-widget-property-slider input:checked + label span::before,
 .extension-dashboard-widget-property-color  input:checked + label span::before{
@@ -2561,22 +2109,7 @@ h1 {
     opacity: 1;
 }
 
-.extension-dashboard-widget-heading .extension-dashboard-title {
-    margin: 0;
-    font-size: 36px;
-}
 
-.extension-dashboard-widget-heading .extension-dashboard-date {
-    margin: 10px 0;
-    font-size: 16px;
-}
-
-
-.grid-stack-item:not([gs-w="2"]):not([gs-h="2"]):not([gs-w="3"]):not([gs-h="3"]):not(.grid-stack-sub-grid) .extension-dashboard-widget-property-switch strong{
-	font-size:80%;
-	padding-left:2rem;
-	padding-right:1rem;
-}
 
 
 
@@ -2597,8 +2130,8 @@ h1 {
 	font-weight:100;
 }
 
-.extension-dashboard-widget-slider-container > div{
-	padding:.5rem;
+.extension-dashboard-widget-slider-container{
+	padding:1rem .5rem;
 	width:100%;
 	max-height:calc(100% - 2rem);
 }
@@ -2611,102 +2144,35 @@ h1 {
 	min-height:37px;
 }
 
-
 /*
-.grid-stack-item:not([gs-w="2"]):not([gs-h="2"]):not([gs-w="3"]):not([gs-w="4"]):not([gs-h]):not(.grid-stack-sub-grid)
-*/
-.grid-stack-item:not([gs-w]):not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-property-slider strong,
-.grid-stack-item:not([gs-w]):not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-property-color strong{
-	font-size:80%;
-}
-
-#extension-dashboard-content .grid-stack-item[gs-h="2"]:not([gs-w]):not([gs-w="3"]):not(.grid-stack-sub-grid) .extension-dashboard-flex-center,
-#extension-dashboard-content .grid-stack-item[gs-h="3"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-flex-center,
-#extension-dashboard-content .grid-stack-item[gs-h="4"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-flex-center{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-flex-center{
 	flex-direction:column;
 }
-
-#extension-dashboard-content .grid-stack-item[gs-h="2"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-slider-container > div,
-#extension-dashboard-content .grid-stack-item[gs-h="3"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-slider-container > div,
-#extension-dashboard-content .grid-stack-item[gs-h="4"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-slider-container > div{
-	flex-grow:1;
-	flex-direction:column;
-	padding-bottom:1rem;
-	padding-top:1rem;
-	box-sizing: border-box;
-	height:100%;
-}
-
-
-/*
-#extension-dashboard-content .grid-stack-item[gs-h="2"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-slider-container{
-	flex-grow:1;
-}
 */
 
-#extension-dashboard-content .grid-stack-item[gs-h="2"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-media-player input[type=range],
-#extension-dashboard-content .grid-stack-item[gs-h="3"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-media-player input[type=range],
-#extension-dashboard-content .grid-stack-item[gs-h="4"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-media-player input[type=range],
-
-#extension-dashboard-content .grid-stack-item[gs-h="2"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-property-slider input[type=range],
-#extension-dashboard-content .grid-stack-item[gs-h="3"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-property-slider input[type=range],
-#extension-dashboard-content .grid-stack-item[gs-h="4"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-property-slider input[type=range],
-
-#extension-dashboard-content .grid-stack-item[gs-h="3"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-property-color input[type=range],
-#extension-dashboard-content .grid-stack-item[gs-h="4"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-property-color input[type=range]{
-	width:auto;
-	writing-mode: vertical-lr;
-	direction: rtl;
-	flex-grow:1;
-}
-
-#extension-dashboard-content .grid-stack-item[gs-h="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-title-container,
-#extension-dashboard-content .grid-stack-item[gs-h="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-title-container{
-	padding-bottom:1rem;
-	background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 10%);
-}
 
 
 
 
 
-#extension-dashboard-content .grid-stack-item[gs-h="2"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-media-player input[type=range]{
-	height: calc(100% - 1.5rem);
-}
+/*   COLOR WIDGET    */
 
 
-#extension-dashboard-content .grid-stack-item[gs-h="3"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-media-player input[type=range]{
-	height:100%;
-}
-
-
-#extension-dashboard-content .grid-stack-item[gs-w="3"]:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-volume-container,
-#extension-dashboard-content .grid-stack-item[gs-w="4"]:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-volume-container{
-	display:flex;
-	align-items:center;
-}
-
-
-
-
-/*  COLOR  */
-/*
-#extension-dashboard-content .grid-stack-item[gs-w="2"]:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-color-container,
-*/
-#extension-dashboard-content .grid-stack-item[gs-w="3"]:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-color-container{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h]) .extension-dashboard-widget-color-container{
 	width:50%; 
 	max-width:50%;
 	margin: 0 auto;
 	flex-grow:1;
 }
 
-#extension-dashboard-content .grid-stack-item[gs-w="2"][gs-h="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-color-container{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"][gs-h="2"] .extension-dashboard-widget-color-container{
 	width:60%; 
 	max-width:60%;
 	margin: 0 auto;
 }
 
-#extension-dashboard-content .grid-stack-item:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-property-color .extension-dashboard-widget-slider-container{
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]) .extension-dashboard-widget-property-color .extension-dashboard-widget-slider-container{
 	display:none;
 }
 
@@ -2721,7 +2187,7 @@ h1 {
 }
 
 /*
-#extension-dashboard-content .grid-stack-item[gs-w="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-color-container canvas{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"] .extension-dashboard-widget-color-container canvas{
 	width: 50%; 
 	height: auto;
 }
@@ -2733,8 +2199,13 @@ h1 {
     margin-bottom: 1rem;
     padding-bottom: 1rem;
 	min-height: 5rem;
+	box-sizing:border-box;
 }
 
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-property-color label{
+	height:100%;
+	margin-right:1rem;
+}
 
 .extension-dashboard-widget-property-color .extension-dashboard-widget-color-needs-update{
 	position:absolute;
@@ -2748,10 +2219,10 @@ h1 {
     width: 40px;
 }
 
-#extension-dashboard-content .grid-stack-item:not([gs-w]):not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-title-container{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-title-container{
 	position:absolute;
 }
-#extension-dashboard-content .grid-stack-item:not([gs-w]):not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-color-container{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-color-container{
 	position:absolute;
 	top:-15%;
 	left:-15%;
@@ -2759,88 +2230,27 @@ h1 {
 }
 
 
-#extension-dashboard-content .grid-stack-item[gs-w="2"]:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-property-color .extension-dashboard-widget-split-compact,
-#extension-dashboard-content .grid-stack-item[gs-w="3"]:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-property-color .extension-dashboard-widget-split-compact{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h]) .extension-dashboard-widget-property-color .extension-dashboard-widget-split-compact,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h]) .extension-dashboard-widget-property-color .extension-dashboard-widget-split-compact{
 	flex-direction:row;
 }
 
 
 /*
-#extension-dashboard-content .grid-stack-item[gs-w="2"]:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-title-container{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h]) .extension-dashboard-widget-title-container{
 	
 }
 */
-#extension-dashboard-content .grid-stack-item[gs-w="2"]:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-color-container{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h]) .extension-dashboard-widget-color-container{
 	margin-right:4rem;
 }
-#extension-dashboard-content .grid-stack-item[gs-w="3"]:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-color-container{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h]) .extension-dashboard-widget-color-container{
 	margin-right:6rem;
 }
 
-#extension-dashboard-content .grid-stack-item[gs-w="2"]:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-property-color strong,
-#extension-dashboard-content .grid-stack-item[gs-w="3"]:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-property-color strong{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h]) .extension-dashboard-widget-property-color strong,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h]) .extension-dashboard-widget-property-color strong{
 	height:100%;
-}
-
-
-
-/*   WEATHER WIDGET    */
-
-.extension-dashboard-widget-icon-weather {
-    position: relative;
-    height: 20px;
-    width: 20px;
-    border-radius: 50%;
-    background-color: #feb103;
-    margin-right: 30px;
-    top: -7px;
-	
-	display:none;
-}
-
-/*
-.extension-dashboard-widget-icon-weather {
-    width: 16px;
-    height: 22px;
-    display: block;
-    position: absolute;
-    border-radius: 2px;
-    top: 30px;
-}
-*/
-
-
-.extension-dashboard-widget-icon-weather::after, .extension-dashboard-widget-icon-weather::before {
-    content: "";
-    position: absolute;
-}
-.extension-dashboard-widget-icon-weather::after {
-    width: 28px;
-    height: 13px;
-    border-radius: 20px;
-    background-color: #feb103;
-    bottom: 0;
-    left: 3px;
-}
-.extension-dashboard-widget-icon-weather::before {
-    width: 20px;
-    height: 20px;
-    box-shadow: 10px -3px 0 -2px rgba(254, 177, 3, 0.59), 3px -15px 1px -7px rgba(254, 177, 3, 0.4), 11px -17px 1px -7px rgba(254, 177, 3, 0.4), 19px -13px 1px -7px rgba(254, 177, 3, 0.4), 22px -4px 1px -7px rgba(254, 177, 3, 0.4);
-    border-radius: 50%;
-}
-
-
-.extension-dashboard-widget-weather-description-container{
-	padding:1rem 0 0 1rem;
-}
-
-.grid-stack-item[gs-w][gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-weather-description-container{
-	color:#eee;
-}
-
-
-.extension-dashboard-widget-weather h2{
-	margin-bottom:0;
 }
 
 
@@ -2859,6 +2269,54 @@ h1 {
     margin-bottom: 5px;
     margin-top: 10px;
 }
+
+
+
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"]:not([gs-h="3"]):not([gs-w]) .extension-dashboard-widget-media-player-artist-container,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h]) .extension-dashboard-widget-media-player-artist-container,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w="3"]) .extension-dashboard-widget-media-player-artist-container{
+	display:none;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-media-player-artist-container{
+	padding-bottom:1.5rem;
+}
+
+
+.extension-dashboard-widget-media-player p{
+	margin: 0.5rem 0;
+	padding-right:1rem;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-media-player .extension-dashboard-widget-icon-disc{
+	width:40px;
+	height:40px;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]) .extension-dashboard-widget-media-player .extension-dashboard-widget-icon-disc{
+	display:none;
+}
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-media-player-artist{
+	padding-left:1rem;
+}
+
+.extension-dashboard-widget-media-player-artist{
+	position:relative;
+	color:#333;
+	border-radius:.5rem;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-media-player-artist{
+	padding-right:2rem;
+	flex-grow:1;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-icon-disc{
+	margin-left: 2.5rem;
+}
+
+
 .extension-dashboard-widget-media-player .extension-dashboard-player {
     border-radius: 10px;
     padding: 15px;
@@ -2907,34 +2365,6 @@ h1 {
     height: 8px;
     background: white;
 }
-/*
-.extension-dashboard-widget-media-player .extension-dashboard-widget-media-player-control {
-    width: 52px;
-    height: 10px;
-    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.61) 2px, transparent 2px), linear-gradient(to right, rgba(255, 255, 255, 0.61) 2px, transparent 2px), linear-gradient(to right, white 4px, transparent 0), linear-gradient(to right, white 4px, transparent 0);
-    background-position: 0 0, 47px 0, 20px 0, 26px 0;
-    background-size: 2px 12px, 2px 12px, 4px 12px, 4px 12px;
-    background-repeat: no-repeat;
-    position: relative;
-    cursor: pointer;
-    transition: 200ms;
-}
-.extension-dashboard-widget-media-player .extension-dashboard-widget-media-player-control::after, .extension-dashboard-widget-media-player .extension-dashboard-widget-media-player-control::before {
-    content: "";
-    position: absolute;
-    border-width: 6px;
-    border-style: solid;
-    top: -1px;
-}
-.extension-dashboard-widget-media-player .extension-dashboard-widget-media-player-control::before {
-    left: -2px;
-    border-color: transparent rgba(255, 255, 255, 0.61) transparent transparent;
-}
-.extension-dashboard-widget-media-player .extension-dashboard-widget-media-player-control::after {
-    right: 1px;
-    border-color: transparent transparent transparent rgba(255, 255, 255, 0.61);
-}
-*/
 
 .extension-dashboard-widget-media-player .extension-dashboard-widget-media-player-controls input[type="checkbox"] {
     display: none;
@@ -2942,17 +2372,17 @@ h1 {
 
 .extension-dashboard-widget-media-player-controls{
 	width:100%;
-	height:50%;
-    max-width: 300px;
+	min-height:50px;
     margin: 0 auto;
-	padding:0rem .5rem;
 	box-sizing:border-box;
 	display:flex;
 	align-items:center;
 	justify-content:space-around;
+	margin-top:1rem;
 }
+
+
 .extension-dashboard-widget-media-player-controls > div{
-	flex-grow:1;
 	display:flex;
 	justify-content:center;
 	align-items:center;
@@ -2963,117 +2393,181 @@ h1 {
 	height:100%;
 }
 
-.extension-dashboard-widget-media-player .extension-dashboard-widget-media-player-controls input:checked + label{
-	
-}
 
 
-.extension-dashboard-widget-media-player-controls-container{
-    display: flex;
-    align-items: center;
+.extension-dashboard-widget-media-play-button-container{
+    width: 50px;
+    height: 50px;
 }
 
-
-/*
-.extension-dashboard-widget-media-player .extension-dashboard-widget-media-player-controls input:checked + label .extension-dashboard-control {
-    background-size: 2px 12px, 2px 12px, 0 0, 0 0;
-    background-position: 6px 0, 40px 0, 20px 0, 26px 0;
-}
-.extension-dashboard-widget-media-player .extension-dashboard-widget-media-player-controls input:checked + label .extension-dashboard-control::after {
-    right: 18px;
-}
-.extension-dashboard-widget-media-player .extension-dashboard-widget-media-player-controls input:checked + label .extension-dashboard-control::before {
-    left: -2px;
-    border-width: 0;
-}
-*/
-
-.extension-dashboard-widget-icon-play-button-container{
-    display: inline-block;
-    position: relative;
+.extension-dashboard-widget-media-play-button{
+	position:absolute;
     width: 45px;
     height: 45px;
-	text-align:left;
-	border-radius: 20px;
-	padding: 1.5rem 1rem 1rem 1.5rem;
-	transition: all .3s ease-in;
 }
-.extension-dashboard-widget-icon-play-button{
+
+.extension-dashboard-widget-media-play-button-icon{
     display: inline-block;
     position: absolute;
     width: 45px;
     height: 45px;
-    background: #fff;
     transition: clip-path .3s ease;
 	cursor:pointer;
 }
 
-.extension-dashboard-widget-icon-play-button-container:hover{
-	box-shadow: 20px 20px 60px #88949e, -20px -20px 60px #b8c8d6;
-    padding: 1.5rem 1rem 1rem 1.5rem;
-    border-radius: 50px;
-    background: #a0aeba;
-	transition: all .3s ease-out;
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-media-play-button-container{
+    width: 100px;
+    height: 100px;
+	border-radius: 50%;
+	position:relative;
+	left:-10px;
 }
-.extension-dashboard-widget-icon-play-button-before {
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-media-play-button-container:hover{
+	box-shadow: 20px 20px 60px #88949e, -20px -20px 60px #b8c8d6;
+	transition: box-shadow .3s ease-out;
+	background-color: #fa7204;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-media-play-button,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-media-play-button-icon{
+    width: 55px;
+    height: 55px;
+}
+
+.extension-dashboard-widget-media-play-button-icon span{
+	background-color:white;
+}
+/*
+.extension-dashboard-widget-media-play-button:hover span{
+	background-color: #fa7204;
+}*/
+
+/*
+.extension-dashboard-widget-media-play-button:hover{
+	box-shadow: 20px 20px 60px #88949e, -20px -20px 60px #b8c8d6;
+    border-radius: 50px;
+	transition: box-shadow .3s ease-out;
+}
+*/
+
+/*
+.extension-dashboard-widget-media-play-button:hover span{
+	background-color: #fa7204;
+	transition: background .3s ease-out;
+}
+*/
+
+.extension-dashboard-widget-media-play-button-before {
     clip-path: polygon(0 0, 50% 25%, 50% 75%, 0% 100%);
 }
-.extension-dashboard-widget-icon-play-button-after {
+.extension-dashboard-widget-media-play-button-after {
     clip-path: polygon(50% 25%, 100% 50%, 100% 50%, 50% 75%);
 }
 
-/*
-.extension-dashboard-widget-icon-play-button-container:hover .extension-dashboard-widget-icon-play-button-before,
-*/
-.extension-dashboard-widget-media-player .extension-dashboard-widget-media-player-controls input:checked + label .extension-dashboard-widget-icon-play-button-before{
+.extension-dashboard-widget-media-player .extension-dashboard-widget-media-player-controls input:checked + label .extension-dashboard-widget-media-play-button-before{
     clip-path: polygon(0 0, 30% 0, 30% 100%, 0% 100%);
 }
-/*
-.extension-dashboard-widget-icon-play-button-container:hover .extension-dashboard-widget-icon-play-button-after,
-*/
-.extension-dashboard-widget-media-player .extension-dashboard-widget-media-player-controls input:checked + label .extension-dashboard-widget-icon-play-button-after{
+.extension-dashboard-widget-media-player .extension-dashboard-widget-media-player-controls input:checked + label .extension-dashboard-widget-media-play-button-after{
     clip-path: polygon(70% 0, 100% 0, 100% 100%, 70% 100%)
 }
 
 
-.extension-dashboard-widget-media-player-control-previous-button-container,
-.extension-dashboard-widget-media-player-control-next-button-container{
-	color:white;
-	font-size:200%;
-    height: 50px;
-    width: 30px;
-    border-radius: 10px;
-    display: flex;
-    justify-content: center;
+
+
+
+
+
+.extension-dashboard-widget-media-player-control-previous-button,
+.extension-dashboard-widget-media-player-control-next-button{
+    height: 45px;
+    width: 45px;
 	cursor:pointer;
-	background-color: rgba(0, 0, 0, 0);
-	transition: all .3s ease-out;
-	display: inline-block;
-	text-align: center;
+	padding:10px;
+	transition: box-shadow .3s ease-out;
 }
-.grid-stack-item[gs-w="2"] .extension-dashboard-widget-media-player-control-previous-button-container,
-.grid-stack-item[gs-w="2"] .extension-dashboard-widget-media-player-control-next-button-container{
+
+
+.extension-dashboard-widget-media-player-control-previous-button-icon,
+.extension-dashboard-widget-media-player-control-next-button-icon{
+    width:100%;
+	height:100%;
+	background-color: rgba(255,255,255, 1);
+	transition: background .3s ease-out;
+}
+.extension-dashboard-widget-media-player-control-previous-button-icon{
+	clip-path: polygon(0 0, 30% 0, 30% 50%, 100% 0, 100% 100%, 30% 50%, 30% 100%, 0 100%);
+}
+.extension-dashboard-widget-media-player-control-next-button-icon{
+	clip-path: polygon(0 0, 0 100%, 70% 50%, 70% 100%, 100% 100%, 100% 0, 70% 0, 70% 50%);
+}
+
+.extension-dashboard-widget-media-player-control-previous-button:hover > div,
+.extension-dashboard-widget-media-player-control-next-button:hover > div{
+	background-color:#fa7204
+}
+
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]) .extension-dashboard-widget-media-player-control-previous-button,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]) .extension-dashboard-widget-media-player-control-next-button{
+    height: 30px;
+    width: 30px;
+	padding:5px;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-media-player-control-previous-button,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-media-player-control-next-button{
+    height: 65px;
+    width: 65px;
+	padding:20px;
+	border-radius:50%;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-media-player-control-previous-button:hover,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-media-player-control-next-button:hover{
+	box-shadow: 20px 20px 60px #88949e, -20px -20px 60px #b8c8d6;
+	transition: box-shadow .3s ease-out;
+}
+
+/*
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"] .extension-dashboard-widget-media-player-control-previous-button-icon,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"] .extension-dashboard-widget-media-player-control-next-button-icon{
 	width: 50px;
 	display: inline-block;
 	text-align: center;
 }
 
-.extension-dashboard-widget-media-player-control-previous-button-container:hover,
-.extension-dashboard-widget-media-player-control-next-button-container:hover{
+.extension-dashboard-widget-media-player-control-previous-button-icon:hover,
+.extension-dashboard-widget-media-player-control-next-button-icon:hover{
     background-color: rgba(0, 0, 0, .1);
 	box-shadow: 20px 20px 60px #88949e, -20px -20px 60px #b8c8d6;
 	transition: all .3s ease-out;
 }
+*/
 
-
-.extension-dashboard-widget-volume-container{
-	padding: 0 .5rem;
-	width:100%;
-	flex-grow:10;
-	text-align:center;
-	box-sizing:border-box;
-	height:100%;
+.extension-dashboard-widget-source-needs-update:empty,
+.extension-dashboard-widget-song_title-needs-update:empty,
+.extension-dashboard-widget-artist-needs-update:empty{
+	display:none;
 }
+
+.extension-dashboard-widget-source-needs-update{
+	font-style:italic;
+	opacity:.8;
+}
+/*
+.extension-dashboard-widget-source-needs-update:not(:empty)::before{
+	content:'📻 ';
+	font-style:initial;
+}
+*/
+
+
+
+
+
+
+/*   RANGE SLIDER  */
 
 #extension-dashboard-content input[type="range"] {
     -webkit-appearance: none; 
@@ -3149,6 +2643,10 @@ h1 {
     text-shadow: .5px .5px 0.9px rgba(0,0,0, .4);
     z-index: -1;
 }
+
+
+
+
 
 
 
@@ -3239,11 +2737,11 @@ h1 {
 	display:block;
 	font-weight:100;
 }
-.grid-stack-item:not([gs-h]):not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-log strong{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-log strong{
 	font-size:80%;
 }
 
-.grid-stack-item[gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-log strong{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-log strong{
 	padding-bottom:1.5rem;
 }
 
@@ -3274,9 +2772,10 @@ h1 {
 .extension-dashboard-widget-log-time-description{
 	padding:1.5rem;
 	font-size: 80%;
+	font-style:italic;
 }
 
-.grid-stack-item:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-log-time-description{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]) .extension-dashboard-widget-log-time-description{
 	display:none;
 }
 
@@ -3288,7 +2787,7 @@ h1 {
 	font-size:14px;
 }
 
-.grid-stack-item:not([gs-h]):not([gs-w]):not(.grid-stack-sub-grid) .tick:nth-child(even){
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .tick:nth-child(even){
 	display:none;
 }
 
@@ -3327,35 +2826,37 @@ h1 {
 	color: #fa7204;
     font-weight: bold;
 	font-size:3rem;
-	padding:1rem 0 1rem .5rem;
+	padding:2rem 0 2rem .5rem;
 }
 
 
-#extension-dashboard-content .grid-stack-item[gs-w="2"]:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-needs-update{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h]) .extension-dashboard-widget-setpoint-needs-update{
 	font-size:4rem;
 	width: 94px;
 }
 
-.grid-stack-item[gs-w="2"]:not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-thermostat{
+/*
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h]) .extension-dashboard-widget-thermostat{
 	padding-bottom:2rem;
 }
+*/
 
-.grid-stack-item:not([gs-h]):not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-thermostat{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-thermostat{
 	overflow:visible;
 }
 
-.grid-stack-item:not([gs-h]):not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-name-container{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-name-container{
 	display:none;
 }
 /*
-.grid-stack-item:not([gs-h]):not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-thermostat-setpoint-buttons > div{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-thermostat-setpoint-buttons > div{
 	background-color:#cad3db;
 }
 */
 
 
-.grid-stack-item[gs-h="2"][gs-w="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-thermostat-setpoint-buttons,
-.grid-stack-item[gs-h="3"][gs-w="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-thermostat-setpoint-buttons{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"][gs-w="2"] .extension-dashboard-widget-thermostat-setpoint-buttons,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"][gs-w="3"] .extension-dashboard-widget-thermostat-setpoint-buttons{
     padding-left: 20%;
     padding-right: 20%;
     padding-bottom: 10%;
@@ -3364,9 +2865,9 @@ h1 {
 }
 
 /*
-.grid-stack-item:not([gs-h]):not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-degrees,
-.grid-stack-item[gs-h="2"][gs-w="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-degrees,
-.grid-stack-item[gs-h="3"][gs-w="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-degrees{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-setpoint-degrees,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"][gs-w="2"] .extension-dashboard-widget-setpoint-degrees,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"][gs-w="3"] .extension-dashboard-widget-setpoint-degrees{
 	display:none;
 }
 */
@@ -3375,10 +2876,10 @@ h1 {
 	display:none;
 }
 
-#extension-dashboard-content .grid-stack-item:not([gs-h]):not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-needs-update{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-setpoint-needs-update{
 	text-align:center;
 	margin-left:1rem;
-	padding:.3rem;
+	padding:.5rem;
 	font-size:3rem;
 	width:75px;
 }
@@ -3387,6 +2888,7 @@ h1 {
 
 .extension-dashboard-widget-thermostat-setpoint-display{
 	flex-grow:1;
+	height:100%;
 }
 
 .extension-dashboard-widget-setpoint-degrees{
@@ -3407,7 +2909,7 @@ h1 {
 	align-items:center;
 	justify-content:center;
 }
-.grid-stack-item:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-thermostat strong{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]) .extension-dashboard-widget-thermostat strong{
 	flex-direction:column;
 }
 
@@ -3421,37 +2923,44 @@ h1 {
 	white-space:nowrap;
 }
 
-.grid-stack-item[gs-h]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-thermostat-setpoint-display > strong{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-thermostat-setpoint-display > strong{
 	display:flex;
 	flex-direction:column;
 	align-items:center;
 }
 
-#extension-dashboard-content .grid-stack-item[gs-h="3"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-thermostat-setpoint-display > strong *{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"]:not([gs-w]) .extension-dashboard-widget-thermostat-setpoint-display > strong *{
 	font-size:3rem;
 }
 
-.grid-stack-item[gs-w]:not(.grid-stack-sub-grid) .extension-dashboard-widget-temperature-value{
+
+.extension-dashboard-widget-temperature-value{
+	white-space:nowrap;
+}
+
+.extension-dashboard-widget-temperature-value,
+.extension-dashboard-widget-setpoint-needs-update{
+	font-weight:100;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-temperature-value{
 	max-width:83px;
 	display:inline-block;
 	overflow:hidden;
 }
 
-.grid-stack-item[gs-w][gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-temperature-value{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-temperature-value{
 	max-width:90px;
 }
 
 .extension-dashboard-widget-setpoint-arrow{
 	display:inline-block;
 }
-.grid-stack-item[gs-w]:not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-arrow{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-setpoint-arrow{
 	padding: 1rem .5rem 1rem 1rem;
 }
 
-.grid-stack-item:not([gs-w]):not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-arrow{
-	display:none;
-}
-.grid-stack-item:not([gs-w]):not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-temperature-needs-update{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-temperature-needs-update{
 	display:inline-block;
 	width:52px;
 	overflow:hidden;
@@ -3463,36 +2972,43 @@ h1 {
 	content:"°";
 	opacity:.8;
 	font-weight:100;
+	position:absolute;
+	font-size:70%;
 }
 
 
 
 
-.grid-stack-item[gs-w]:not(.grid-stack-sub-grid) .extension-dashboard-widget-temperature-value,
-#extension-dashboard-content .grid-stack-item[gs-h="3"]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-thermostat-setpoint-display > strong *,
-#extension-dashboard-content .grid-stack-item[gs-h]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-needs-update,
-#extension-dashboard-content .grid-stack-item[gs-h]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-container{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-temperature-value,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"]:not([gs-w]) .extension-dashboard-widget-thermostat-setpoint-display > strong *,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-setpoint-needs-update,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-setpoint-container,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-temperature-value{
 	font-size:4rem;
+	font-weight:100;
 }
 
-#extension-dashboard-content .grid-stack-item[gs-h][gs-w]:not(.grid-stack-sub-grid) .extension-dashboard-widget-temperature-value,
-#extension-dashboard-content .grid-stack-item[gs-h][gs-w]:not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-needs-update,
-#extension-dashboard-content .grid-stack-item[gs-h][gs-w]:not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-container{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w] .extension-dashboard-widget-temperature-value,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w] .extension-dashboard-widget-setpoint-needs-update,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w] .extension-dashboard-widget-setpoint-container{
 	font-size:4.5rem;
+	font-weight:100;
 }
 
-#extension-dashboard-content .grid-stack-item[gs-h="3"][gs-w="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-temperature-value{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"][gs-w="3"] .extension-dashboard-widget-temperature-value{
 	font-size:8rem;
 	max-width: 160px;
+	font-weight:100;
 }
-#extension-dashboard-content .grid-stack-item[gs-h="3"][gs-w="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-needs-update{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"][gs-w="3"] .extension-dashboard-widget-setpoint-needs-update{
 	font-size:8rem;
 	width:175px;
+	font-weight:100;
 }
 
 /*
-#extension-dashboard-content .grid-stack-item[gs-w]:not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-needs-update,
-#extension-dashboard-content .grid-stack-item[gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-needs-update{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-setpoint-needs-update,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-setpoint-needs-update{
 	font-size:260%;
 	width:100px;
 	height:120px;
@@ -3500,22 +3016,22 @@ h1 {
 */
 
 /*
-#extension-dashboard-content .grid-stack-item[gs-h]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-temperature-value{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-temperature-value{
 	font-size:250%;
 }
 */
 
-#extension-dashboard-content .grid-stack-item[gs-h]:not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-needs-update{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-setpoint-needs-update{
 	width:105px;
 	height:80px;
 }
 
-#extension-dashboard-content .grid-stack-item[gs-h]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-needs-update{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-setpoint-needs-update{
 	width:100%;
 	text-align:center;
 }
 
-#extension-dashboard-content .grid-stack-item[gs-h]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-setpoint-degrees{
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-setpoint-degrees{
 	display:none;
 }
 
@@ -3529,66 +3045,154 @@ h1 {
 	pointer-events:none;
 }
 
+.extension-dashboard-editing .extension-dashboard-widget-thermostat-setpoint-buttons{
+	pointer-events:none;
+}
+
 .extension-dashboard-widget-thermostat-setpoint-buttons > div{
 	width:45px;
 	height:45px;
 	margin:10px;
 	color:white;
 	border-radius:20px;
-	background-color:rgba(255,255,255,.2);
+	/*background-color:rgba(255,255,255,.2);*/
+	background-color:#bdc8d2;
 	box-shadow: 1px 0 10px 10px rgba(0, 0, 0, 0.03);
 	cursor:pointer;
 	pointer-events:auto;
+	border: 1px solid transparent;
+	/*transition: scale .1s ease-out, border 1s linear;
+	transition: all 1s linear;*/
+	box-sizing:border-box;
+	z-index:5;
 }
+/*
+.extension-dashboard-widget-thermostat-setpoint-buttons > div:active{
+	border: 1px solid #fa7204;
+	transform: scale(1.1);
+	transition: scale .1s ease-out;
+}
+*/
 
-.grid-stack-item[gs-w]:not(.grid-stack-sub-grid) .extension-dashboard-widget-thermostat-setpoint-buttons > div{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-thermostat-setpoint-buttons > div{
 	width:65px;
 	height:65px;
 	border-radius:35px;
 	user-select: none;
 }
-.grid-stack-item[gs-w="3"][gs-h="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-thermostat-setpoint-buttons > div{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="3"] .extension-dashboard-widget-thermostat-setpoint-buttons > div{
 	width:90px;
 	height:90px;
 	border-radius:450px;
 }
 
 .extension-dashboard-widget-thermostat-setpoint-buttons > div:hover{
-	background-color:rgba(255,255,255,.4);
+	background-color: #fa7204!important;
+	color:white;
 	font-size:130%;
 }
 
-.grid-stack-item:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-thermostat .extension-dashboard-widget-split{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-split{
 	flex-direction:column;
 }
 
 
+/*  horizontal 'short' thermostat widgets  */
 
 
+/* 1x2 */
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial{
+	top: 115%;
+}
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h]) .extension-dashboard-widget-setpoint-needs-update,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-temperature-value{
+	font-size:3rem;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="4"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-thermostat-setpoint-display,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-thermostat-setpoint-display{
+	padding-top:10%;
+	padding-left:5%;
+}
+
+
+/* 1x3 */
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial{
+	top: 170%;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-ticks span.extension-dashboard-widget-dial-tick-even,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="4"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-ticks span.extension-dashboard-widget-dial-tick-even,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-ticks span.extension-dashboard-widget-dial-tick-even{
+    border-top:0;
+	border-left: 4px solid rgba(255, 255, 255, .9);
+    color: inherit;
+    padding-left: 7px;
+	font-size:1.2rem;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-ticks span{
+	border-left: 2px solid rgba(255, 255, 255, .9);
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-thermostat-setpoint-buttons > div,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="4"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-thermostat-setpoint-buttons > div,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-thermostat-setpoint-buttons > div{
+	/*background-color: #bdc8d2;*/
+	box-shadow: 1px 0 10px 10px rgba(0, 0, 0, 0.07);
+}
+
+
+/* 2x3 */
+
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial{
+	top: 88%;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="4"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-ticks span,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-ticks span{
+	border-left: 3px solid rgba(255, 255, 255, .9);
+}
+
+
+/* 2x4 */
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="4"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial{
+	top: 120%;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-ticks span.extension-dashboard-widget-dial-tick-even,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="4"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-ticks span.extension-dashboard-widget-dial-tick-even{
+	font-size:2rem;
+}
+
+
+/* 2x5 */
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="4"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial{
+	top: 120%;
+}
 
 /*   VALUE DIAL   */
 
-
+/*
 .extension-dashboard-widget-dial-container {
     width: 100%;
     height: 100%;
-	/*
-    background: linear-gradient(to bottom, #f1f1f1, #9d9e9f);
-    box-shadow: inset 0 3px 10px rgba(255, 255, 255, 1),
-      inset 0 -3px 10px rgba(0, 0, 0, 0.25), 0 30px 40px rgba(0, 0, 0, 0.5);
-	*/
-    border-radius: 50%;
     z-index: 2;
     opacity: 1;
 	pointer-events:none;
-	display:none;
 }
 
-.grid-stack-item:not([gs-w]):not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-dial-container,
-.grid-stack-item[gs-w="2"][gs-h="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-dial-container,
-.grid-stack-item[gs-w="3"][gs-h="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-dial-container,
-.grid-stack-item[gs-w="4"][gs-h="4"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-dial-container{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-dial-container,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"][gs-h="2"] .extension-dashboard-widget-dial-container,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="3"] .extension-dashboard-widget-dial-container,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="4"][gs-h="4"] .extension-dashboard-widget-dial-container{
 	display:initial;
+    border-radius: 50%;
 }
 
 .extension-dashboard-widget-dial-container *::after,
@@ -3596,6 +3200,7 @@ h1 {
 	box-sizing: border-box;
 	transform-style: preserve-3d;
 }
+*/
 
 .extension-dashboard-widget-dial {
     position: absolute;
@@ -3606,11 +3211,6 @@ h1 {
     border-radius: 50%;
     transform: translate(-50%, -50%);
     background: transparent;
-    /*
-    box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.15),
-      inset 0 -3px 10px rgba(255, 255, 255, 0.5),
-      inset 0 30px 40px rgba(0, 0, 0, 0.25);
-    */
     z-index: 2;
 }
 .extension-dashboard-widget-dial::after {
@@ -3639,9 +3239,9 @@ h1 {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 98%;
-    height: 98%;
-    transform: translate(-50%, -50%) rotateZ(314deg);
+    width: 100%;
+    height: 100%;
+    transform: translate(-50%, -50%) rotateZ(315deg);
     border-radius: 50%;
     /*border: 15px solid rgba(25, 125, 225, 0.75);*/
 	border: 15px solid #018efd;
@@ -3659,20 +3259,31 @@ h1 {
     left: 50%;
     top: 50%;
     border-radius: 2px;
+	transition: transform 1s ease-out;
 }
 
 
 /*  DIAL TICKS  */
 
-.extension-dashboard-widget-dial-ticks {
-  border-radius: 50%;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index:3;
+.extension-dashboard-widget-dial-ticks{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index:3;
 }
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-dial{
+    border-radius: 50%;
+	overflow:hidden;
+}
+/*
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-dial-ticks{
+	    border-radius: 50%;
+		overflow:hidden;
+}
+*/
 
 .extension-dashboard-widget-dial-ticks span {
     display: inline-block;
@@ -3700,8 +3311,16 @@ h1 {
 }
 
 .extension-dashboard-widget-dial-ticks span.extension-dashboard-widget-dial-tick-even{
-	border-top: 1px solid rgba(0, 0, 0, .2);
+    border-top: 1px solid rgba(255, 255, 255, .9);
+    color: inherit;
+    font-size: 1rem;
+    font-weight: 100;
 }
+
+.extension-dashboard-widget-dial-ticks span:not(.extension-dashboard-widget-dial-tick-even):last-of-type{
+	border-bottom: 1px solid rgba(255, 255, 255, .9);
+}
+
 
 .extension-dashboard-widget-dial-ticks:not(.extension-dashboard-widget-dial-disabled) span:hover{
 	background: #fa7204;
@@ -3710,25 +3329,353 @@ h1 {
 	color:black;
 }
 
-.grid-stack-item:not([gs-w]):not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-dial-ticks span{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-dial-ticks span{
 	font-size:50%;
 	/*color:rgba(0,0,0,.4);*/
 	top:45%;
 }
-.grid-stack-item:not([gs-w]):not([gs-h]):not(.grid-stack-sub-grid) .extension-dashboard-widget-dial-ticks:not(.extension-dashboard-widget-dial-disabled) span:hover{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-dial-ticks:not(.extension-dashboard-widget-dial-disabled) span:hover{
 	font-size:80%;
 }
 
-.grid-stack-item[gs-w="3"][gs-h="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-dial-ticks span{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="3"] .extension-dashboard-widget-dial-ticks span{
 	font-size:1.6rem;
 }
-.grid-stack-item[gs-w="3"][gs-h="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-dial-ticks:not(.extension-dashboard-widget-dial-disabled) span:hover{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="3"] .extension-dashboard-widget-dial-ticks:not(.extension-dashboard-widget-dial-disabled) span:hover{
 	font-size:2.6rem;
 }
 
 
 
 
+
+/*  ROUND DIAL WIDGET  */
+
+
+.extension-dashboard-widget-dial-name-container{
+	position: absolute;
+	padding: 1.5rem 1rem 0 1.5rem;
+	font-weight:100;
+	width:100%;
+	max-width: 100%;
+    max-height: 40%;
+    overflow: hidden;
+    box-sizing: border-box;
+	
+}
+body:not(.developer) .extension-dashboard-widget-dial-name-container{
+	pointer-events:none;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-round,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"][gs-w="2"] .extension-dashboard-widget-round,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"][gs-w="3"] .extension-dashboard-widget-round{
+	border-radius:50%;
+}
+
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-round .extension-dashboard-widget-dial-name-container,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"][gs-w="2"] .extension-dashboard-widget-round .extension-dashboard-widget-dial-name-container,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"][gs-w="3"] .extension-dashboard-widget-round .extension-dashboard-widget-dial-name-container{
+	padding:.5rem 1.5rem 1rem 1.5rem;
+	bottom:0;
+	text-align: center;
+	height: 40%;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-round.extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-name-container,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"][gs-w="2"] .extension-dashboard-widget-round.extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-name-container,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"][gs-w="3"] .extension-dashboard-widget-round.extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-name-container{
+	height: 43%;
+	max-height: 43%;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-round .extension-dashboard-widget-dial-name-container{
+	font-size:80%;
+}
+
+
+
+
+#extension-dashboard-content .extension-dashboard-widget-round-dial input{
+	font-size:3rem;
+	text-align:center;
+	max-width: calc(80% - 4rem);
+	padding: 1.2rem 1.5rem;
+	margin-bottom:1rem;
+	border-radius:1rem;
+	color:inherit;
+	z-index:4;
+	background-color:transparent;
+}
+
+#extension-dashboard-content .extension-dashboard-widget-round-dial input:not([disabled]){
+	/*background-color:#ebeff1;*/
+	color:#fa7204;
+}
+
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-round-dial input,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w] .extension-dashboard-widget-round-dial input{
+	font-size:6rem;
+	padding:2.5rem 1.5rem;
+}
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-round-dial input{
+	font-size:4rem;
+	padding:1.5rem;
+	max-width: calc(100% - 1.5rem);
+}
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"][gs-w="3"] .extension-dashboard-widget-round-dial input{
+	font-size:10rem;
+	padding: 4rem 1.5rem;
+}
+
+.extension-dashboard-widget-round-dial .extension-dashboard-widget-dial-needle {
+	/*
+	background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 60%, rgba(0,0,0, .8) 61%, rgba(0,0,0,.8) 95%);
+    width: 52%;
+    height: 2px;
+    left: 50%;
+    top: 50%;
+    border-radius: 2px;
+	*/
+	
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 60%, rgb(13 59 92) 61%, rgb(13 59 92) 74%);
+    width: 40%;
+    height: 5px;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+}
+
+
+
+/*  DIAL widget's horizontal versions  */
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-round-dial .extension-dashboard-widget-thermostat-setpoint-display{
+	position:absolute;
+	height:auto;
+	justify-content:flex-start;
+	max-width:300px;
+	top:1.5rem;
+}
+
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-round-dial .extension-dashboard-widget-dial{
+	width:50%;
+	top:90%;
+	left:60%;
+}
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-round-dial .extension-dashboard-widget-dial-ticks{
+	border-radius:0;
+	overflow:visible;
+}
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-round-dial .extension-dashboard-widget-dial-needle{
+	background:linear-gradient(90deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 60%, rgb(13 59 92) 61%, rgb(13 59 92) 74%);
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+}
+
+
+
+/*  DIAL widget's vertical versions  */
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-round-dial .extension-dashboard-widget-thermostat-setpoint-display{
+	position:initial;
+	width:100%;
+	height:150px;
+	max-height:150px;
+	align-items:flex-end;
+}
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"]:not([gs-w]) .extension-dashboard-widget-round-dial .extension-dashboard-widget-thermostat-setpoint-display{
+	align-items:center;
+}
+
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-round-dial .extension-dashboard-widget-dial{
+	position:initial;
+	transform: rotate(270deg);
+    /*
+	width: 150%;
+    height: 45%;
+	margin-left: 10%;
+	*/
+    width: 200%;
+    height: 25%;
+    margin-left: -5%;
+}
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-round-dial .extension-dashboard-widget-dial-ticks{
+	border-radius:0;
+	overflow:visible;
+}
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-round-dial .extension-dashboard-widget-dial-needle{
+	background:linear-gradient(90deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 60%, rgb(13 59 92) 61%, rgb(13 59 92) 74%);
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+}
+
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"]:not([gs-w]) .extension-dashboard-widget-round-dial .extension-dashboard-widget-dial{
+	margin-left: -5%;
+	margin-top: 80%;
+}
+
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="4"]:not([gs-w]) .extension-dashboard-widget-round-dial .extension-dashboard-widget-dial{
+    width: 230%;
+    margin-left: -15%;
+    margin-top: 80%;
+}
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="4"]:not([gs-w]) .extension-dashboard-widget-round-dial .extension-dashboard-widget-thermostat-setpoint-display{
+	height:250px;
+	max-height:250px;
+}
+
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial{
+	top:35%;
+}
+
+
+
+
+
+
+/*   WEATHER WIDGET    */
+
+
+.extension-dashboard-widget-weather-description-container{
+	padding:1rem 0 0 1rem;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-weather-description-container{
+	color:#eee;
+	justify-content: center;
+}
+
+.extension-dashboard-widget-weather h2{
+	margin-bottom:0;
+}
+
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-weather .extension-dashboard-widget-split{
+	width:100%;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-weather .extension-dashboard-widget-split > div{
+	flex-grow:1;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact{
+	width:100%;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact > div{
+	width:50%;
+}
+
+
+#extension-dashboard-templates .extension-dashboard-widget-weather,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-weather{
+	background-image: url('../images/weather_landscape.svg');
+	background-repeat:no-repeat;
+	background-size:cover;
+	background-position: center bottom;
+	color:#bbb;
+}
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-weather{
+	transition: background 10s ease-in-out;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h="2"] .extension-dashboard-widget-weather{
+	background-position: center 85%;
+}
+
+.extension-dashboard-night .grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-weather{
+	background-position: center 0%;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact > div{
+	flex-direction:column;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"] .extension-dashboard-widget-weather .extension-dashboard-widget-split{
+	padding-bottom: 7rem;
+	padding-top: 3rem;
+}
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="4"] .extension-dashboard-widget-weather .extension-dashboard-widget-split{
+	padding-bottom: 14rem;
+	padding-top: 6rem;
+}
+
+.extension-dashboard-widget-weather strong{
+	margin:0 1rem;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-weather .extension-dashboard-widget-weather_description-needs-update{
+	font-size:3rem;
+}
+
+
+body.developer .extension-dashboard-widget-weather_description-needs-update:empty::after{
+	content:'Weather';
+}
+
+.extension-dashboard-widget-humidity-needs-update:not(:empty)::after{
+	content:'%';
+}
+
+
+.extension-dashboard-widget-temperature-value-container,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact > div strong{
+	font-size:200%;
+	color:white;
+}
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h="2"]) .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact > div strong.extension-dashboard-widget-temperature-value-container,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact > div strong.extension-dashboard-widget-temperature-value-container{
+	font-size:300%;
+}
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact > div strong.extension-dashboard-widget-temperature-value-container{
+	font-size: 400%;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact > div p{
+	margin-top:.5rem;
+}
+
+
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="3"] .extension-dashboard-widget-weather .extension-dashboard-widget-split > div,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="4"] .extension-dashboard-widget-weather .extension-dashboard-widget-split > div{
+	flex-grow:1;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="3"] .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="4"] .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact{
+	flex-direction:row;
+	flex-wrap: nowrap;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="3"] .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact > div,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="4"] .extension-dashboard-widget-weather .extension-dashboard-widget-split-compact > div{
+	flex-direction:column;
+	justify-content: flex-end;
+	height:100%;
+	padding-bottom: 1.5rem;
+	margin: 0 1rem;
+}
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="3"] .extension-dashboard-widget-weather .extension-dashboard-widget-weather-description-container{
+	padding-left:2rem;
+}
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="4"] .extension-dashboard-widget-weather .extension-dashboard-widget-weather-description-container{
+	padding-left:4.5rem;
+}
 
 /*   RAIN    */
 
@@ -4064,7 +4011,7 @@ h1 {
 
 .extension-dashboard-widget-weather-cloud2 {
     opacity: .8;
-    top:40px;
+    top: 40px;
     left: 120%;
     -webkit-transform: scale(.7);
     -moz-transform: scale(.7);
@@ -4082,7 +4029,7 @@ h1 {
 }
 .extension-dashboard-widget-weather-cloud3 {
     opacity: 0;
-    top:20px;
+    top: 20px;
     left: 50%;
     -webkit-transform: scale(.35);
     -moz-transform: scale(.35);
@@ -4097,7 +4044,7 @@ h1 {
 }
 .extension-dashboard-widget-weather-cloud4 {
     opacity: 0;
-    top:50px;
+    top: 50px;
     left: 20%;
     -webkit-transform: scale(.40, .45);
     -moz-transform: scale(.40, .45);
@@ -4112,7 +4059,7 @@ h1 {
 }
 .extension-dashboard-widget-weather-cloud5 {
     opacity: 0;
-    top:80px;
+    top: 80px;
     left: 90%;
     -webkit-transform: scale(.40);
     -moz-transform: scale(.40);
@@ -4127,7 +4074,7 @@ h1 {
 }
 .extension-dashboard-widget-weather-cloud6 {
     opacity: .7;
-    top:60px;
+    top: 60px;
     left: 120%;
     -webkit-transform: scale(.40);
     -moz-transform: scale(.40);
@@ -4143,12 +4090,12 @@ h1 {
     animation: extensionDashboardWidgetWeatherDrift 110s;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
-    animation-delay: 11;
+    animation-delay: 11s;
     z-index: 0;
 }
 .extension-dashboard-widget-weather-cloud7 {
     opacity: .8;
-    top:95px;
+    top: 95px;
     left: 120%;
     -webkit-transform: scale(.7);
     -moz-transform: scale(.7);
@@ -4191,39 +4138,6 @@ h1 {
     top: 100px;
     left: 130px;
 }
-
-/*
-.extension-dashboard-widget-weather-circ1shadow, .extension-dashboard-widget-weather-circ2shadow, .extension-dashboard-widget-weather-circ3shadow, .extension-dashboard-widget-weather-circ5shadow, .extension-dashboard-widget-weather-circ6shadow {
-    background-repeat: no-repeat;
-    position: absolute;
-    z-index:2;
-    transform: scale(.9, -.9);
-}
-.extension-dashboard-widget-weather-circ1shadow {
-    background: radial-gradient(48% 64%, circle, rgba(204, 0, 0, 0) 110px, #9BBBC4 50px);
-    top: 2px;
-    z-index:3;
-}
-.extension-dashboard-widget-weather-circ2shadow {
-    background: radial-gradient(58% 61%, circle, rgba(204, 0, 0, 0) 82px, #9BBBC4 50px);
-    top: 0px;
-}
-.extension-dashboard-widget-weather-circ3shadow {
-    background: radial-gradient(54% 60%, circle, rgba(204, 0, 0, 0) 80px, #9BBBC4 50px);
-    top: 8px;
-    -webkit-transform: scale(.8, -.8);
-    -moz-transform: scale(.8, -.8);
-    transform: scale(.8, -.8);
-}
-.extension-dashboard-widget-weather-circ5shadow {
-    background: radial-gradient(57% 61%, circle, rgba(204, 0, 0, 0) 53px, #9BBBC4 40px);
-    top: 0px;
-}
-.extension-dashboard-widget-weather-circ6shadow {
-    background: radial-gradient(44% 65%, circle, rgba(204, 0, 0, 0) 53px, #9BBBC4 40px);
-    top: 0px;
-}
-*/
 
 .bigCloud {
     box-shadow: 10px 10px 5px 20px black inset;
@@ -4424,98 +4338,9 @@ h1 {
 
 
 
-/*  ROUND DIAL WIDGET  */
 
 
-.extension-dashboard-widget-dial-name-container{
-	position: absolute;
-	padding: 1.5rem 1rem 0 1.5rem;
-	font-weight:100;
-	width:100%;
-	max-width: 100%;
-    max-height: 40%;
-    overflow: hidden;
-    box-sizing: border-box;
-	
-}
-body:not(.developer) .extension-dashboard-widget-dial-name-container{
-	pointer-events:none;
-}
-
-.grid-stack-item:not([gs-h]):not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-round,
-.grid-stack-item[gs-h="2"][gs-w="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-round,
-.grid-stack-item[gs-h="3"][gs-w="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-round{
-	border-radius:50%;
-}
-
-
-.grid-stack-item:not([gs-h]):not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-round .extension-dashboard-widget-dial-name-container,
-.grid-stack-item[gs-h="2"][gs-w="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-round .extension-dashboard-widget-dial-name-container,
-.grid-stack-item[gs-h="3"][gs-w="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-round .extension-dashboard-widget-dial-name-container{
-	padding:.5rem 1.5rem 1rem 1.5rem;
-	bottom:0;
-	text-align: center;
-	height: 40%;
-}
-
-.grid-stack-item:not([gs-h]):not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-round.extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-name-container,
-.grid-stack-item[gs-h="2"][gs-w="2"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-round.extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-name-container,
-.grid-stack-item[gs-h="3"][gs-w="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-round.extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-name-container{
-	height: 43%;
-	max-height: 43%;
-}
-
-.grid-stack-item:not([gs-h]):not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-round .extension-dashboard-widget-dial-name-container{
-	font-size:80%;
-}
-
-
-#extension-dashboard-content .extension-dashboard-widget-round-dial input{
-	font-size:3rem;
-	text-align:center;
-	max-width: calc(80% - 4rem);
-	padding: 1rem 1.5rem;
-	margin-bottom:1rem;
-	border-radius:1rem;
-	color:inherit;
-	z-index:4;
-}
-#extension-dashboard-content .extension-dashboard-widget-round-dial input:not([disabled]){
-	background-color:#ebeff1;
-}
-
-#extension-dashboard-content .grid-stack-item[gs-w]:not(.grid-stack-sub-grid) .extension-dashboard-widget-round-dial input,
-#extension-dashboard-content .grid-stack-item[gs-h][gs-w]:not(.grid-stack-sub-grid) .extension-dashboard-widget-round-dial input{
-	font-size:6rem;
-	padding:2rem 1.5rem;
-}
-
-#extension-dashboard-content .grid-stack-item[gs-h]:not([gs-w]):not(.grid-stack-sub-grid) .extension-dashboard-widget-round-dial input{
-	font-size:4rem;
-	padding:1.5rem;
-	max-width: calc(100% - 1.5rem);
-}
-
-#extension-dashboard-content .grid-stack-item[gs-h="3"][gs-w="3"]:not(.grid-stack-sub-grid) .extension-dashboard-widget-round-dial input{
-	font-size:10rem;
-	padding: 4rem 1.5rem;
-}
-
-.extension-dashboard-widget-round-dial .extension-dashboard-widget-dial-needle {
-	background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 60%, rgba(0,0,0, .8) 61%, rgba(0,0,0,.8) 95%);
-    width: 52%;
-    height: 2px;
-    left: 50%;
-    top: 50%;
-    border-radius: 2px;
-}
-
-
-
-
-
-
-/*   SIMPLE NUMBER WIDGET   */
+/*   BASIC NUMBER WIDGET   */
 
 .extension-dashboard-widget-number{
 	width:100%;
@@ -4549,7 +4374,830 @@ body:not(.developer) .extension-dashboard-widget-dial-name-container{
 }
 
 
+/*   IFRAME WIDGET   */
+.extension-dashboard-widget-frame iframe{
+	width:100%;
+	height:100%;
+}
 
 
+
+
+
+
+
+/*  Make some text unselectable */
+
+
+
+/*  TODO: ENABLE ON PRODUCTION: */
+
+#extension-dashboard-view :not(input):not(select):not(textarea) *,
+
+.extension-dashboard-widget-setpoint-arrow,
+.extension-dashboard-widget-temperature-value,
+.extension-dashboard-tab-button,
+#extension-dashboard-content strong,
+.extension-dashboard-widget-name-needs-rename{
+	user-select:none;
+}
+
+
+.extension-dashboard-widget-block-title-container{
+	padding:1.5rem 1rem .5rem 1.5rem;
+    flex-grow: 0;
+    min-height: 40px;
+	box-sizing: border-box;
+	user-select:none;
+	flex-basis:auto;
+}
+
+.extension-dashboard-template *{
+	box-sizing: border-box;
+}
+
+
+
+/*  HIDE IF EMPTY  */
+
+.extension-dashboard-widget-hide-if-empty:empty,
+.extension-dashboard-widget-hide-if-empty:empty + .extension-dashboard-widget-hide-if-after-empty{
+	display:none!important;
+}
+
+.extension-dashboard-widget-weather-moon-container{
+	position: absolute;
+    left: calc(100% - 6rem);
+    top: 7rem;
+    font-size: 4rem;
+    opacity: .2;
+	filter: saturate(50%);
+	transition: all 6s linear;
+}
+
+.extension-dashboard-night .extension-dashboard-widget-weather-moon-container{
+    left: calc(0% + 4rem);
+    top: 7rem;
+    font-size: 6rem;
+    opacity: .4;
+	transition: all 6s linear;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/*   BIG  CLOCK   */
+
+
+/*
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"][gs-w="2"] .extension-dashboard-widget-clock 
+*/
+
+.extension-dashboard-widget-clock-braun-date-container-wrapper{
+	position:relative;
+	height:100%;
+}
+
+.extension-dashboard-widget-clock-braun-date-container{
+	position:absolute;
+	bottom:20%;
+	width:100%;
+}
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"] .extension-dashboard-widget-clock-braun-date-container{
+	bottom:-20%;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"][gs-h="2"] .extension-dashboard-widget-clock-braun-date-container{
+	position:absolute;
+	bottom:20%;
+	width:100%;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"][gs-h="2"] .extension-dashboard-widget-clock-braun-date-container .extension-dashboard-widget-clock-date-day{
+	font-size: 2rem;
+}
+
+
+
+.extension-dashboard-widget-clock-analog-second {
+	animation: extension-dashboard-clock-seconds-rotation 60s linear infinite;
+}
+
+@keyframes extension-dashboard-clock-seconds-rotation {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
+}
+
+
+
+
+
+/*   SEIKO CLOCK   */
+
+.extension-dashboard-widget-clock-seiko {
+	width: 80%;
+	height: 80%;
+	border-radius: 50%;
+	/*
+	box-shadow: 
+		inset 40px 40px 90px rgba(0,0,0,.2),
+		inset 10px 10px 30px rgba(0,0,0,.5), 
+		20px 20px 30px rgba(0,0,0,.4),
+		40px 40px 60px rgba(0,0,0,.4);
+	*/
+	position: relative;
+	z-index: 1;
+}
+
+
+.extension-dashboard-widget-clock-seiko-fix{
+	width:100%;
+	height:100%;
+	transform: rotate(-90deg);
+}
+
+.extension-dashboard-widget-clock-seiko-date-container{
+	position:absolute;
+	top:0;
+	height: 80%;
+	width:100%;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    flex-direction: column;
+	pointer-events:none;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-clock-seiko-date-container{
+	right: -150%;
+    justify-content: center;
+	height:100%;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-clock-seiko-date-container{
+	top: auto;
+	bottom: -100%;
+}
+
+
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-clock-seiko-date-container .extension-dashboard-widget-clock-date-day{
+	opacity:.7;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-clock-seiko-minute-ticks{
+	opacity:.6;
+}
+
+.extension-dashboard-widget-clock-seiko-minute-ticks{
+	pointer-events:none;
+}
+.extension-dashboard-widget-clock-seiko-minute-tick{
+	position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    width: 0.3em;
+    height: 100%;
+    background: transparent;
+    box-shadow: 0 -0.6em 0 -0.1em #383838, 0 0.6em 0 -0.1em #383838;
+	box-shadow: 0 -0.6em 0 -0.1em #ffffff, 0 0.6em 0 -0.1em #ffffff;
+    z-index: -1;
+    transform: rotate(6deg);
+}
+
+
+/*
+.extension-dashboard-widget-clock-seiko,
+*/
+.extension-dashboard-widget-clock-seiko-minute-tick:after, 
+.extension-dashboard-widget-clock-seiko-minute-tick:before{
+	display: block;
+	content: "";
+	position: absolute;
+	height: inherit;
+	width: inherit;
+	background: inherit;
+	box-shadow: inherit;
+	backface-visibility: inherit;
+	z-index: 0;
+}
+
+.extension-dashboard-widget-clock-seiko-minute-tick:before {
+	transform: rotate(120deg);
+}
+.extension-dashboard-widget-clock-seiko-minute-tick:after {
+	transform: rotate(240deg);
+}
+.extension-dashboard-widget-clock-seiko-minute-ticks > span:nth-child(2) {
+	transform: rotate(12deg);
+}
+.extension-dashboard-widget-clock-seiko-minute-ticks > span:nth-child(3) {
+	transform: rotate(18deg);
+}
+.extension-dashboard-widget-clock-seiko-minute-ticks > span:nth-child(4) {
+	transform: rotate(24deg);
+}
+
+.extension-dashboard-widget-clock-seiko-minute-ticks > span:nth-child(5) {
+	transform: rotate(36deg);
+}
+.extension-dashboard-widget-clock-seiko-minute-ticks > span:nth-child(6) {
+	transform: rotate(42deg);
+}
+.extension-dashboard-widget-clock-seiko-minute-ticks > span:nth-child(7) {
+	transform: rotate(48deg);
+}
+.extension-dashboard-widget-clock-seiko-minute-ticks > span:nth-child(8) {
+	transform: rotate(54deg);
+}
+
+
+.extension-dashboard-widget-clock-seiko-minute-ticks > span:nth-child(9) {
+	transform: rotate(0deg);
+	box-shadow: 0 -0.6em 0 -0.05em #ffffff, 0 0.6em 0 -0.05em #ffffff;
+	/*
+	box-shadow: 0 -0.6em 0 -0.05em #009bff, 0 0.6em 0 -0.05em #009bff;
+	box-shadow: 0 -0.6em 0 -0.05em #0200a4, 0 0.6em 0 -0.05em #0200a4;
+	*/
+}
+.extension-dashboard-widget-clock-seiko-minute-ticks > span:nth-child(10) {
+	transform: rotate(30deg);
+	box-shadow: 0 -0.6em 0 -0.05em #ffffff, 0 0.6em 0 -0.05em #ffffff;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="3"] .extension-dashboard-widget-clock-seiko-minute-ticks > span:nth-child(9){
+	box-shadow: 0 -0.6em 0 -0.05em #0200a4, 0 0.6em 0 -0.05em #0200a4;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="3"] .extension-dashboard-widget-clock-seiko-minute-ticks > span:nth-child(10){
+	box-shadow: 0 -0.6em 0 -0.05em #009bff, 0 0.6em 0 -0.05em #009bff;
+}
+
+
+
+/*
+.extension-dashboard-widget-clock-seiko-minute-tick2{
+	transform: rotate(6deg);
+	background-color:rgba(255,255,0,.7);
+}
+
+.extension-dashboard-widget-clock-seiko-minute-tick2:before {
+	transform: rotate(120deg);
+	background-color:rgba(0,255,255,.7);
+}
+.extension-dashboard-widget-clock-seiko-minute-tick2:after {
+	transform: rotate(240deg);
+	background-color:rgba(255,0,255,.7);
+}
+
+.extension-dashboard-widget-clock-seiko-minute-ticks > span:nth-child(2) {
+	transform: rotate(12deg);
+}
+*/
+
+
+
+/*
+.extension-dashboard-widget-clock-seiko:before {
+	content: '';
+	width: 95%;
+	height: 95%;
+	border-radius: 50%;
+	display: block;
+	background: transparent;
+	border: 2% solid white;
+}
+
+.extension-dashboard-widget-clock-seiko:after {
+	content: '';
+	width: 105%;
+	height: 105%;
+	border-radius: 50%;
+	display: block;
+	background: transparent;
+	position: absolute;
+	top: -2.5%;
+	left: -2.5%;
+	box-shadow: -3px -3px 9px rgba(255,255,255,.8);
+}
+*/
+
+.extension-dashboard-widget-clock-seiko-label {
+	position: absolute;
+	top: 22%;
+    left: calc(50% - 50px);
+    font-size: 1rem;
+    width: 100px;
+    text-align: center;
+}
+
+.extension-dashboard-widget-clock-seiko-hourhand,
+.extension-dashboard-widget-clock-seiko-secondhand,
+.extension-dashboard-widget-clock-seiko-minutehand {
+	width: 25%;
+	height: 2%;
+	background: #000;
+	position: absolute;
+	top: 50%;
+	left: calc(50% - 3.5%);
+	z-index: 2;
+	transform: rotate(-139deg);
+	transform-origin: 16%;
+	/*-webkit-filter: drop-shadow(12px 12px 7px rgba(0,0,0,0.5));
+	drop-shadow: (12px 12px 7px rgba(0,0,0,0.5));*/
+}
+
+.extension-dashboard-widget-clock-seiko-hourhand:after,
+.extension-dashboard-widget-clock-seiko-secondhand:after,
+.extension-dashboard-widget-clock-seiko-minutehand:after {
+	content: '';
+	background: #000;
+	width: 5%;
+	height: 5%;
+	border-radius: 50%;
+	z-index: 3;
+	position: absolute;
+	top: -1.5%;
+	left: 1.5%;
+}
+
+.extension-dashboard-widget-clock-seiko-hourhand {
+	border-top-right-radius: 20%;
+	border-bottom-right-radius: 20%;
+	background: #009bff;
+	box-shadow: -10px 0px 10px rgba(0,0,0,.4);
+}
+
+.extension-dashboard-widget-clock-seiko-minutehand {
+	width: 40%;
+	height: 1%;
+	top: 50%;
+	transform: rotate(-39deg);
+	transform-origin: 10%;
+	border-top-right-radius: 30%;
+	border-bottom-right-radius: 30%;
+	/*
+	box-shadow: -10px 10px 10px rgba(0,0,0,.4);
+	*/
+	box-shadow:-4px 4px 8px rgba(0, 0, 0, .3);
+	background: #0200a4;
+}
+
+
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]) .extension-dashboard-widget-clock-seiko-hourhand,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]) .extension-dashboard-widget-clock-seiko-hourhand,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]) .extension-dashboard-widget-clock-seiko-minutehand,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]) .extension-dashboard-widget-clock-seiko-minutehand{
+	height: 3%;
+}
+
+
+
+.extension-dashboard-widget-clock-seiko-minutehand:before {
+	content: '';
+	width: 4.5%;
+	height: 4.5%;
+	border-radius: 50%;
+	z-index: 99;
+	position: absolute;
+	top: -1.7%;
+	left: 1.7%;
+	/*box-shadow: -2px -2px 7px rgba(255,255,255,.6);*/
+}
+
+.extension-dashboard-widget-clock-seiko-minutehand:after {
+	top: -2%;
+}
+
+.extension-dashboard-widget-clock-seiko-secondhand {
+	width: 35%;
+	height: .5%;
+	top: 50%;
+	background: #fff;
+	transform: rotate(160deg);
+	transform-origin: 11.5%;
+	/*box-shadow: -10px -10px 10px rgba(0,0,0,.4);*/
+}
+.extension-dashboard-widget-clock-seiko-secondhand:after {
+	top: -2.25%;
+}
+
+/*
+.extension-dashboard-widget-clock-seiko-hour12,
+.extension-dashboard-widget-clock-seiko-hour1,
+.extension-dashboard-widget-clock-seiko-hour2,
+.extension-dashboard-widget-clock-seiko-hour3,
+.extension-dashboard-widget-clock-seiko-hour4,
+.extension-dashboard-widget-clock-seiko-hour5 {
+	height: 1%;
+	width: 55%;
+	background: transparent;
+	border-left: 7px solid #000;
+	border-right: 7px solid #000;
+	transform: translate(-50%, -50%);
+	top: 50%;
+	left: 50%;
+	position: absolute;
+}
+
+.extension-dashboard-widget-clock-seiko-hour3 { transform: rotate(90deg) translate(0, 34%); }
+
+.extension-dashboard-widget-clock-seiko-hour1 { transform: rotate(120deg) translate(17%, 30%); }
+
+.extension-dashboard-widget-clock-seiko-hour2 { transform: rotate(150deg) translate(29%, 18%); }
+
+.extension-dashboard-widget-clock-seiko-hour4 { transform: rotate(210deg) translate(30%, -17%); }
+
+.extension-dashboard-widget-clock-seiko-hour5 { transform: rotate(240deg) translate(17%, -30%); }
+*/
+
+
+.extension-dashboard-widget-clock-seiko ul{
+    height: 50%;
+    width: 90%;
+    position: absolute;
+    bottom: 0;
+    left: 5%;
+    padding: 0;
+    margin: 0;
+	pointer-events:none;
+}
+
+
+.extension-dashboard-widget-clock-seiko ul li{
+	overflow:visible;
+}
+
+.extension-dashboard-widget-clock-seiko ul li i {
+	position: absolute;
+	top: -10px;
+	left: 0;
+	transform: translateX(-50%);
+	text-decoration:none;
+	font-style:normal;
+	font-size:1.2rem;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-clock-seiko ul li i{
+	font-size:1.6rem;
+}
+
+.extension-dashboard-widget-clock-seiko ul li:nth-child(1) {
+	transform: rotate(90deg);
+}
+.extension-dashboard-widget-clock-seiko ul li:nth-child(1) i {transform: translateX(-50%) rotate(-90deg)}
+
+.extension-dashboard-widget-clock-seiko ul li:nth-child(2) {
+	transform: rotate(120deg);
+}
+.extension-dashboard-widget-clock-seiko ul li:nth-child(2) i {transform: translateX(-50%) rotate(240deg)}
+
+
+.extension-dashboard-widget-clock-seiko ul li:nth-child(3) {
+	transform: rotate(150deg);
+}
+.extension-dashboard-widget-clock-seiko ul li:nth-child(3) i {transform: translateX(-50%) rotate(210deg)}
+
+
+.extension-dashboard-widget-clock-seiko ul li:nth-child(4) {
+	transform: rotate(180deg);
+}
+.extension-dashboard-widget-clock-seiko ul li:nth-child(4) i {transform: translateX(-50%) rotate(180deg)}
+
+
+.extension-dashboard-widget-clock-seiko ul li:nth-child(5) {
+	transform: rotate(210deg);
+}
+.extension-dashboard-widget-clock-seiko ul li:nth-child(5) i {transform: translateX(-50%) rotate(150deg)}
+
+
+.extension-dashboard-widget-clock-seiko ul li:nth-child(6) {
+	transform: rotate(240deg);
+}
+.extension-dashboard-widget-clock-seiko ul li:nth-child(6) i {transform: translateX(-50%) rotate(120deg)}
+
+
+.extension-dashboard-widget-clock-seiko ul li:nth-child(7) {
+	transform: rotate(270deg);
+}
+.extension-dashboard-widget-clock-seiko ul li:nth-child(7) i {transform: translateX(-50%) rotate(90deg)}
+
+
+.extension-dashboard-widget-clock-seiko ul li:nth-child(8) {
+	transform: rotate(300deg);
+}
+.extension-dashboard-widget-clock-seiko ul li:nth-child(8) i {transform: translateX(-50%) rotate(60deg)}
+
+
+.extension-dashboard-widget-clock-seiko ul li:nth-child(9) {
+	transform: rotate(330deg);
+}
+.extension-dashboard-widget-clock-seiko ul li:nth-child(9) i {transform: translateX(-50%) rotate(30deg)}
+
+
+.extension-dashboard-widget-clock-seiko ul li:nth-child(10) {
+	transform: rotate(0deg);
+}
+.extension-dashboard-widget-clock-seiko ul li:nth-child(10) i {transform: translateX(-50%) rotate(0deg)}
+
+
+.extension-dashboard-widget-clock-seiko ul li:nth-child(11) {
+	transform: rotate(30deg);
+}
+.extension-dashboard-widget-clock-seiko ul li:nth-child(11) i {transform: translateX(-50%) rotate(330deg)}
+
+
+.extension-dashboard-widget-clock-seiko ul li:last-child  {
+	transform: rotate(60deg);
+}
+
+.extension-dashboard-widget-clock-seiko ul li:last-child i {transform: translateX(-50%) rotate(300deg)}
+
+
+
+
+
+
+
+
+
+
+
+/*   BRAUN CLOCK   */
+
+
+
+.extension-dashboard-widget-clock-braun {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+    width: 100%;
+    height: 100%;
+	max-width:100%;
+	max-height: 100%;
+	border-radius: 50%;
+	
+	background: radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.1) 40%, rgba(0, 0, 0, 0.1) 42%, transparent 42%),
+	        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.1) 2%, transparent 2%, transparent 10%);
+	background-size: 150px 150px;
+	background-repeat: repeat;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+	opacity: 0.8;
+		
+	/*
+	background: #eee;
+	border: 0.2em solid #d0d0d0;
+	box-shadow: 0 1.2em 0 -1em white, 0 -0.1em 0.3em 0 #fff, 0 0 0 0.6em #e7e7e7, 0 0.6em 1.2em 0 rgba(0, 0, 0, 0.5), inset 0 0.5em 1em 0 rgba(0, 0, 0, 0.3), inset 0 0 8em 0 rgba(0, 0, 0, 0.2);
+	*/
+}
+/*
+.extension-dashboard-widget-clock-braun:before {
+	display: block;
+	content: "";
+	position: absolute;
+	background: #dedede;
+	left: -2em;
+	top: -2em;
+	width: 33vh;
+	height: 33vh;
+	border-radius: 4.6em;
+	z-index: -1;
+	box-shadow: inset 0 -0.2em 0.2em 0 rgba(0, 0, 0, 0.2), inset 0 0.2em 2em 0 #fff;
+}
+
+.extension-dashboard-widget-clock-braun:after {
+	display: block;
+	content: "";
+	position: absolute;
+	height: inherit;
+	width: inherit;
+	background: transparent;
+	top: 0;
+	left: 0;
+	border-radius: inherit;
+	box-shadow: inset 12em 14em 0 -10em rgba(255, 255, 255, 0.25);
+	z-index: 4;
+	pointer-events:none;
+}
+*/
+.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-uur {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+	width: 0.5em;
+	height: 16.4em;
+	background: transparent;
+	box-shadow: 0 -1em 0 -0.1em #383838, 0 1em 0 -0.1em #383838;
+	transform: rotate(30deg);
+}
+.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-uur:after, .extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-uur:before {
+	display: block;
+	content: "";
+	position: absolute;
+	height: inherit;
+	width: inherit;
+	background: inherit;
+	box-shadow: inherit;
+	backface-visibility: inherit;
+}
+.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-uur:before {
+	transform: rotate(30deg);
+}
+.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-uur:after {
+	transform: rotate(-30deg);
+}
+.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-uur:nth-of-type(1) {
+	transform: rotate(-60deg);
+}
+.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+	width: 0.3em;
+	height: 17em;
+	background: transparent;
+	box-shadow: 0 -0.6em 0 -0.1em #383838, 0 0.6em 0 -0.1em #383838;
+	z-index: -1;
+	transform: rotate(-54deg);
+}
+.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut:after, .extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut:before {
+	display: block;
+	content: "";
+	position: absolute;
+	height: inherit;
+	width: inherit;
+	background: inherit;
+	box-shadow: inherit;
+	backface-visibility: inherit;
+	z-index: 0;
+}
+.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut:before {
+	transform: rotate(6deg);
+}
+.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut:after {
+	transform: rotate(12deg);
+}
+.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut:nth-child(2) {
+	transform: rotate(-36deg);
+}
+.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut:nth-child(3) {
+	transform: rotate(-18deg);
+}
+.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut:nth-child(4) {
+	transform: rotate(6deg);
+}
+.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut:nth-child(5) {
+	transform: rotate(24deg);
+}
+
+.extension-dashboard-widget-clock-braun-alarm {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+	background: #f8f8f8;
+	width: 2.6em;
+	height: 2.6em;
+	border-radius: 50%;
+	transform: rotate(-45deg);
+	box-shadow: 0 0.2em 0.4em 0 rgba(0, 0, 0, 0.1);
+}
+.extension-dashboard-widget-clock-braun-alarm:after {
+	display: block;
+	content: "";
+	position: absolute;
+	width: 0.4em;
+	height: 4.8em;
+	top: -4.6em;
+	background: linear-gradient(to bottom, #f6f6f6 0%, #f8f8f8 100%);
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+	z-index: -3;
+	box-shadow: inset 0 1.2em 0 #4ca440, -0.2em -0.2em 0.3em 0 rgba(0, 0, 0, 0.1);
+}
+
+.extension-dashboard-widget-clock-braun-sec {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+	background: radial-gradient(ellipse at center, #ffd322 0%, #fbc900 100%);
+	width: 2em;
+	height: 2em;
+	border-radius: 50%;
+	border: 0.14em solid #fbc900;
+	z-index: 3;
+}
+
+
+
+.extension-dashboard-widget-clock-braun-sec:before, .extension-dashboard-widget-clock-braun-sec:after {
+	display: block;
+	content: "";
+	position: absolute;
+}
+.extension-dashboard-widget-clock-braun-sec:before {
+	background: #fbc900;
+	width: 0.8em;
+	height: 1.5em;
+	top: 1.8em;
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+	border-radius: 0 0 2em 2em;
+}
+.extension-dashboard-widget-clock-braun-sec:after {
+	width: 0.18em;
+	height: 7.6em;
+	top: -7.6em;
+	background: #fbc900;
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+}
+
+.extension-dashboard-widget-clock-braun-min,
+.extension-dashboard-widget-clock-braun-hour {
+	z-index: 2;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+	background: #fbc900;
+	transform-origin: bottom center;
+}
+
+.extension-dashboard-widget-clock-braun-min {
+	width: 0.6em;
+	height: 8.6em;
+	top: -8.6em;
+	border-radius: 2em 2em 0 0;
+	box-shadow: inset 0 0 0 0.16em #303030, inset 0 -6em 0 0 #303030, -0.2em -0.2em 0.4em 0 rgba(0, 0, 0, 0.2);
+}
+
+.extension-dashboard-widget-clock-braun-hour {
+	width: 0.7em;
+	height: 7em;
+	top: -7em;
+	border-radius: 2em 2em 0 0;
+	box-shadow: inset 0 0 0 0.16em #303030, inset 0 -4.2em 0 0 #303030, -0.2em -0.2em 0.4em 0 rgba(0, 0, 0, 0.2);
+}
+
+
+
+
+
+/*
+.extension-dashboard-template *,
+*/
+/*
+.extension-dashboard-widget-thermostat-setpoint-buttons > div,
+.grid-stack>.grid-stack-item>.grid-stack-item-content{
+	box-shadow: inset 10px 10px 30px rgba(0, 0, 0, .2), inset 5px 5px 15px rgba(0, 0, 0, .4), 10px 10px 15px rgba(0, 0, 0, .3), 20px 20px 30px rgba(0, 0, 0, .3);
+}
+
+#extension-dashboard-content{
+	color: #bababa;
+	letter-spacing: .5px;
+}
+
+.grid-stack>.grid-stack-item>.grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button){
+	background-color:transparent;
+}
+
+.extension-dashboard-widget-property-switch label,
+.extension-dashboard-widget-property-switch label::before,
+.extension-dashboard-widget-thermostat-setpoint-buttons > div{
+	background-color:transparent;
+}
+*/
 
 

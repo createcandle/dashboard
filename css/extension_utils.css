@@ -1,0 +1,176 @@
+
+
+
+
+/*   SIMPLE SIMPLER SIMPLIFIED MANIPULATION TAGS   */
+
+
+.extension-dashboard-flex-grow,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]) .extension-dashboard-widget-flex-grow-if-short,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]) .extension-dashboard-widget-flex-grow-if-thin{
+	flex-grow:1;
+}
+
+.extension-dashboard-flex-grow10{
+	flex-grow:10!important;
+	display: flex;
+}
+
+.extension-dashboard-flex-grow100{
+	flex-grow:100!important;
+}
+
+
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h="2"]) .extension-dashboard-widget-show-if-square,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h="3"]) .extension-dashboard-widget-show-if-square,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="4"]:not([gs-h="4"]) .extension-dashboard-widget-show-if-square,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"]:not([gs-w="2"]) .extension-dashboard-widget-show-if-square,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"]:not([gs-w="3"]) .extension-dashboard-widget-show-if-square,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="4"]:not([gs-w="4"]) .extension-dashboard-widget-show-if-square,
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-show-if-at-least-2x2,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-show-if-at-least-2x2,
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h="3"]):not([gs-h="4"]):not([gs-w]) .extension-dashboard-widget-hide-if-2x1,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"]:not([gs-h="3"]):not([gs-h="4"]):not([gs-w]) .extension-dashboard-hide-if-1x2,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h="3"]):not([gs-h="4"]):not([gs-w]) .extension-dashboard-hide-if-1x1-or-1x2,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w="3"]):not([gs-w="4"]):not([gs-h]) .extension-dashboard-widget-hide-if-1x1-or-2x1,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"][gs-h="2"] .extension-dashboard-widget-hide-if-2x2,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-hide-if-1x1,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]) .extension-dashboard-widget-hide-if-short,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]) .extension-dashboard-widget-hide-if-thin{
+	display:none!important;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-smaller-font-on-1x1{
+	font-size:80%;
+}
+
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-property-slider input[type=range],
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin input[type=range],
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin-above-h2 input[type=range],
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="4"]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin-above-h2 input[type=range]{
+	width:auto;
+	writing-mode: vertical-lr;
+	direction: rtl;
+	flex-grow:1;
+}
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin-above-h2,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="4"]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin-above-h2,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin{
+	flex-direction:column;
+}
+
+.extension-dashboard-widget-style-minheight30{
+	min-height: 30%;
+}
+.extension-dashboard-widget-style-minheight40{
+	min-height: 40%;
+}
+.extension-dashboard-widget-style-minheight50{
+	min-height: 50%;
+}
+.extension-dashboard-widget-style-minheight60{
+	min-height: 60%;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*  COPY TO CLIPBOARD  */
+
+.extension-dashboard-click-to-copy-to-clipboard{
+	cursor:pointer;
+    background: linear-gradient(-45deg, rgba(0,0,0,0) 40%, rgba(128,128,128,0) 50%, rgba(0,0,0,0) 60%);
+    background-size: 300%;
+    background-position-x: 100%;
+	transition: background .2s ease-out;
+	user-select:initial!important;
+}
+
+.extension-dashboard-click-to-copy-to-clipboard:active{
+    background: linear-gradient(-45deg, rgba(0,0,0,0) 40%, rgba(128,128,128,.15) 50%, rgba(0,0,0,0) 60%);
+    background-size: 300%;
+    background-position-x: 100%;
+    animation: extensionDashboardCopyShimmer .1s infinite linear;
+}
+
+.extension-dashboard-click-to-copy-to-clipboard:hover{
+    background: linear-gradient(-45deg, rgba(0,0,0,0) 40%, rgba(128,128,128,.15) 50%, rgba(0,0,0,0) 60%);
+    background-size: 300%;
+    background-position-x: 100%;
+    animation: extensionDashboardCopyShimmer 1s infinite linear;
+}
+.extension-dashboard-click-to-copy-to-clipboard::after{
+	content:"Copy";
+	font-size:1.6rem;
+	position:absolute;
+	top:calc(50% - 30px);
+	left:calc(50% - 60px);
+	background-color:rgba(189,200,210,0);
+	padding:.2rem;
+	border-radius:.5rem;
+	opacity:0;
+	pointer-events:none;
+	color:white;
+	width:60px;
+	height:20px;
+	display:flex;
+	justify-content:center;
+	align-items:center;
+	overflow:hidden;
+	transition:background .1s linear;
+}
+
+.extension-dashboard-click-to-copy-to-clipboard:hover::after{
+	background-color:rgba(125,175,210,1);
+	top:calc(50% - 30px);
+	left:calc(50% - 60px);
+	width:70px;
+	height:30px;
+	opacity:1;
+}
+
+.extension-dashboard-click-to-copy-to-clipboard.extension-dashboard-click-to-copy-to-clipboard-done::after{
+	content:'Copied';
+	background-color:rgba(0,128,0,1);
+	border-radius:.5rem;
+	width:80px;
+	height:30px;
+	left:calc(50% - 65px);
+	font-size:2rem;
+	opacity:1;
+}
+
+.extension-dashboard-click-to-copy-to-clipboard.extension-dashboard-click-to-copy-to-clipboard-failed::after{
+	content:'No text?';
+	white-space:nowrap;
+	background-color:rgba(128,0,0,1);
+	border-radius:.5rem;
+	width:80px;
+	height:30px;
+	left:calc(50% - 65px);
+	font-size:2rem;
+	opacity:1;
+}
+
+
+@keyframes extensionDashboardCopyShimmer {
+   to {
+      background-position-x: 0%
+   }
+}

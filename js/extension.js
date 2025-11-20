@@ -40,7 +40,7 @@
 			});
 			
 			this.update_clock = true;
-			
+			this.last_time_clock_updated = 0;
 
 
             // Dashboard
@@ -95,6 +95,21 @@
 			}
 			//console.log("initial this.current_grid_id: ", this.current_grid_id);
 			
+			this.locally_saved_values = {};
+			if(localStorage.getItem('extension_dashboard_locally_saved_values')){
+				try{
+					let decoded_locally_saved_values = localStorage.getItem('extension_dashboard_locally_saved_values');
+					decoded_locally_saved_values = JSON.parse(decoded_locally_saved_values);
+					this.locally_saved_values = decoded_locally_saved_values;
+					console.log("dashboard: this.locally_saved_values is now: ", this.locally_saved_values);
+				}
+				catch(err){
+					console.error("dashboard: caught error loading locally_saved_values: ", err);
+					localStorage.removeItem('extension_dashboard_locally_saved_values');
+					this.locally_saved_values = {};
+				}
+			}
+			
 			
 			this.all_things = null;
 			this.last_time_things_updated = 0;
@@ -140,9 +155,9 @@
 			this.delay_show_until_after_hide = false;
 			this.dashboard_menu_item = document.getElementById('extension-dashboard-menu-item');
 			if(this.dashboard_menu_item){
-				console.log("dashboard: OK, menu item exists");
+				//console.log("dashboard: OK, menu item exists");
 				this.dashboard_menu_item.addEventListener('click', () => {
-					console.log("clicked on dashboard menu button");
+					//console.log("clicked on dashboard menu button");
 					this.modal_el = document.getElementById('extension-dashboard-widget-modal');
 					if(this.modal_el){
 						this.delay_show_until_after_hide = true;
@@ -413,7 +428,10 @@
 						}
 						this.modal_el = document.getElementById('extension-dashboard-widget-modal');
 					}
-					this.show_dashboard();
+					//this.show_dashboard();
+					if(this.grids[this.current_grid_id]){
+						this.grids[this.current_grid_id].setStatic( true );
+					}
 					this.set_tab_buttons_draggable(false);
 					
 					/*
@@ -426,7 +444,10 @@
 				else{
 					this.content_el.classList.add('extension-dashboard-editing');
 					this.editing = true;
-					this.show_dashboard(); // redraw the grid, but this time allowed modifying it
+					
+					if(this.grids[this.current_grid_id]){
+						this.grids[this.current_grid_id].setStatic( false );
+					}
 					this.set_tab_buttons_draggable(true);
 				}
 				
@@ -548,6 +569,14 @@
 					
 	                //console.log(this.interval_counter);
 	            }, 1000);
+				
+				
+				// Once per day
+				setInterval(function() {
+					this.update_moon();
+				}, 86400000);
+				
+				
 				
 				
 				/*
@@ -721,6 +750,7 @@
 	                console.warn("dashboard: error, could not clear dashboard_interval: ", err);
 	            }
 			
+				
 				this.update_clock = false;
 			
 				this.current_logs = [];
@@ -728,6 +758,18 @@
 				this.grids = {};
 			
 				this.view.innerHTML = '<h1>Loading the dashboard failed</h1>';
+				
+				for (const [websocket_thing_id, websocket_client] of Object.entries( this.websockets )) {
+					if(websocket_client){
+						websocket_client.close();
+						setTimeout(() => {
+							delete this.websockets[websocket_thing_id];
+							if(this.debug){
+								console.log("dashboard debug: hide(): closed and deleted websocket client for ", websocket_thing_id);
+							}
+						},100);
+					}
+				}
 			}
 			else{
 				console.warn("DASHBOARD: HIDE: SEEMS TO BE STAYING ON THE PAGE, SO NOT ACTUALLY HIDING");
@@ -963,7 +1005,9 @@
 				trash_zone_el.classList.add('extension-dashboard-trash');
 				trash_zone_el.classList.add('extension-dashboard-show-if-editing');
 				trash_zone_el.addEventListener('click', () => {
-					alert("Drag and drop a widget here to remove it");
+					if(confirm("Are you sure you want to remove this dashboard?")){
+						this.delete_dashboard(this.current_grid_id);
+					}
 					
 					// removeWidget(this.parentElement.parentElement)
 				});
@@ -1076,6 +1120,12 @@
 				add_dashboard_button_el.addEventListener('click', () => {
 					this.save_grid();
 					this.update_sidebar('add_dashboard');
+					setTimeout(() => {
+						const new_tab_name_input_el = this.view.querySelector('.extension-dashboard-tab-name-input');
+						if(new_tab_name_input_el){
+							new_tab_name_input_el.focus();
+						}
+					},100);
 				})
 				//tabs_menu_el.appendChild(add_dashboard_button_el);
 				
@@ -1164,6 +1214,7 @@
 								tab_name_input_el.setAttribute('type','text');
 								tab_name_input_el.setAttribute('placeholder','Name');
 								tab_name_input_el.setAttribute('autocomplete','off');
+								tab_name_input_el.setAttribute('maxlength','25');
 								if(typeof details['name'] == 'string'){
 									tab_name_input_el.value = details['name'];
 								}
@@ -1234,19 +1285,26 @@
 						show_dashboard_button_el.classList.add('extension-dashboard-tab-button');
 						show_dashboard_button_el.textContent = show_dashboard_button_text;
 						show_dashboard_button_el.addEventListener('click', () => {
+							console.log("clicked on show_dashboard_button");
 							if(this.editing){
 								this.save_grid();
+								/*
 								if(typeof this.dashboards[grid_id] != 'undefined' && typeof this.dashboards[grid_id]['name'] == 'string'){
 									tab_name_input_el.value = this.dashboards[grid_id]['name'];
 								}else{
 									tab_name_input_el.value = '';
 								}
-							}
-							setTimeout(() => {
-								show_dashboard_button_el.scrollIntoView({ behavior: "smooth", block: "start", inline: "start"});
-							},100);
+								*/
 							
-							this.show_dashboard(grid_id,false);
+								this.show_dashboard(grid_id);
+							}
+							else{
+								setTimeout(() => {
+									show_dashboard_button_el.scrollIntoView({ behavior: "smooth", block: "start", inline: "start"});
+								},100);
+								this.show_dashboard(grid_id,false); // no need to fully redraw the sidebar
+							}
+							
 						});
 						
 						
@@ -1487,6 +1545,23 @@
 				console.log("dashboard debug: show_dashboard: data to render: ", this.dashboards[grid_id]);
 			}
 			
+			
+			this.update_clock = false;
+			
+			this.highest_spotted_widget_id = 0;
+			
+			this.current_logs = []; // keep track of which logs need to be rendered later
+			//this.websockets_lookup = {} // keep track of which websockets are needed, and for which properties they are currently used. i.e. this.websockets_lookup[thing_id] = [property, property2, etc]
+			
+			let switched_to_other_dashboard = null;
+			if(this.current_grid_id != grid_id){
+				switched_to_other_dashboard = true;
+			}
+				
+			this.current_grid_id = grid_id;
+			localStorage.setItem("candle_dashboard_grid_id", grid_id);
+			
+			
 			if(update_sidebar){
 				this.update_sidebar();
 			}
@@ -1498,19 +1573,7 @@
 			}
 			
 			
-			this.update_clock = false;
 			
-			this.highest_spotted_widget_id = 0;
-			
-			this.current_logs = []; // keep track of which logs need to be rendered later
-			
-			let switched_to_other_dashboard = null;
-			if(this.current_grid_id != grid_id){
-				switched_to_other_dashboard = true;
-			}
-				
-			this.current_grid_id = grid_id;
-			localStorage.setItem("candle_dashboard_grid_id", grid_id);
 			
 			if(typeof this.dashboards[grid_id]['gridstack'] == 'undefined'){
 				if(this.debug){
@@ -1645,6 +1708,11 @@
 				this.connect_websockets();
 				
 				this.render_logs(switched_to_other_dashboard);
+				
+				setTimeout(() => {
+					this.update_moon();
+				},1000);
+				
 				
 			}
 			else{
@@ -1859,11 +1927,15 @@
 
 
 		connect_websockets(){
-			console.log("in connect_websockets")
+			if(this.debug){
+				console.log("dashboard debug: in connect_websockets")
+			}
+			
 			if(typeof this.dashboards[this.current_grid_id] != 'undefined' && typeof this.dashboards[this.current_grid_id]['widgets'] != 'undefined'){
 				//console.log("widgets data for this grid_id: ", this.dashboards[this.current_grid_id]['widgets']);
 				
 				let currently_relevant_thing_ids = [];
+				this.websockets_lookup = {};
 				
 				class WebSocketClient {
 				  constructor(url, options = {}) {
@@ -2056,25 +2128,31 @@
 					if(details && typeof details['needs'] != 'undefined' && typeof details['needs']['update'] != 'undefined'){
 						
 						const needs_update = details['needs']['update'];
-						for (const [what_property_is_needed, needs_update_details] of Object.entries( needs_update )) {
+						for (const [what_property_is_neededX, needs_update_detailsX] of Object.entries( needs_update )) {
 							//console.log("what_property_is_needed: ", what_property_is_needed);
 							//console.log("- needs_update_details: ", needs_update_details);
+							
+							const what_property_is_needed = what_property_is_neededX;
+							const needs_update_details = needs_update_detailsX;
 							
 							if(typeof needs_update_details['thing_id'] == 'string' && typeof needs_update_details['property_id'] == 'string'){
 								
 								const thing_id = needs_update_details['thing_id'];
 								const property_id = needs_update_details['property_id'];
 								
-								currently_relevant_thing_ids.push(thing_id);
+								if(currently_relevant_thing_ids.indexOf(thing_id) == -1){
+									currently_relevant_thing_ids.push(thing_id); // TODO: this.websockets_lookup does basically the same..
+								}
 								
-								if(typeof this.websockets_lookup[thing_id] == ['undefined']){
+								
+								if(typeof this.websockets_lookup[thing_id] == 'undefined'){
 									this.websockets_lookup[thing_id] = [];
 								}
 								if(this.websockets_lookup[thing_id].indexOf(property_id) == -1){
 									this.websockets_lookup[thing_id].push(property_id);
 								}
 								
-								if(typeof this.websockets[thing_id] == ['undefined']){
+								if(typeof this.websockets[thing_id] == 'undefined'){
 									
 									let port = 8080;
 									if (location.protocol == 'https:') {
@@ -2097,468 +2175,622 @@
 
 									client.on('message', (data) => {
 										if(this.debug){
-											console.log('dashboard debug: websocket received:', data);
+											console.log('\n\n\ndashboard debug: websocket received:', data);
 										}
 										
 										if(typeof this.websockets_lookup[thing_id] != 'undefined'){
-											//console.log("in theory these properties could be updated in the dashboard: ", this.websockets_lookup[thing_id]);
+											console.log("in theory these properties could be updated in the dashboard: ", this.websockets_lookup[thing_id]);
 										}
 										
-										if(typeof data['id'] == 'string' && data['id'] == thing_id){
-											//console.log("-- as expected, received a websocket message for this thing: ", thing_id);
-											if(typeof data['messageType'] == 'string' && data['messageType'] == 'propertyStatus'){
-												//console.log(" -- the websocket message contains a propertyStatus");
-												if(typeof data['data'] != 'undefined'){
-													for (const [property_id, property_value] of Object.entries( data['data'] )) {
-														if(this.websockets_lookup[ data['id'] ] != 'undefined'){
-															if(this.websockets_lookup[ data['id'] ].indexOf(property_id) != -1){
-																//console.log("  -- OK, this property is represented on the dashboard.  property_id, property_value: ", property_id, property_value);
-																//console.log("   -- this.view: ", this.view);
-																if(this.view){
-																	
-																	if(typeof this.recent_events[thing_id] == 'undefined'){
-																		this.recent_events[thing_id] = {};
-																	}
-																	if(typeof this.recent_events[thing_id][property_id] != 'undefined' && this.recent_events[thing_id][property_id]['timestamp'] > Date.now() - 1000){
-																		if(this.debug){
-																			console.warn("dashboard debug: received a websocket message that is already in recent_events: ", JSON.stringify(this.recent_events[thing_id][property_id],null,4));
-																		}
-																		if(this.recent_events[thing_id][property_id]['value'] == property_value){
-																			if(this.debug){
-																				console.warn("dashboard debug:  > > > and the value matches too: ", property_value);
-																			}
-																			this.recent_events[thing_id][property_id]['timestamp'] = Date.now();
-																			//continue
-																		}
-																	}
-																	else{
-																		this.recent_events[thing_id][property_id] = {"timestamp":Date.now(), "value":property_value, "type":"received"};
-																	}
-																	
-																	
-																	
-																	//let elements_to_update = this.view.querySelectorAll('[data-extension-dashboard-update-thing="' + thing_id + '"][data-extension-dashboard-update-property="' + property_id + '"]');
-																	let elements_to_update = this.view.querySelectorAll('[data-extension-dashboard-update-thing-combo="' + thing_id + '-' + property_id + '"]');
-																	//console.warn("elements_to_update: ", elements_to_update.length, thing_id, property_id);
-																	const elements_to_update_length = elements_to_update.length;
-																	
-																	if(elements_to_update_length){
-																		//console.log("there are elements to update.  thing_id, property_id: ", thing_id, property_id);
-																		
-																		// loop over all widgets in the current dashboard until we find a match. We need to look up to see if a thing-property is set for, for example, the weather widget's description. And then check if that matches with the received thing-property combo.
-																		
-																		if(typeof this.dashboards[this.current_grid_id] != 'undefined' && typeof this.dashboards[this.current_grid_id]['widgets'] != 'undefined'){
-																			for (const [widget_id, widget_details] of Object.entries(this.dashboards[this.current_grid_id]['widgets'])) {
-																				if(typeof widget_details['needs'] != 'undefined'){
-																					
-																					const needs = widget_details['needs'];
-																					if(typeof needs['update'] != 'undefined'){
-																						for (const [what_property_is_needed, needs_details] of Object.entries(needs['update'])) {
-																							//console.log("looping over needs -> update -> what_property_is_needed: ", what_property_is_needed, needs_details);
-																					
-																							
-																							// Weather widget, uses description to trigger weather animations (if animations are allowed)
-																							if(
-																								what_property_is_needed == 'weather_description' && 
-																								typeof widget_details['type'] == 'string' && 
-																								widget_details['type'] == 'weather' && 
-																								this.content_el && 
-																								typeof property_value == 'string' && 
-																								this.animations
-																						
-																							){
-																								if(this.debug){
-																									console.log("dashboard debug: received a weather_description update: ", property_value);
-																								}
-																								
-																								this.content_el.classList.remove('extension-dashboard-widget-weather-show-rain');
-																								this.content_el.classList.remove('extension-dashboard-widget-weather-show-rain-impact');
-																								this.content_el.classList.remove('extension-dashboard-widget-weather-show-clouds');
-																								this.content_el.classList.remove('extension-dashboard-widget-weather-show-dark-clouds');
-																								this.content_el.classList.remove('extension-dashboard-widget-weather-show-snow');
-																								this.content_el.classList.remove('extension-dashboard-widget-weather-show-hail');
-																								this.content_el.classList.remove('extension-dashboard-widget-weather-show-fog');
-																								
-																						
-																								if(property_value.toLowerCase().indexOf('storm') != -1){
-																									this.content_el.classList.add('extension-dashboard-widget-weather-show-rain');
-																									this.content_el.classList.add('extension-dashboard-widget-weather-show-rain-impact');
-																									this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
-																									this.content_el.classList.add('extension-dashboard-widget-weather-show-dark-clouds');
-																									if(this.debug){
-																										console.log("dashboard debug: weather update: storm: ", property_value);
-																									}
-																								}
-																								else if(property_value.toLowerCase().indexOf('rain') != -1){
-																									this.content_el.classList.add('extension-dashboard-widget-weather-show-rain');
-																									this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
-																									if(this.debug){
-																										console.log("dashboard debug: weather update: rain: ", property_value);
-																									}
-																								}
-																								else if(property_value.toLowerCase().indexOf('cloud') != -1){
-																									if(this.debug){
-																										console.log("dashboard debug: weather update: cloudy: ", property_value);
-																									}
-																									this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
-																								}
-																								else if(property_value.toLowerCase().indexOf('snow') != -1){
-																									if(this.debug){
-																										console.log("dashboard debug: weather update: snowy: ", property_value);
-																									}
-																									this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
-																									this.content_el.classList.add('extension-dashboard-widget-weather-show-snow');
-																								}
-																								else if(property_value.toLowerCase().indexOf('hail') != -1){
-																									if(this.debug){
-																										console.log("dashboard debug: weather update: hail: ", property_value);
-																									}
-																									// fast moving snow with an impact animation
-																									this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
-																									this.content_el.classList.add('extension-dashboard-widget-weather-show-dark-clouds');
-																									this.content_el.classList.add('extension-dashboard-widget-weather-show-snow');
-																									this.content_el.classList.add('extension-dashboard-widget-weather-show-hail');
-																									this.content_el.classList.add('extension-dashboard-widget-weather-show-rain-impact');
-																								}
-																								else if(property_value.toLowerCase().indexOf('fog') != -1 || property_value.toLowerCase().indexOf('mist') != -1){
-																									if(this.debug){
-																										console.log("dashboard debug: weather update: fog: ", property_value);
-																									}
-																									// fast moving snow with an impact animation
-																									this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
-																									this.content_el.classList.add('extension-dashboard-widget-weather-show-fog');
-																								}
-																								
-																						
-																							}
-																						}
-																					}
-																					
-																				}
-																				
-																			}
-																		}
-																		
-																		// extension-dashboard-widget-weather-show-rain
-																	}
-																	
-																	
-																	
-																	
-																	for(let eu = 0; eu < elements_to_update_length; eu++){
-																		//console.error("\neu: ", eu);
-																		const el_to_update = elements_to_update[eu];
-																		
-																		
-																		let new_value = parseInt(property_value);
-																		if('' + new_value != '' + property_value){
-																			new_value = parseFloat(property_value);
-																		}
-																		console.log("initial new_value: ", typeof new_value, new_value);
-																		if(Math.abs(new_value) % 0.001 > 0){
-																			//new_value = (new_value - (new_value % 0.001));
-																			new_value = Math.round(new_value*1000)/1000;
-																		}
-																		console.log("initial new_value after quick adjustment to maximum of three decimals: ", new_value);
-																		
-																		
-																		let input_step_raw = el_to_update.getAttribute('step');
-																		console.log("input_step_raw: ", typeof input_step_raw, input_step_raw);
-																		
-																		if(typeof input_step_raw == 'string' && !isNaN(parseFloat(input_step_raw))){
-																			if(this.debug){
-																				console.log("dashboard debug: input element seemed to have a valid step attribute: ", input_step_raw);
-																			}
-																			let input_step = parseInt(input_step_raw);
-																			if(('' + input_step != '' + input_step_raw) || (parseFloat(input_step_raw) > 0 && parseFloat(input_step_raw) < 0.9)){
-																				input_step = parseFloat(input_step_raw);
-																				if(this.debug){
-																					console.log("dashboard debug: step seems to be a float: " + input_step);
-																				}
-																			}
-																			console.log("typeof input_step: ", typeof input_step, input_step);
-																			console.log("typeof new_value: ", typeof new_value, new_value);
-																			
-																			if(input_step != 0){
-																				if(Math.abs(new_value) % input_step > 0){
-																					if(this.debug){
-																						console.log("dashboard debug: value did not conform to step: " + new_value, input_step);
-																					}
-																					//new_value = (new_value - (new_value % input_step));
-																					let below_zero_flipper = 1;
-																					if(new_value < 0){
-																						below_zero_flipper = -1;
-																					}
-																					if(input_step < 0.01){
-																						new_value = Math.round(Math.abs(new_value)*1000)/1000;
-																					}
-																					else if(input_step < 0.1){
-																						new_value = Math.round(Math.abs(new_value)*100)/100;
-																					}
-																					else if(input_step < 1){
-																						new_value = Math.round(Math.abs(new_value)*10)/10;
-																					}
-																					else if(input_step < 10){
-																						new_value = Math.round(Math.abs(new_value));
-																					}
-																					if(below_zero_flipper < 0){
-																						if(this.debug){
-																							console.log("dashboard debug: flipping value back to negative");
-																						}
-																						new_value = new_value * below_zero_flipper;
-																					}
-																					
-																					
-																					if(this.debug){
-																						console.log("dashboard debug: value should conform to step now: " + new_value, input_step);
-																					}
-																				}
-																				
-																				/*
-																				if(Math.floor(new_value) != new_value){
-																					if(this.debug){
-																						console.log("dashboard debug: limiting decimals for value with decimals: " + new_value);
-																						console.log("dashboard debug: new_value % input_step: ", new_value % input_step);
-																					}
-																					// limit the decimals
-																					
-																					if(new_value % input_step > 0){
-																						if(input_step < 0.01){
-																							console.log("input step has three decimals (or more)");
-																							if(new_value % input_step > 0.0001){
-																								//new_value = new_value.toFixed(3);
-																								new_value = Math.round(new_value*1000)/1000;
-																							}
-																						}
-																						else if(input_step < 0.1){
-																							console.log("input step has two decimals");
-																							if(new_value % input_step > 0.001){
-																								//new_value = new_value.toFixed(2);
-																								new_value = Math.round(new_value*100)/100;
-																							}
-																						}
-																						else if(input_step < 1){
-																							console.log("input step has one decimal");
-																							if(new_value % input_step > 0.01){
-																								//new_value = new_value.toFixed(1);
-																								new_value = Math.round(new_value*10)/10;
-																							}
-																							else{
-																								new_value = new_value.toFixed(0);
-																							}
-																						}
-																					}
-																					
-																				}
-																				*/
-																			}
-																			
-																		}
-																		
-																		
-																		
-																		
-																		//console.log("\nel_to_update: ", el_to_update.tagName, el_to_update);
-																		if(el_to_update.tagName == 'INPUT' || el_to_update.tagName == 'SELECT'){
-																			let input_type = el_to_update.getAttribute('type');
-																			//console.log("INPUT el to update input_type: ", input_type);
-																			if(typeof input_type == 'string'){
-																				if(input_type == 'checkbox' && typeof property_value == 'boolean'){
-																					//console.log("OK, setting checkbox to boolean value: ", property_value);
-																					el_to_update.checked = property_value;
-																				}
-																				else if(input_type == 'range' || input_type == 'number'){
-																					//console.log("OK, setting range or number input to (hopefully) a number value: ", typeof property_value, property_value);
-																					
-																					if(this.debug){
-																						console.log("final new_value: ", new_value, " for: ", el_to_update.tagName);
-																					}
-																					
-																					el_to_update.value = new_value;
-																					
-																					
-																					
-																					// Try to find a matching needle to move
+										if(this.view && this.content && typeof data['id'] == 'string' && data['id'] == thing_id && typeof data['messageType'] == 'string' && data['messageType'] == 'propertyStatus' && typeof data['data'] != 'undefined'){
+											//console.log(" -- the websocket message contains a propertyStatus");
+												
+												
+											if(this.debug){
+												console.log("-- as expected, received a websocket message for this thing: " + thing_id + " with keys: " + JSON.stringify(Object.keys(data['data'])));
+											}
+											for (let [property_id, property_value] of Object.entries( data['data'] )) {
+												
+												if(typeof this.recent_events[thing_id] == 'undefined'){
+													this.recent_events[thing_id] = {};
+												}
+												if(typeof this.recent_events[thing_id][property_id] != 'undefined' && this.recent_events[thing_id][property_id]['timestamp'] > Date.now() - 1000){
+													if(this.debug){
+														console.warn("dashboard debug: info: received a websocket message that is already in recent_events: ", property_id, property_value, ", vs recent event: ", JSON.stringify(this.recent_events[thing_id][property_id],null,4));
+													}
+													if(this.recent_events[thing_id][property_id]['value'] == property_value){
+														if(this.debug){
+															console.warn("dashboard debug:  > > > and the value matches too: ", property_value);
+														}
+														this.recent_events[thing_id][property_id]['timestamp'] = Date.now();
+														//continue
+													}
+												}
+												else{
+													this.recent_events[thing_id][property_id] = {"timestamp":Date.now(), "value":property_value, "type":"received"};
+												}
+												
+												
+												
+												//let elements_to_update = this.view.querySelectorAll('[data-extension-dashboard-update-thing="' + thing_id + '"][data-extension-dashboard-update-property="' + property_id + '"]');
+												let elements_to_update = this.view.querySelectorAll('[data-extension-dashboard-update-thing-combo="' + thing_id + '--x--' + property_id + '"]');
+												
+												/*
+												if(elements_to_update.length == 0){
+													if(this.debug){
+														console.warn("DID NOT FIND ANY ELEMENT TO UPDATE WITH NEW VALUE: ", thing_id, property_id, property_value);
+													}
+												}
+												*/
+												
+												
+												if(this.debug){
+													console.warn("elements_to_update: ", elements_to_update);
+													//console.warn("dashboard debug: incoming websocket message -> elements_to_update count for thing_id,property_id: ", elements_to_update.length, thing_id, property_id);
+												}
+												
+												
+												
+												for(let eu = 0; eu < elements_to_update.length; eu++){
+													
+													const el_to_update = elements_to_update[eu];
+													
+													//console.error("\nel_to_update # " + eu);
+													
+													try{
+														//console.log("\nel_to_update: ", el_to_update.tagName, el_to_update);
+													
+													
+												
+													
+												
+													
+														//
+														//   OPTIMIZE THE RECEIVED VALUE FOR IT'S INTENDED TARGET ELEMENT
+														//
+													
+													
+													
+														// Special case: if the internet radio sends a 'none' value for the artist or song, force it to be empty instead.
+														if(typeof property_value == 'string' && property_value == 'None' && thing_id == 'internet-radio' && (property_id == 'artist' || property_id == 'song')){
+															//console.warn("SETTING INCOMING INTERNET RADIO VALUE TO EMPTY STRING: ", property_value);
+															property_value = '';
+														}
+													
+													
+														// Adjust the decimals if the target element has a 'step' attribute
+													
+														// New value is not a number
+														if((typeof property_value == 'string' && property_value == "") || typeof property_value == 'boolean' || typeof property_value == 'object' || isNaN('' + property_value)){
+															console.log("The incoming value is not a number, so no need to clean it: ", typeof property_value, property_value);
+														}
+													
+														// If the provided value is a number, clean it up to match any 'step' attribute that element it will be placed into may have
+														else{
 														
-																					const widget_root_el = el_to_update.closest('div.extension-dashboard-template');
-																					//console.log("widget_root_el: ", widget_root_el);
-																					if(widget_root_el && widget_root_el.getAttribute('data-widget-has-dial')){
-																						const widget_needle_el = widget_root_el.querySelector('.extension-dashboard-widget-dial-needle');
-																						if(widget_needle_el){
-																							//console.log("widget_needle_el: ", widget_needle_el);
-																							const minimum_value_el = widget_root_el.querySelector('.extension-dashboard-widget-minimum-value');
-																							if(minimum_value_el && minimum_value_el.tagName == 'INPUT'){
-																								let minimum_value = parseFloat(minimum_value_el.value);
+															if(this.debug){
+																console.log("incoming value seems to be a number: ", property_value);
+															}
+														
+															let new_value = parseInt(property_value);
+												
+															if('' + new_value != '' + property_value){
+																//console.log("parseInt value was not the same as the original value: " + new_value + " =?= " + property_value);
+																new_value = parseFloat(property_value);
+															
+															
+																//console.log("initial new_value: ", typeof new_value, new_value);
+																if(Math.abs(new_value) % 0.001 > 0){
+																	//new_value = (new_value - (new_value % 0.001));
+																	new_value = Math.round(new_value*1000)/1000;
+																	if(this.debug){
+																		console.log("initial new_value after quick adjustment to maximum of three decimals: ", new_value);
+																	}
+																}
+													
+											
+											
+																let input_step_raw = el_to_update.getAttribute('step');
+																if(this.debug){
+																	console.log("input_step_raw: ", typeof input_step_raw, input_step_raw);
+																}
+											
+																if(typeof input_step_raw == 'string' && !isNaN(parseFloat(input_step_raw))){
+																	if(this.debug){
+																		console.log("dashboard debug: input element seemed to have a valid step attribute: ", input_step_raw);
+																	}
+																	let input_step = parseInt(input_step_raw);
+																	if(('' + input_step != '' + input_step_raw) || (parseFloat(input_step_raw) > 0 && parseFloat(input_step_raw) < 0.9)){
+																		input_step = parseFloat(input_step_raw);
+																		if(this.debug){
+																			console.log("dashboard debug: step seems to be a float: " + input_step);
+																		}
+																	}
+												
+																	if(typeof input_step == 'number' && input_step != 0){
+																		if(Math.abs(new_value) % input_step > 0){
+																			if(this.debug){
+																				console.log("dashboard debug: value did not conform to step: " + new_value, input_step);
+																			}
+																			//new_value = (new_value - (new_value % input_step));
+																			let below_zero_flipper = 1;
+																			if(new_value < 0){
+																				below_zero_flipper = -1;
+																			}
+																			if(input_step < 0.01){
+																				new_value = Math.round(Math.abs(new_value)*1000)/1000;
+																			}
+																			else if(input_step < 0.1){
+																				new_value = Math.round(Math.abs(new_value)*100)/100;
+																			}
+																			else if(input_step < 1){
+																				new_value = Math.round(Math.abs(new_value)*10)/10;
+																			}
+																			else if(input_step < 10){
+																				new_value = Math.round(Math.abs(new_value));
+																			}
+																			if(below_zero_flipper < 0){
+																				if(this.debug){
+																					console.log("dashboard debug: flipping value back to negative");
+																				}
+																				new_value = new_value * below_zero_flipper;
+																			}
+														
+																			if(this.debug){
+																				console.log("dashboard debug: value should conform to step now: " + new_value, input_step);
+																			}
+																		}
+													
+																	}
+												
+																}
+														
+																if(!isNaN("" + new_value)){
+																	//console.log("NUMBER CLEANING COMPLETE. CHANGE: ", typeof property_value, property_value, " ->> ", typeof new_value, new_value);
+																	property_value = new_value;
+																}
+															
+															}
+														
+														
+														
+														}
+													
+													
+														//console.log("next..  el_to_update.tagName: ", el_to_update.tagName);
+													
+														//
+														//  UPDATE SELECT OR TEXTAREA
+														//
+													
+														if(el_to_update.tagName == 'TEXTAREA' || el_to_update.tagName == 'SELECT'){
+														
+														
+															if(this.debug){
+																console.log("Attempting to set select or teaxtarea to value: ", typeof property_value, property_value);
+															}
+															el_to_update.value = '' + property_value;
+														
+														}
+													
+													
+														//
+														//  UPDATE TEXTCONTENT
+														//
+													
+														else if(el_to_update.tagName != 'INPUT'){
+														
+															if(this.debug){
+																console.log("Attempting to set the element's textContent to value: ", typeof property_value, property_value);
+															}
+															el_to_update.textContent = "" + property_value;
+														
+														}
+													
+													
+														//
+														//  UPDATE INPUT ELEMENT
+														//
+													
+														else{
+														
+															//console.log("going to update input el");
+														
+															let input_type = el_to_update.getAttribute('type');
+															if(this.debug){
+																console.log("INPUT el to update input_type: ", input_type);
+															}
+														
+															if(typeof input_type != 'string'){
+															
+																if(this.debug){
+																	console.error("INPUT ELEMENT WITHOUT A TYPE ATTRIBUTE. Will attempt to set it's value to: ", property_value);
+																}
+																el_to_update.value = property_value;
+															
+															
+															}
+															else{
+																
+																//console.log("GOING TO SET AN INPUT ELEMENT TO: ", typeof property_value, property_value);
+																
+																input_type = input_type.toLowerCase();
+															
+																if(input_type == 'checkbox'){
+																
+																
+																	//
+																	//  UPDATE CHECKBOX
+																	//
+																
+																	if(typeof property_value != 'boolean'){
+																		if(this.debug){
+																			console.warn("dashboard: user seem to want to update a checkbox using a property that is not a boolean");
+																		}
+																	}
+																
+																	if(this.debug){
+																		console.log("setting checkbox to: ", typeof property_value, property_value);
+																	}
+																	el_to_update.checked = Boolean(property_value);
+																
+																}
+																else if(input_type == 'range' || input_type == 'number'){
+																
+																	
+																	//console.log("OK The input element is a number (or range)");
+																	
+																	
+																	//
+																	//  UPDATE NUMBER INPUT
+																	//
+																
+																	if(this.debug){
+																		console.log("setting number or range input to (hopefully) a number value: ", typeof property_value, property_value);
+																	}
+																	el_to_update.value = property_value;
+																
+																
+																
+																	//
+																	//  MOVING THE NEEDLE
+																	//
+													
+																	// Some elements have needle to indicate a value (dial, thermostat). Here the dial is found and updated.
+																
+																	if(typeof property_value == 'number'){
+																		const widget_root_el = el_to_update.closest('div.extension-dashboard-template');
+																		//console.log("widget_root_el: ", widget_root_el);
+																		if(widget_root_el && widget_root_el.getAttribute('data-widget-has-dial')){
+																			const widget_needle_el = widget_root_el.querySelector('.extension-dashboard-widget-dial-needle');
+																			if(widget_needle_el){
+																				//console.log("widget_needle_el: ", widget_needle_el);
+																				const minimum_value_el = widget_root_el.querySelector('.extension-dashboard-widget-minimum-value');
+																				if(minimum_value_el && minimum_value_el.tagName == 'INPUT'){
+																					let minimum_value = parseFloat("" + minimum_value_el.value);
+																					//console.log("minimum_value: ", minimum_value);
+																					if(typeof minimum_value == 'number' && !isNaN(minimum_value)){
+																						const maximum_value_el = widget_root_el.querySelector('.extension-dashboard-widget-maximum-value');
+																						if(maximum_value_el && maximum_value_el.tagName == 'INPUT'){
+																							let maximum_value = parseFloat("" + maximum_value_el.value);
+																							if(typeof maximum_value == 'number' && !isNaN(maximum_value)){
+																								const range = maximum_value - minimum_value;
+																								if(range != 0){
+																									if(this.debug){
+																										console.log("R A N G E: ", minimum_value, maximum_value, " --> ", range);
+																									}
+																									if(property_value >= minimum_value && property_value <= maximum_value){
+																										//console.log("OK, value is in the range");
+																									}
+																							
+																							
+																									let percentage = ((property_value - minimum_value) / range) * 100;
+																									//console.log("percentage: ", percentage);
+																							
+																									if(property_value < minimum_value){
+																										//console.log("forcing percentage to 0");
+																										percentage = 0;
+																									}
+																									if(property_value > maximum_value){
+																										//console.log("forcing percentage to 100");
+																										percentage = 100;
+																									}
+																							
+																									if(percentage < 0){
+																										percentage = 0;
+																									}
+																									else if(percentage > 100){
+																										percentage = 100;
+																									}
+																									if(this.debug){
+																										console.log("dashboard debug: percentage for moving needle: ", percentage);
+																									}
+																									widget_needle_el.setAttribute('style',"transform:rotateZ(" + (180 + (percentage * 1.8)) + "deg);");
+																									widget_needle_el.classList.remove('extension-dashboard-hidden');
+																									// Also try to update the dial ticks
+																									if(Math.abs(range) > 2){
+																										const widget_ticks_el = widget_root_el.querySelector('.extension-dashboard-widget-dial-ticks');
 																								
-																								if(typeof minimum_value == 'number' && !isNaN(minimum_value)){
-																									const maximum_value_el = widget_root_el.querySelector('.extension-dashboard-widget-maximum-value');
-																									if(maximum_value_el && maximum_value_el.tagName == 'INPUT'){
-																										let maximum_value = parseFloat(maximum_value_el.value);
-																										if(typeof maximum_value == 'number' && !isNaN(maximum_value)){
-																											const range = maximum_value - minimum_value;
-																											if(range != 0){
-																												console.log("R A N G E: ", minimum_value, maximum_value, " --> ", range);
-																												if(new_value >= minimum_value && new_value <= maximum_value){
-																													//console.log("OK, value is in the range");
+																										if(widget_ticks_el){
+																											let read_only = false;
+																											if(el_to_update.disabled){
+																												widget_ticks_el.classList.add('extension-dashboard-widget-dial-disabled');
+																												read_only = true;
+																											}
+																									
+																											let modulo_factor = 2; // only a portion of the ticks will have a line on them
+																									
+																											let do_halves = 1;
+																											if(Math.abs(range) < 31){
+																												do_halves = 2;
+																											}
+																											else{
+																												modulo_factor = Math.round((Math.abs(range)/2) / 30) * 2; // what modulo to use
+																												if(modulo_factor == 0){
+																													modulo_factor = 2;
 																												}
-																												
-																												
-																												let percentage = ((new_value-minimum_value) / range) * 100;
-																												//console.log("percentage: ", percentage);
-																												
-																												if(new_value < minimum_value){
-																													//console.log("forcing percentage to 0");
-																													percentage = 0;
-																												}
-																												if(new_value > maximum_value){
-																													//console.log("forcing percentage to 100");
-																													percentage = 100;
-																												}
-																												
-																												if(percentage < 0){
-																													percentage = 0;
-																												}
-																												else if(percentage > 100){
-																													percentage = 100;
-																												}
+																											}
+																											if(this.debug){
+																												console.log("dashboard debug:  do_halves, modulo_factor: ", do_halves, modulo_factor);
+																											}
+																									
+																											let expected_span_els_count = 0;
+																											if(read_only){
+																												expected_span_els_count = Math.floor((range*do_halves)/modulo_factor) + 1;
+																											}
+																											else{
+																												expected_span_els_count = Math.floor(range*do_halves) + 1;
+																											}
+																											if(this.debug){
+																												console.log("expected span el count in the dial: ", expected_span_els_count, " vs actual count: ", widget_ticks_el.children.length, ", read_only:", read_only);
+																											}
+																									
+																											if(widget_ticks_el.children.length != expected_span_els_count){
 																												if(this.debug){
-																													console.log("dashboard debug: percentage for moving needle: ", percentage);
+																													console.log("dashboard debug: re-drawing the dial ticks");
 																												}
-																												widget_needle_el.setAttribute('style',"transform:rotateZ(" + (180 + (percentage * 1.8)) + "deg);");
-																												widget_needle_el.classList.remove('extension-dashboard-hidden');
-																												// Also try to update the dial ticks
-																												if(Math.abs(range) > 2){
-																													const widget_ticks_el = widget_root_el.querySelector('.extension-dashboard-widget-dial-ticks');
-																													
-																													if(widget_ticks_el){
-																														let read_only = false;
-																														if(el_to_update.disabled){
-																															widget_ticks_el.classList.add('extension-dashboard-widget-dial-disabled');
-																															read_only = true;
-																														}
-																														
-																														let modulo_factor = 2; // only a portion of the ticks will have a line on them
-																														
-																														let do_halves = 1;
-																														if(Math.abs(range) < 31){
-																															do_halves = 2;
-																														}
-																														else{
-																															modulo_factor = Math.round((Math.abs(range)/2) / 30) * 2; // what modulo to use
-																															if(modulo_factor == 0){
-																																modulo_factor = 2;
-																															}
-																														}
-																														if(this.debug){
-																															console.log("dashboard debug:  do_halves, modulo_factor: ", do_halves, modulo_factor);
-																														}
-																														
-																														let expected_span_els_count = 0;
-																														if(read_only){
-																															expected_span_els_count = Math.floor((range*do_halves)/modulo_factor) + 1;
-																														}
-																														else{
-																															expected_span_els_count = Math.floor(range*do_halves) + 1;
-																														}
-																														console.log("expected span el in the dial: ", expected_span_els_count, " vs actual count: ", widget_ticks_el.children.length, ", read_only:", read_only);
-																														
-																														if(widget_ticks_el.children.length != expected_span_els_count){
+																												widget_ticks_el.innerHTML = '';
+																												let tick_counter = 0;
+																												for(let ti = 0; ti <= range * do_halves; ti++){
+																													tick_counter++;
+																								
+																													let uneven = ti % modulo_factor;
+																													let tick_el = document.createElement('span');
+																													tick_el.setAttribute('style','transform: rotate(' + (180 + ((180 / range) * (ti / do_halves))) + 'deg) translate(480%)'); // rotate(292.5deg) translate(80px) rotate(90deg)
+																													if(!uneven){
+																														tick_el.textContent = minimum_value + (ti/do_halves);
+																														tick_el.classList.add('extension-dashboard-widget-dial-tick-even');
+																													}
+																													else{
+																														tick_el.classList.add('extension-dashboard-widget-dial-tick-uneven');
+																													}
+																								
+																													if(el_to_update.disabled){ // sic, as it could be both false or undefined
+																														// not adding a click listener is the attached thing-property is read-only.
+																													}
+																													else{
+																														tick_el.addEventListener('click', () => {
 																															if(this.debug){
-																																console.log("dashboard debug: re-drawing the dial ticks");
+																																console.log("dashboard debug: dial tick value: ", minimum_value + (ti/do_halves));
 																															}
-																															widget_ticks_el.innerHTML = '';
-																															let tick_counter = 0;
-																															for(let ti = 0; ti <= range * do_halves; ti++){
-																																tick_counter++;
-																													
-																																let uneven = ti % modulo_factor;
-																																let tick_el = document.createElement('span');
-																																tick_el.setAttribute('style','transform: rotate(' + (180 + ((180 / range) * (ti / do_halves))) + 'deg) translate(480%)'); // rotate(292.5deg) translate(80px) rotate(90deg)
-																																if(!uneven){
-																																	tick_el.textContent = minimum_value + (ti/do_halves);
-																																	tick_el.classList.add('extension-dashboard-widget-dial-tick-even');
-																																}
-																																else{
-																																	tick_el.classList.add('extension-dashboard-widget-dial-tick-uneven');
-																																}
-																													
-																																if(el_to_update.disabled){ // sic, as it could be both false or undefined
-																																	// not adding a click listener is the attached thing-property is read-only.
-																																}
-																																else{
-																																	tick_el.addEventListener('click', () => {
-																																		if(this.debug){
-																																			console.log("dashboard debug: dial tick value: ", minimum_value + (ti/do_halves));
-																																		}
-																														
-																																		let dial_message = {
-																																			"messageType": "setProperty",
-																																			//"id":thing_id,
-																																			"data":{}
-																																		};
-																																		dial_message['data'][property_id] = minimum_value + (ti/do_halves);
-																														
-																																		this.websockets[thing_id].send(dial_message);
-																													
-																																	});
-																																}
-																																
-																																if(read_only && uneven){ 
-																																	// do not add an invisible tick if it can't be clicked anyway
-																																}
-																																else{
-																																	widget_ticks_el.appendChild(tick_el);
-																																}
-																															}
-																												
-																															//console.log("tick_counter: ", tick_counter, (range*2) + 1);
-																														}
+																									
+																															let dial_message = {
+																																"messageType": "setProperty",
+																																//"id":thing_id,
+																																"data":{}
+																															};
+																															dial_message['data'][property_id] = minimum_value + (ti/do_halves);
+																									
+																															this.websockets[thing_id].send(dial_message);
+																								
+																														});
+																													}
+																											
+																													if(read_only && uneven){ 
+																														// do not add an invisible tick if it can't be clicked anyway
+																													}
+																													else{
+																														widget_ticks_el.appendChild(tick_el);
 																													}
 																												}
-																								
+																							
+																												//console.log("tick_counter: ", tick_counter, (range*2) + 1);
 																											}
 																										}
 																									}
+																			
 																								}
-																	
 																							}
-																
 																						}
 																					}
-																		
+												
 																				}
-																				else{
-																					//console.log("OK, setting an input element's value to: ", property_value);
-																					el_to_update.value = property_value;
-																				}
+											
 																			}
-																			else{
-																				//console.log("Likely setting a SELECT element's value to: ", property_value);
-																				el_to_update.value = property_value;
-																			}
-																			
-																			//const change_event = new Event('change');
-																			//el_to_update.dispatchEvent(change_event);
-																			
 																		}
-																		else{
-																			//console.log("Attempting to set the element's textContent to value: ", property_value);
-																			el_to_update.textContent = property_value;
+																	}
+																
+													
+																}
+																else{
+																	//console.log("OK, setting an input element's value to: ", property_value);
+																	el_to_update.value = property_value;
+																}
+															}
+														
+														
+															//const change_event = new Event('change');
+															//el_to_update.dispatchEvent(change_event);
+														
+														}
+													}
+													catch(err){
+														console.error("caught error while tryig to update element: ", err);
+													}
+													
+													
+												}
+												
+												
+												
+												
+												
+												
+												//
+												//  WEATHER ANIMATIONS
+												//
+												
+												// If this websocket message is for a weather widget, then check if it contains a weather prediction.
+												// If it does, use that to set some CSS classes for fancy animations
+												//console.log("this.animations: ", this.animations);
+												
+												if(this.animations && elements_to_update.length){
+													
+													// Loop over all widgets in the current dashboard until we find a match. 
+													// We need to look up to see if a thing-property is set for, for example, the weather widget's description. 
+													// And then check if that matches with the received thing-property combo.
+													
+													if(typeof this.dashboards[this.current_grid_id] != 'undefined' && typeof this.dashboards[this.current_grid_id]['widgets'] != 'undefined'){
+														for (const [widget_id, widget_details] of Object.entries(this.dashboards[this.current_grid_id]['widgets'])) {
+															//console.log("checking widget: ", widget_id);
+															if(typeof this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs'] != 'undefined'){
+																//console.log("this widget has needs: ", this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs']);
+																//const needs = this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs'];
+																if(typeof this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs']['update'] != 'undefined'){
+																	//console.log("this widget has update needs: ", this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs']['update']);
+																	
+																	for (const [what_property_is_needed2, needs_update_details2] of Object.entries( this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs']['update'] )) {
+																		//console.log("looping over needs for this dashboard. widget -> update -> what_property_is_needed:\n", widget_id, what_property_is_needed, needs_update_details);
+																		//console.log(" ... looking for: ", thing_id, property_id);
+																		
+																		
+																		//console.log(needs_update_details2['thing_id'], " =?= ", thing_id);
+																		//console.log(needs_update_details2['property_id'], " =?= ", property_id);
+																		
+																		if(needs_update_details2['thing_id'] == thing_id && needs_update_details2['property_id'] == property_id){
+																			
+																			//console.warn("OK MATCHING");
+																			
+																			/*
+																			if(this.debug){
+																				console.error("dashboard debug: OK, found a widget that uses the thing_id and property_id from the incoming websocket update message. All variables: \n__grid_id: ", grid_id, "\n__widget_id: ", widget_id, "\n__thing_id:", thing_id, "__property_id:", property_id);
+																			}
+																			*/
+																			
+																			
+																			
+																			//
+																			// SPECIALS
+																			//
+																			
+																			// WEATHER
+																			
+																			// First, double-check that the message is a weather update, and that the widget we're looking at is a weather widget
+																			//console.log("checking for specials");
+																			if(
+																				// It's a weather widget
+																				typeof this.dashboards[this.current_grid_id]['widgets'][widget_id]['type'] == 'string' &&
+																				this.dashboards[this.current_grid_id]['widgets'][widget_id]['type'] == 'weather' && 
+																				
+																				// The widget indeed needs a weather description update
+																				what_property_is_needed2 == 'weather_description' && 
+																				
+																				// The incoming websocket update is a from a Candle Weather addon thing
+																				thing_id == 'candle-weather-today' &&
+																				// And it's delivering a weather description property update
+																				property_id == 'current_description' && 
+																				
+																				// Just to be absurdly sure, there is (still) content to update CSS classes for, right?
+																				this.content_el &&
+																				
+																				// And weather widget animations are allowed?
+																				this.animations
+																				
+																		
+																			){
+																				//console.log("dashboard debug: FULL WEBSOCKET + WEATHER WIDGET MATCH");
+																				
+																			
+																				this.content_el.classList.remove('extension-dashboard-widget-weather-show-rain');
+																				this.content_el.classList.remove('extension-dashboard-widget-weather-show-rain-impact');
+																				this.content_el.classList.remove('extension-dashboard-widget-weather-show-clouds');
+																				this.content_el.classList.remove('extension-dashboard-widget-weather-show-dark-clouds');
+																				this.content_el.classList.remove('extension-dashboard-widget-weather-show-snow');
+																				this.content_el.classList.remove('extension-dashboard-widget-weather-show-hail');
+																				this.content_el.classList.remove('extension-dashboard-widget-weather-show-fog');
+																			
+																				setTimeout(() => {
+																					if(property_value.toLowerCase().indexOf('storm') != -1){
+																						this.content_el.classList.add('extension-dashboard-widget-weather-show-rain');
+																						this.content_el.classList.add('extension-dashboard-widget-weather-show-rain-impact');
+																						this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
+																						this.content_el.classList.add('extension-dashboard-widget-weather-show-dark-clouds');
+																						if(this.debug){
+																							console.log("dashboard debug: weather update: storm: ", property_value);
+																						}
+																					}
+																					else if(property_value.toLowerCase().indexOf('rain') != -1){
+																						this.content_el.classList.add('extension-dashboard-widget-weather-show-rain');
+																						this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
+																						if(this.debug){
+																							console.log("dashboard debug: weather update: rain: ", property_value);
+																						}
+																					}
+																					else if(property_value.toLowerCase().indexOf('cloud') != -1){
+																						if(this.debug){
+																							console.log("dashboard debug: weather update: cloudy: ", property_value);
+																						}
+																						this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
+																					}
+																					else if(property_value.toLowerCase().indexOf('snow') != -1){
+																						if(this.debug){
+																							console.log("dashboard debug: weather update: snowy: ", property_value);
+																						}
+																						this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
+																						this.content_el.classList.add('extension-dashboard-widget-weather-show-snow');
+																					}
+																					else if(property_value.toLowerCase().indexOf('hail') != -1){
+																						if(this.debug){
+																							console.log("dashboard debug: weather update: hail: ", property_value);
+																						}
+																						// fast moving snow with an impact animation
+																						this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
+																						this.content_el.classList.add('extension-dashboard-widget-weather-show-dark-clouds');
+																						this.content_el.classList.add('extension-dashboard-widget-weather-show-snow');
+																						this.content_el.classList.add('extension-dashboard-widget-weather-show-hail');
+																						this.content_el.classList.add('extension-dashboard-widget-weather-show-rain-impact');
+																					}
+																					else if(property_value.toLowerCase().indexOf('fog') != -1 || property_value.toLowerCase().indexOf('mist') != -1){
+																						if(this.debug){
+																							console.log("dashboard debug: weather update: fog: ", property_value);
+																						}
+																						// fast moving snow with an impact animation
+																						this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
+																						this.content_el.classList.add('extension-dashboard-widget-weather-show-fog');
+																					}
+																				},10);
+																				
+																			
+																	
+																			}
+																			
 																		}
 																		
 																		
 																		
 																	}
-																	
-																	//console.log("    -- elements_to_update: ", elements_to_update);
 																}
+																
 															}
-															else{
-																//console.log("  -- this property update is NOT relevant for the dashboard.  property_id, property_value: ", property_id, property_value);
-															}
+															
 														}
 													}
-												}
+													
+												} // end of weather animations
+												
+												
+												
+												
 											}
 										}
 										
@@ -2575,7 +2807,7 @@
 
 									client.on('close', (event) => {
 									  if(this.debug){
-										  console.log('dashboard debug: websocket connection closed:', event.code, event.reason);
+										  console.warn('dashboard debug: WEBSOCKET CLOSED:', event.code, event.reason);
 									  }
 									  if(event.code != 1000){
 										  if(this.debug){
@@ -2600,14 +2832,28 @@
 				
 				// Disconnect all the websockets that are no longer relevant (every thing_id from the lookup table that is not in the current grid_id)
 				for (const [websocket_thing_id, websocket_client] of Object.entries( this.websockets )) {
+					if(this.debug){
+						console.log("*\n*\n* * * checking if websocket is still needed for: ", websocket_thing_id, " in currently_relevant_thing_ids?: ", currently_relevant_thing_ids);
+					}
 					if(currently_relevant_thing_ids.indexOf(websocket_thing_id) == -1){
-						//console.log("open websockets is no longer needed for this thing_id: ", websocket_thing_id);
+						if(this.debug){
+							console.log("dashboard debug: open websockets is no longer needed for this thing_id: ", websocket_thing_id);
+						}
+						
 						if(websocket_client){
 							websocket_client.close();
 							setTimeout(() => {
 								delete this.websockets[websocket_thing_id];
 								//console.log("closed and deleted websocket client for ", websocket_thing_id);
 							},100);
+						}
+						else{
+							console.error("websocket_client was invalid? ", typeof websocket_client, websocket_client);
+						}
+					}
+					else{
+						if(this.debug){
+							console.log("Yes, websocket is still useful for thing_id: ", websocket_thing_id);
 						}
 					}
 				}
@@ -2669,7 +2915,7 @@
 			let needs = {};
 			if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'] != 'undefined'){
 				needs = this.dashboards[grid_id]['widgets'][widget_id]['needs'];
-				console.log("generate_widget_content: needs beforehand: ", needs);
+				//console.log("generate_widget_content: needs beforehand: ", needs);
 			}
 			
 			
@@ -2747,7 +2993,7 @@
 								
 											let what_property_is_needed = class_name.replaceAll('-needs-update','');
 											what_property_is_needed = what_property_is_needed.replaceAll('extension-dashboard-widget-','');
-											console.log("generate_widget_content: what_property_is_needed: ", what_property_is_needed);
+											//console.log("generate_widget_content: what_property_is_needed: ", what_property_is_needed);
 								
 											if(typeof needs['update'] == 'undefined'){
 												needs['update'] = {};
@@ -2776,7 +3022,7 @@
 														}
 														else if(input_el_type == 'number' || input_el_type == 'range'){
 															last_spotted_number_input_el = child_els[ix];
-															console.log("generate_widget_content: fresh last_spotted_number_input_el is now: ", last_spotted_number_input_el);
+															//console.log("generate_widget_content: fresh last_spotted_number_input_el is now: ", last_spotted_number_input_el);
 														}
 														
 													}
@@ -2809,14 +3055,17 @@
 											// There is thing-property information, so this widget aspect can be rendered fully
 											else{
 												
-												console.warn("generate_widget_content: there is some needs data already: ", needs['update'][what_property_is_needed]);
+												//console.warn("generate_widget_content: there is some needs data already: ", needs['update'][what_property_is_needed]);
+												
+												
+												// Add some special UI rendering to some input types, like color
 												
 												const input_el_type = child_els[ix].getAttribute('type');
 												if(typeof input_el_type == 'string'){
 											
 													if(input_el_type == 'number' || input_el_type == 'range'){
 														last_spotted_number_input_el = child_els[ix];
-														console.log("last_spotted_number_input_el is now: ", last_spotted_number_input_el);
+														//console.log("last_spotted_number_input_el is now: ", last_spotted_number_input_el);
 														
 														/*
 														child_els[ix].addEventListener('change', (event) => {
@@ -2919,16 +3168,11 @@
 														// Pick color on canvas interaction
 														function pickColor(e) {
 														  const rect = canvas.getBoundingClientRect();
-														  console.log("rect: ", rect);
 														  const x = e.clientX - rect.left;
 														  const y = e.clientY - rect.top;
-														  console.log("x: ", x);
-														  console.log("y: ", y);
 														  ctx = canvas.getContext('2d');
 														  const pixel = ctx.getImageData(x, y, 1, 1).data;
-														  console.log("pixel: ", pixel);
 														  const hex = rgbToHex(pixel[0], pixel[1], pixel[2]);
-														  console.log("hex: ", hex);
 														  color_input_el.value = hex;
 														  //colorCode.textContent = `HEX: ${hex} | RGB: (${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
 														}
@@ -2955,11 +3199,15 @@
 													}
 												}
 												
+												
+												
+												// Give the element some data attributes that will allow it to be found quickly later, to aid with websocket messages updating the UI
+												
 												if(typeof needs['update'][what_property_is_needed]['thing_id'] == 'string' && typeof needs['update'][what_property_is_needed]['property_id'] == 'string'){
-													console.log("nice, this part of the template it already connected to a thing-property combo");
+													//console.log("nice, this part of the template it already connected to a thing-property combo");
 													child_els[ix].setAttribute('data-extension-dashboard-update-thing', needs['update'][what_property_is_needed]['thing_id']);
 													child_els[ix].setAttribute('data-extension-dashboard-update-property', needs['update'][what_property_is_needed]['property_id']);
-													child_els[ix].setAttribute('data-extension-dashboard-update-thing-combo', needs['update'][what_property_is_needed]['thing_id'] + '-' + needs['update'][what_property_is_needed]['property_id'] );
+													child_els[ix].setAttribute('data-extension-dashboard-update-thing-combo', needs['update'][what_property_is_needed]['thing_id'] + '--x--' + needs['update'][what_property_is_needed]['property_id'] );
 											
 											
 													// Is a read-only thing-property connected?
@@ -2967,105 +3215,111 @@
 													if(typeof needs['update'][what_property_is_needed]['property_details'] != 'undefined' && typeof needs['update'][what_property_is_needed]['property_details']['readOnly'] == 'boolean' && needs['update'][what_property_is_needed]['property_details']['readOnly'] == true){
 														read_only = true;
 													}
-													console.log("read_only property? ", read_only);
+													//console.log("read_only property? ", read_only);
 											
+													
 													if(read_only){
 														if(child_els[ix].tagName == 'INPUT'){
 															child_els[ix].setAttribute('disabled', true);
-															console.log("set the input element of the widget to disabled because a read-only property is connected");
+															//console.log("set the input element of the widget to disabled because a read-only property is connected");
 														}
 													}
 													else{
 														
-														console.log("adding input event_listener to input child_el: ", child_els[ix])
-														child_els[ix].addEventListener('change', (event) => {
-															console.log("dashboard input element changed.  event: ", event.type, event);
-															event.preventDefault();
+														// If it's not a read-only property, and the element in an input element, 
+														// then allow any changes to input elements to update the backend via websockets
 														
-															const thing_id = event.target.getAttribute('data-extension-dashboard-update-thing');
-															if(typeof thing_id == 'string'){
-																const property_id = event.target.getAttribute('data-extension-dashboard-update-property');
-																if(typeof property_id == 'string'){
-																	console.log("nice, got the thing_id and property_id from the element's data attributes: ", thing_id, property_id);
-																	if(typeof this.websockets[thing_id] != 'undefined'){
-																		try{
+														if(child_els[ix].tagName == 'INPUT' || child_els[ix].tagName == 'TEXTAREA' || child_els[ix].tagName == 'SELECT'){
+															//console.log("adding input event_listener to input child_el: ", child_els[ix])
+															child_els[ix].addEventListener('change', (event) => {
+																//console.log("dashboard input element changed.  event: ", event.type, event);
+																event.preventDefault();
+														
+																const thing_id = event.target.getAttribute('data-extension-dashboard-update-thing');
+																if(typeof thing_id == 'string'){
+																	const property_id = event.target.getAttribute('data-extension-dashboard-update-property');
+																	if(typeof property_id == 'string'){
+																		//console.log("nice, got the thing_id and property_id from the element's data attributes: ", thing_id, property_id);
+																		if(typeof this.websockets[thing_id] != 'undefined'){
+																			try{
 																
-																			let outgoing_message = {
-																				"messageType": "setProperty",
-																				//"id":thing_id,
-																				"data":{}
-																			};
+																				let outgoing_message = {
+																					"messageType": "setProperty",
+																					//"id":thing_id,
+																					"data":{}
+																				};
 																
-																			let event_target_type = event.target.getAttribute('type');
-																			if(event.target.tagName == 'INPUT' && typeof event_target_type  == 'string' && event_target_type == 'checkbox'){
-																				outgoing_message['data'][property_id] = event.target.checked;
-																			}
-																			else if(typeof event.target.value != 'undefined' && event.target.value){
-																				outgoing_message['data'][property_id] = event.target.value;
+																				let event_target_type = event.target.getAttribute('type');
+																				if(event.target.tagName == 'INPUT' && typeof event_target_type  == 'string' && event_target_type == 'checkbox'){
+																					outgoing_message['data'][property_id] = event.target.checked;
+																				}
+																				else if(typeof event.target.value != 'undefined' && event.target.value){
+																					outgoing_message['data'][property_id] = event.target.value;
 																			
-																			}
+																				}
 																
 																		
 																		
-																			if(typeof this.recent_events[thing_id] == 'undefined'){
-																				this.recent_events[thing_id] = {};
-																			}
+																				if(typeof this.recent_events[thing_id] == 'undefined'){
+																					this.recent_events[thing_id] = {};
+																				}
 																		
-																			if(typeof this.recent_events[thing_id][property_id] != 'undefined'){
-																				if(this.recent_events[thing_id][property_id]['timestamp'] > Date.now() - 1000){
-																					if(this.debug){
-																						console.warn("dashboard: ABORT SENDING, as something was already sent/received for this property in the last 1 seconds: \nproperty_id: " + property_id + "\n" + JSON.stringify(this.recent_events[thing_id][property_id],null,4));
-																					}
-																					if(this.recent_events[thing_id][property_id]['value'] == event.target.value){
+																				if(typeof this.recent_events[thing_id][property_id] != 'undefined'){
+																					if(this.recent_events[thing_id][property_id]['timestamp'] > Date.now() - 1000){
 																						if(this.debug){
-																							console.warn("... ABORT SENDING as it was the same value too!: ", this.recent_events[thing_id][property_id]['value']);
+																							console.warn("dashboard: ABORT SENDING, as something was already sent/received for this property in the last 1 seconds: \nproperty_id: " + property_id + "\n" + JSON.stringify(this.recent_events[thing_id][property_id],null,4));
 																						}
-																						return
-																					}
+																						if(this.recent_events[thing_id][property_id]['value'] == event.target.value){
+																							if(this.debug){
+																								console.warn("... ABORT SENDING as it was the same value too!: ", this.recent_events[thing_id][property_id]['value']);
+																							}
+																							return
+																						}
 																				
+																					}
+																					else{
+																						//delete this.recent_events[thing_id][property_id]; // will be filled again now anyway..
+																					}
 																				}
-																				else{
-																					//delete this.recent_events[thing_id][property_id]; // will be filled again now anyway..
+																		
+																				// SENDING VALUE CHANGE VIA WEBSOCKET
+																		
+																				this.recent_events[thing_id][property_id] = {"timestamp":Date.now(), "value":event.target.value, "type":"sent"}; // remember what and when was sent
+																				//console.error("dashboard: sending message over websocket.  thing_id, message: ", thing_id, "\n", JSON.stringify(outgoing_message,null,4))
+																				this.websockets[thing_id].send(outgoing_message);
+																		
+																		
+																				//this.recent_events.push({"thing_id":thing_id,"property_id":property_id,"timetamp":Date.now()});
+																		
+																				//console.log("dashboard: this.recent_events is now: ", this.recent_events);
+																		
+																				/*
+																				// example message
+																				{
+																				    "messageType": "setProperty",
+																				    "data": {
+																				      "leftMotor": 100
+																				    }
 																				}
-																			}
-																		
-																			// SENDING VALUE CHANGE VIA WEBSOCKET
-																		
-																			this.recent_events[thing_id][property_id] = {"timestamp":Date.now(), "value":event.target.value, "type":"sent"}; // remember what and when was sent
-																			console.error("dashboard: sending message over websocket.  thing_id, message: ", thing_id, "\n", JSON.stringify(outgoing_message,null,4))
-																			this.websockets[thing_id].send(outgoing_message);
-																		
-																		
-																			//this.recent_events.push({"thing_id":thing_id,"property_id":property_id,"timetamp":Date.now()});
-																		
-																			console.log("dashboard: this.recent_events is now: ", this.recent_events);
-																		
-																			/*
-																			// example message
-																			{
-																			    "messageType": "setProperty",
-																			    "data": {
-																			      "leftMotor": 100
-																			    }
-																			}
-																			*/
+																				*/
 																		
 																		
 																		
 																		
 																
+																			}
+																			catch(err){
+																				console.error("dashboard: caught error trying to send message via websocket: ", err);
+																			}
 																		}
-																		catch(err){
-																			console.error("dashboard: caught error trying to send message via websocket: ", err);
+																		else{
+																			console.error("dashboard: no websocket for thing_id (yet)");
 																		}
-																	}
-																	else{
-																		console.error("dashboard: no websocket for thing_id (yet)");
 																	}
 																}
-															}
-															//this.handle_user_input(event,grid_id,what_property_is_needed);
-														});
+																//this.handle_user_input(event,grid_id,what_property_is_needed);
+															});
+														}
 														
 													}
 													
@@ -3093,7 +3347,7 @@
 												if(what_string_is_needed == 'link'){
 													if(this.kiosk == true && !needs['rename'][what_string_is_needed].startsWith('/')){
 														
-														console.warn("dashboard: sorry, cannot open external link on the kiosk: ", needs['rename'][what_string_is_needed]);
+														//console.warn("dashboard: sorry, cannot open external link on the kiosk: ", needs['rename'][what_string_is_needed]);
 														
 														alert("Sorry, you cannot open an external link on the Candle Controller's display");
 													}
@@ -3117,6 +3371,18 @@
 													}
 													
 												}
+												
+												
+												// IFRAME
+												
+												else if(what_string_is_needed == 'URL' && child_els[ix].tagName == 'IFRAME'){
+													if(this.debug){
+														console.log("setting iframe src to: ", needs['rename'][what_string_is_needed]);
+													}
+													child_els[ix].src = needs['rename'][what_string_is_needed];
+												}
+												
+												
 												else{
 													if(child_els[ix].tagName == 'INPUT' || child_els[ix].tagName == 'RANGE'){
 														child_els[ix].value = needs['rename'][what_string_is_needed];
@@ -3244,7 +3510,8 @@
 													if(typeof input_step == 'number'){
 														
 														if(class_name.indexOf('-decrease-') != -1){
-															child_els[ix].addEventListener('click', () => {
+															child_els[ix].addEventListener('click', (event) => {
+																event.stopPropagation();
 																//console.log("decreasing: ", last_spotted_number_input_el.value, " by ", input_step);
 																let new_value = parseFloat(last_spotted_number_input_el.value);
 																//console.log("new_value before step complicance: ", new_value);
@@ -3257,7 +3524,8 @@
 														}
 														
 														else if(class_name.indexOf('-increase-') != -1){
-															child_els[ix].addEventListener('click', () => {
+															child_els[ix].addEventListener('click', (event) => {
+																event.stopPropagation();
 																//console.log("increasing: ", last_spotted_number_input_el.value, " by ", input_step);
 																let new_value = parseFloat(last_spotted_number_input_el.value);
 																//console.log("new_value before step complicance: ", new_value);
@@ -3280,6 +3548,99 @@
 												}
 											}
 										}
+										
+										
+										if(class_name == "extension-dashboard-click-to-copy-to-clipboard"){
+											child_els[ix].addEventListener('click', () => {
+												
+												let text_to_copy = '';
+												if(child_els[ix].tagName == 'INPUT' || child_els[ix].tagName == 'TEXTAREA' || child_els[ix].tagName == 'SELECT'){
+													child_els[ix].select();
+													child_els[ix].setSelectionRange(0, 99999);
+													text_to_copy = child_els[ix].value;
+													
+												}
+												else{
+													text_to_copy = child_els[ix].textContent;
+												}
+												
+												if(typeof text_to_copy == 'string'){
+													
+													text_to_copy = text_to_copy.trim();
+													text_to_copy = text_to_copy.replace(/\s+/g, ' ');
+													
+													//console.log("text_to_copy: ", text_to_copy)
+													
+													if(text_to_copy){
+														navigator.clipboard.writeText(text_to_copy);
+														child_els[ix].classList.add('extension-dashboard-click-to-copy-to-clipboard-done');
+														setTimeout(() => {
+															child_els[ix].classList.remove('extension-dashboard-click-to-copy-to-clipboard-done');
+														},1000);
+														
+														return
+													}
+													
+												}
+												
+												child_els[ix].classList.add('extension-dashboard-click-to-copy-to-clipboard-failed');
+												setTimeout(() => {
+													child_els[ix].classList.remove('extension-dashboard-click-to-copy-to-clipboard-failed');
+												},1000);
+												
+												
+											});
+											
+										}
+										
+										if(class_name == "extension-dashboard-widget-save-value-locally"){
+											if(typeof this.locally_saved_values[grid_id] == 'undefined'){
+												this.locally_saved_values[grid_id] = {};
+											}
+											if(typeof this.locally_saved_values[grid_id][widget_id] == 'undefined'){
+												this.locally_saved_values[grid_id][widget_id] = {};
+											}
+											
+											
+											
+											const hopefully_unique_id = child_els[ix].className.replaceAll(' ','_').replace(/[^a-z0-9]/gi, '').replaceAll('extensiondashboard','');
+											//console.log("dashboard: save value locally: hopefully_unique_id: ", hopefully_unique_id);
+											
+											if(hopefully_unique_id){
+												if(typeof this.locally_saved_values[grid_id][widget_id][hopefully_unique_id] != 'undefined' && this.locally_saved_values[grid_id][widget_id][hopefully_unique_id] != null){
+													//console.log("dashboard: save value locally: restoring input element's value: ", typeof this.locally_saved_values[grid_id][widget_id][hopefully_unique_id], this.locally_saved_values[grid_id][widget_id][hopefully_unique_id]);
+													if(child_els[ix].tagName == 'INPUT' && child_els[ix].getAttribute('type') == 'checkbox'){
+														child_els[ix].checked = this.locally_saved_values[grid_id][widget_id][hopefully_unique_id];
+													}
+													else{
+														child_els[ix].value = this.locally_saved_values[grid_id][widget_id][hopefully_unique_id];
+													}
+													
+												}
+											
+												child_els[ix].addEventListener('change', () => {
+													try{
+														if(child_els[ix].tagName == 'INPUT' && child_els[ix].getAttribute('type') == 'checkbox'){
+															this.locally_saved_values[grid_id][widget_id][hopefully_unique_id] = child_els[ix].checked;
+														}
+														else if(typeof child_els[ix].value != 'undefined' && child_els[ix].value != null){
+															this.locally_saved_values[grid_id][widget_id][hopefully_unique_id] = child_els[ix].value;
+															
+														}
+														localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
+														//console.log("dashboard: this.locally_saved_values is now: ", this.locally_saved_values);
+													}
+													catch(err){
+														console.error("dashboard: caught error in saving value locally: ", err);
+														localStorage.removeItem('extension_dashboard_locally_saved_values');
+													}
+												});
+											}
+											
+											
+										}
+										
+										
 										
 									}
 								}
@@ -3435,20 +3796,17 @@
 							let rename_container_el = document.createElement('div');
 							rename_container_el.classList.add('extension-dashboard-widget-ui-rename-container');
 							
-							let rename_title_el = document.createElement('h4');
-							if(Object.keys(needs['rename']).length == 1){
-								rename_title_el.textContent = 'Name';
-							}
-							else{
-								rename_title_el.textContent = 'Values';
-							}
-							rename_container_el.appendChild(rename_title_el);
+							
 							
 							for (const [what_string_is_needed, value] of Object.entries(needs['rename'])) {
 								//console.log(`rename: what_string_is_needed: ${what_string_is_needed}: ${value}`);
+								
+								let rename_title_el = document.createElement('h4');
+								rename_title_el.textContent = what_string_is_needed.replaceAll('_',' ');
+								rename_container_el.appendChild(rename_title_el);
+								
 								let rename_input_el = document.createElement('input');
 								rename_input_el.setAttribute('type','text');
-								rename_input_el.setAttribute('placeholder',what_string_is_needed.replaceAll('_',' '));
 								if(typeof value == 'string'){
 									rename_input_el.value = value;
 								}
@@ -3763,9 +4121,10 @@
 								
 								if(widget_type == 'media_player'){
 									const pre_thing = this.get_thing_by_thing_id('internet-radio');
-									console.log("media_player pre_thing: ", pre_thing);
+									//console.log("media_player pre_thing: ", pre_thing);
 									if(pre_thing){
-										needs['update'] = {
+										
+										const pre_made = {
 										    "play_pause_button": {
 										        "thing_id": "internet-radio",
 										        "thing_title": "Radio",
@@ -3777,6 +4136,12 @@
 										        "thing_title": "Radio",
 										        "property_id": "volume",
 										        "property_title": "Volume"
+										    },
+										    "source": {
+										        "thing_id": "internet-radio",
+										        "thing_title": "Radio",
+										        "property_id": "station",
+										        "property_title": "Station"
 										    },
 										    "song_title": {
 										        "thing_id": "internet-radio",
@@ -3791,6 +4156,14 @@
 										        "property_title": "Artist"
 										    }
 										}
+											
+										if(typeof needs['update'] == 'object' && needs['update'] != null){
+											needs['update'] = Object.assign({}, needs['update'], pre_made);
+										}
+										else{
+											needs['update'] = pre_made;
+										}
+										
 										if(this.debug){
 											console.log("dashboard debug: pre-linked a media control widget to the internet-radio thing that was spotted");
 										}
@@ -3799,9 +4172,10 @@
 								
 								else if(widget_type == 'weather'){
 									const pre_thing = this.get_thing_by_thing_id('candle-weather-today');
-									console.log("weather pre_thing: ", pre_thing);
+									//console.log("weather pre_thing: ", pre_thing);
 									if(pre_thing){
-										needs['update'] = {
+										
+										const pre_made = {
 										    "weather_description": {
 										        "thing_id": "candle-weather-today",
 										        "thing_title": "Weather today",
@@ -3821,6 +4195,14 @@
 										        "property_title": "Humidity"
 											}
 										}
+										
+										//needs['update'] = {...needs['update'], ...pre_made};
+										if(typeof needs['update'] == 'object' && needs['update'] != null){
+											needs['update'] = Object.assign({}, needs['update'], pre_made);
+										}else{
+											needs['update'] = pre_made;
+										}
+										
 										if(this.debug){
 											console.log("dashboard debug: pre-linked a weather widget to the Candle weather thing that was spotted");
 										}
@@ -5185,6 +5567,12 @@ ticks.attr("class", function(d,i){
 			}
             if (this.update_clock) {
 				
+				if(this.last_time_clock_updated > Date.now() - 2){
+					console.warn("already updated the clock recently");
+					return
+				}
+				this.last_time_clock_updated = Date.now();
+				
                 window.API.postJson(
                     `/extensions/dashboard/api/get_time`,
                 ).then((body) => {
@@ -5194,15 +5582,14 @@ ticks.attr("class", function(d,i){
 						// TIME
                         var hour_padding = "";
                         var minute_padding = "";
-						let updated_time = body.hours + ":" + minute_padding + body.minutes;;
+						let updated_time = body.hours + ":" + minute_padding + body.minutes;
 
 						let clock_els = this.view.querySelectorAll('.extension-dashboard-widget-clock-time');
-						if(clock_els){
+						if(clock_els.length){
 							for(let ce = 0; ce < clock_els.length; ce++){
 								clock_els[ce].textContent = updated_time;
 							}
 						}
-						
 						
 						
                         // DAY
@@ -5216,7 +5603,7 @@ ticks.attr("class", function(d,i){
                         }
 						
 						let day_els = this.view.querySelectorAll('.extension-dashboard-widget-clock-date-day');
-						if(day_els){
+						if(day_els.length){
 							for(let de = 0; de < day_els.length; de++){
 								day_els[de].textContent = nice_day_name;
 							}
@@ -5225,7 +5612,7 @@ ticks.attr("class", function(d,i){
 						
 						// DATE
 						let date_els = this.view.querySelectorAll('.extension-dashboard-widget-clock-date-date');
-						if(date_els){
+						if(date_els.length){
 							for(let de = 0; de < date_els.length; de++){
 								date_els[de].textContent = body.date;
 							}
@@ -5234,15 +5621,53 @@ ticks.attr("class", function(d,i){
 						
 						// MONTH
                         //const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                        document.getElementById('extension-dashboard-date-month').innerText = body.month; //months[date.getMonth()];
+                        //document.getElementById('extension-dashboard-date-month').innerText = body.month; //months[date.getMonth()];
 						let month_els = this.view.querySelectorAll('.extension-dashboard-widget-clock-date-month');
-						if(month_els){
+						if(month_els.length){
 							for(let me = 0; me < month_els.length; me++){
 								month_els[me].textContent = body.month;
 							}
 						}
 						
+						
+						//const then = new Date(now.getFullYear(),now.getMonth(),now.getDate(),0,0,0)
+						
+						
+						
+						
+						let analog_hour_els = this.view.querySelectorAll('.extension-dashboard-widget-clock-analog-hour');
+						if(analog_hour_els.length){
+							
+							const hour_rotation_degrees =  body.hours * 30 + body.minutes * (360/720);
+						
+							let seconds = new Date().getSeconds();
+							console.log("local seconds: ", seconds);
+							let minute_rotation_degrees = body.minutes * 6 + seconds * (360/3600);
+							
+							for(let be = 0; be < analog_hour_els.length; be++){
+								analog_hour_els[be].style.transform = "rotate(" + hour_rotation_degrees + "deg)"; // (body.hours * 30 + (body.hours / 2))
+							}
+							
+							let analog_minute_els = this.view.querySelectorAll('.extension-dashboard-widget-clock-analog-minute');
+							console.log("analog_minute_els: ", analog_minute_els, typeof body.minutes, body.minutes);
+							if(analog_minute_els.length){
+								for(let bm = 0; bm < analog_minute_els.length; bm++){
+									analog_minute_els[bm].style.transform = "rotate(" + minute_rotation_degrees + "deg)";
+								}
+							}
+							
+							let analog_second_els = this.view.querySelectorAll('.extension-dashboard-widget-clock-analog-second');
+							console.log("analog_second_els: ", analog_second_els);
+							if(analog_second_els.length){
+								for(let bs = 0; bs < analog_second_els.length; bs++){
+									analog_second_els[bs].style.animationDelay = "-" + (60 - seconds) + "s";
+								}
+							}
+							
+						}
+						
                     }
+					
                 }).catch((err) => {
                     if(this.debug){
 						console.error("dashboard: error getting date/time from backend: ", err);   
@@ -5373,12 +5798,18 @@ ticks.attr("class", function(d,i){
 			
 		}
 
-
+		
 		get_moon(){
 			var Moon = {
-			  phases: ['new-moon', 'waxing-crescent-moon', 'quarter-moon', 'waxing-gibbous-moon', 'full-moon', 'waning-gibbous-moon', 'last-quarter-moon', 'waning-crescent-moon'],
+			  //phases: ['new-moon', 'waxing-crescent-moon', 'quarter-moon', 'waxing-gibbous-moon', 'full-moon', 'waning-gibbous-moon', 'last-quarter-moon', 'waning-crescent-moon'],
+			  phases: ['🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘'], // 🌑
+			  
+			  
 			  phase: function (year, month, day) {
-			    let c = e = jd = b = 0;
+			    let c = 0;
+				let e = 0;
+				let jd = 0;
+				let b = 0;
 
 			    if (month < 3) {
 			      year--;
@@ -5406,6 +5837,16 @@ ticks.attr("class", function(d,i){
 
 		}
 		
+		
+		update_moon(){
+			let moon_els = this.view.querySelectorAll('.extension-dashboard-widget-weather-moon-container');
+			if(moon_els){
+				const moon_emoji = this.get_moon();
+				for(let m = 0; m < moon_els.length; m++){
+					moon_els[m].textContent = moon_emoji;
+				}
+			}
+		}
 
 		
         // HELPER METHODS

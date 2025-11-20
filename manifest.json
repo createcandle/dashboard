@@ -3,6 +3,7 @@
   "content_scripts": [
     {
       "css": [
+  		"css/extension_utils.css",
         "css/extension.css"
       ],
       "js": [

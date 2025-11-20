@@ -10,15 +10,15 @@
 				<div id="extension-dashboard-widget-modal-content">
 				
 					<div id="extension-dashboard-templates">
-				
+						
 						<div style="max-width:150px" class="extension-dashboard-template-container">
 							<div data-template-name="property-switch" class="extension-dashboard-template extension-dashboard-widget-property-switch">
-						        <input type="checkbox" name="extension-dashboard-widget-changeme" id="extension-dashboard-widget-changeme" class="extension-dashboard-widget-switch_state-needs-update extension-dashboard-hidden-widget-checkbox extension-dashboard-hidden">
+						        <input type="checkbox" name="extension-dashboard-widget-changeme" id="extension-dashboard-widget-changeme" class="extension-dashboard-widget-switch_state-needs-update extension-dashboard-hidden">
 						        <label for="extension-dashboard-widget-changeme">
 									<span class="extension-dashboard-widget-thing-icon-container extension-dashboard-widget-icon-needs-icon">
 										<img src="/extensions/dashboard/icons/material_light_icons/wall-lamp-outline.svg" class="extension-dashboard-widget-remove-me" alt="Lamp icon" style="width: 100%;margin-top: 5rem;">
 									</span>
-									<strong class="extension-dashboard-widget-thing_title-needs-rename">Switch widget</strong>
+									<strong class="extension-dashboard-widget-thing_title-needs-rename extension-dashboard-widget-smaller-font-on-1x1">Switch button</strong>
 									<!--<span data-o="opened" data-c="closed"></span>-->
 									<small></small>
 						        </label>
@@ -34,15 +34,13 @@
 									<div>
 								        <input type="checkbox" name="extension-dashboard-widget-changeme" id="extension-dashboard-widget-changeme" class="extension-dashboard-widget-switch_state-needs-update extension-dashboard-hidden">
 								        <label for="extension-dashboard-widget-changeme">
-											<strong class="extension-dashboard-widget-thing_title-needs-rename">Switch slider widget</strong>
+											<strong class="extension-dashboard-widget-thing_title-needs-rename extension-dashboard-widget-smaller-font-on-1x1">Switch slider</strong>
 											<small></small>
 										</label>
 									</div>
 							
-									<div class="extension-dashboard-widget-slider-container extension-dashboard-flex-center extension-dashboard-flex-grow">
-										<div class="extension-dashboard-flex-center">
-											<input type="range" class="extension-dashboard-widget-percentage-needs-update" step="1" min="0" max="100">
-										</div>
+									<div class="extension-dashboard-widget-slider-container extension-dashboard-flex-center extension-dashboard-flex-grow extension-dashboard-widget-allow-vertical-slider-if-thin">
+										<input type="range" class="extension-dashboard-widget-percentage-needs-update" step="1" min="0" max="100">
 									</div>
 							
 								</div>
@@ -58,8 +56,8 @@
 							
 									<div class="extension-dashboard-widget-title-container">
 								        <input type="checkbox" name="extension-dashboard-widget-changeme" id="extension-dashboard-widget-changeme" class="extension-dashboard-widget-title-container extension-dashboard-widget-switch_state-needs-update extension-dashboard-hidden">
-								        <label for="extension-dashboard-widget-changeme">
-											<strong class="extension-dashboard-widget-thing_title-needs-rename">Color light widget</strong>
+								        <label for="extension-dashboard-widget-changeme" class="extension-dashboard-widget-hide-if-1x1">
+											<strong class="extension-dashboard-widget-thing_title-needs-rename">Color light</strong>
 											<small></small>
 										</label>
 									</div>
@@ -69,10 +67,8 @@
 										<img src="/extensions/dashboard/images/color_wheel.png" class="extension-dashboard-widget-remove-me" alt="color picker">
 									</div>
 								
-									<div class="extension-dashboard-widget-slider-container extension-dashboard-flex-center extension-dashboard-flex-grow">
-										<div class="extension-dashboard-flex-center">
-											<input type="range" class="extension-dashboard-widget-percentage-needs-update" step="1" min="0" max="100">
-										</div>
+									<div class="extension-dashboard-widget-slider-container extension-dashboard-flex-center extension-dashboard-flex-grow extension-dashboard-widget-allow-vertical-slider-if-thin-above-h2">
+										<input type="range" class="extension-dashboard-widget-percentage-needs-update" step="1" min="0" max="100">
 									</div>
 							
 								</div>
@@ -85,7 +81,7 @@
 							<div data-template-name="number" class="extension-dashboard-template extension-dashboard-widget-number">
 					          	
 								<div class="extension-dashboard-widget-absolute-title-container">
-									<strong class="extension-dashboard-widget-name-needs-rename">Number widget</strong>
+									<strong class="extension-dashboard-widget-name-needs-rename extension-dashboard-widget-hide-if-empty">Number</strong>
 								</div>
 								
 								<div class="extension-dashboard-widget-number-display extension-dashboard-flex-center">
@@ -100,24 +96,26 @@
 							<div data-template-name="round-dial" data-widget-has-dial="true" class="extension-dashboard-template extension-dashboard-widget-round extension-dashboard-widget-round-dial">
 					          	
 								<div class="extension-dashboard-widget-dial-name-container">
-									<strong class="extension-dashboard-widget-name-needs-rename">Dial widget</strong>
+									<strong class="extension-dashboard-widget-name-needs-rename extension-dashboard-widget-hide-if-empty">Number dial</strong>
 								</div>
 								
-								<div class="extension-dashboard-widget-split-compact">
-									<div class="extension-dashboard-widget-thermostat-setpoint-display extension-dashboard-flex-center">
-							        	<input type="number" step="0.01" value="00" class="extension-dashboard-widget-value-needs-update" />
-										<input type="number" class="extension-dashboard-hidden extension-dashboard-widget-minimum-value extension-dashboard-widget-minimum_value-needs-rename">
-										<input type="number" class="extension-dashboard-hidden extension-dashboard-widget-maximum-value extension-dashboard-widget-maximum_value-needs-rename">
-									</div>
+								<div class="extension-dashboard-widget-thermostat-setpoint-display extension-dashboard-flex-center">
+						        	<input type="number" step="0.01" value="00" class="extension-dashboard-widget-value-needs-update" />
+									<input type="number" class="extension-dashboard-hidden extension-dashboard-widget-minimum-value extension-dashboard-widget-minimum_value-needs-rename">
+									<input type="number" class="extension-dashboard-hidden extension-dashboard-widget-maximum-value extension-dashboard-widget-maximum_value-needs-rename">
 								</div>
 								
+								<div class="extension-dashboard-widget-dial">
+									<div class="extension-dashboard-widget-dial-ticks"></div>
+									<div class="extension-dashboard-widget-dial-notches"></div>
+									<div class="extension-dashboard-widget-dial-needle extension-dashboard-hidden"></div>
+								</div>
+								
+								<!--
 								<div class="extension-dashboard-widget-dial-container">
-									<div class="extension-dashboard-widget-dial">
-										<div class="extension-dashboard-widget-dial-ticks"></div>
-										<div class="extension-dashboard-widget-dial-notches"></div>
-										<div class="extension-dashboard-widget-dial-needle extension-dashboard-hidden"></div>
-									</div>
+									
 								</div>
+								-->
 								
 							</div>
 						</div>
@@ -126,7 +124,7 @@
 					
 						<div style="max-width:150px" class="extension-dashboard-template-container">
 							<div data-template-name="log" class="extension-dashboard-template extension-dashboard-widget-log extension-dashboard-flex-column">
-						        <strong class="extension-dashboard-widget-log_title-needs-rename">Log title</strong>
+						        <strong class="extension-dashboard-widget-log_title-needs-rename extension-dashboard-widget-hide-if-empty">Log</strong>
 								<div class="extension-dashboard-widget-log_source-needs-log extension-dashboard-flex-center extension-dashboard-flex-column extension-dashboard-flex-grow">
 									<img src="/extensions/dashboard/images/log_example.svg" class="extension-dashboard-widget-remove-me" alt="example log visualisation">
 								</div>
@@ -139,7 +137,46 @@
 				
 						<div style="max-width:150px" class="extension-dashboard-template-container grid-stack-item" gs-h="2">
 							<div data-template-name="weather" class="extension-dashboard-template extension-dashboard-widget-weather">
-								<div class="extension-dashboard-widget-weather-rain">
+								
+								<div class="extension-dashboard-widget-split">
+									<div>
+										<div class="extension-dashboard-widget-weather-description-container extension-dashboard-flex extension-dashboard-flex-end">
+											
+											<div class="extension-dashboard-widget-heading">
+												<h2 class="extension-dashboard-widget-weather_description-needs-update">Weather</h2>
+												<p class="extension-dashboard-widget-hide-if-empty extension-dashboard-widget-custom_top_value-needs-update"></p>
+											</div>
+									    </div>
+									</div>
+									<div>
+									    <div class="extension-dashboard-flex-wrap extension-dashboard-widget-split-compact extension-dashboard-flex-center">
+											<div class="extension-dashboard-flex-center extension-dashboard-flex-grow">
+												<strong class="extension-dashboard-widget-temperature-value-container extension-dashboard-widget-hide-if-empty extension-dashboard-widget-temperature-needs-update">00</strong>
+												<p class="extension-dashboard-widget-value-subtext extension-dashboard-widget-hide-if-after-empty extension-dashboard-widget-hide-if-1x1-or-2x1">Temperature</p>
+											</div>
+											<div class="extension-dashboard-flex-center extension-dashboard-flex-grow">
+												<strong class="extension-dashboard-widget-humidity-value-container extension-dashboard-widget-hide-if-empty extension-dashboard-widget-humidity-needs-update">00</strong>
+												<p class="extension-dashboard-widget-value-subtext extension-dashboard-widget-hide-if-after-empty extension-dashboard-widget-hide-if-1x1-or-2x1">Humidity</p>
+											</div>
+											<div class="extension-dashboard-flex-center extension-dashboard-flex-grow">
+												<strong class="extension-dashboard-widget-humidity-value-container extension-dashboard-widget-hide-if-empty extension-dashboard-widget-custom_bottom_value_A-needs-update"></strong>
+												<p class="extension-dashboard-widget-value-subtext extension-dashboard-widget-hide-if-empty extension-dashboard-widget-hide-if-after-empty extension-dashboard-widget-hide-if-1x1-or-2x1 extension-dashboard-widget-custom_bottom_value_A_name-needs-rename"></p>
+											</div>
+											<div class="extension-dashboard-flex-center extension-dashboard-flex-grow">
+												<strong class="extension-dashboard-widget-humidity-value-container extension-dashboard-widget-hide-if-empty extension-dashboard-widget-custom_bottom_value_B-needs-update"></strong>
+												<p class="extension-dashboard-widget-value-subtext extension-dashboard-widget-hide-if-empty extension-dashboard-widget-hide-if-after-empty extension-dashboard-widget-hide-if-1x1-or-2x1 extension-dashboard-widget-custom_bottom_value_B_name-needs-rename"></p>
+											</div>
+									    </div>
+									</div>
+								</div>
+								
+								
+								<div class="extension-dashboard-widget-weather-moon-container extension-dashboard-widget-show-if-at-least-2x2">
+									🌑
+								</div>
+								
+								
+								<div class="extension-dashboard-widget-weather-rain extension-dashboard-widget-show-if-at-least-2x2">
 
 									<div class="extension-dashboard-widget-weather-rain">
 										<div class="extension-dashboard-widget-weather-drop"></div>
@@ -203,7 +240,7 @@
 								
 								</div>
 								
-								<div class="extension-dashboard-widget-weather-clouds">
+								<div class="extension-dashboard-widget-weather-clouds extension-dashboard-widget-show-if-at-least-2x2">
 
 									<div class="extension-dashboard-widget-weather-big-cloud extension-dashboard-widget-weather-cloud2">
   									  	<div class="extension-dashboard-widget-weather-large-circle extension-dashboard-widget-weather-circ1"></div>
@@ -261,73 +298,53 @@
 
 								</div>
 								
-								<div class="extension-dashboard-widget-split">
-									<div>
-										<div class="extension-dashboard-widget-weather-description-container extension-dashboard-flex extension-dashboard-flex-end">
-				  					      <div class="extension-dashboard-icon extension-dashboard-widget-icon-weather"></div>
-				  					      <div class="extension-dashboard-widget-heading">
-				  					        <!--<h5 class="extension-dashboard-date">1 Feb 2019</h5>-->
-				  					        <h2 class="extension-dashboard-widget-weather_description-needs-update">Weather</h2>
-				  					      </div>
-									    </div>
-									</div>
-									<div>
-									    <div class="extension-dashboard-flex-wrap extension-dashboard-widget-split-compact extension-dashboard-flex-center">
-									      <div class="extension-dashboard-flex-center">
-									        <strong class="extension-dashboard-widget-temperature-value-container"><span class="extension-dashboard-widget-temperature-needs-update">00</span><!--°<sup>C</sup>--></strong>
-									        <p>Temperature</p>
-									      </div>
-									      <div class="extension-dashboard-flex-center">
-									        <strong class="extension-dashboard-widget-humidity-value-container"><span class="extension-dashboard-widget-humidity-needs-update">00</span>%</strong>
-									        <p>Humidity</p>
-									      </div>
-									    </div>
-									</div>
-								</div>
-
-					    
 							</div>
 						</div>
-						
-						
 						
 						
 				
 						<div style="width:150px" class="extension-dashboard-template-container">
 							<div data-template-name="media_player" class="extension-dashboard-template extension-dashboard-widget-media-player">
 					          	<div class="extension-dashboard-widget-thrit">
-									<div class="extension-dashboard-widget-media-player-controls-container">
-										<div class="extension-dashboard-widget-media-player-controls">
-											<div>
-												<div class="extension-dashboard-widget-media-player-control-previous-button-container">&laquo;</div>
-											</div>
-											<div>
-												<input type="checkbox" name="extension-dashboard-widget-changeme" id="extension-dashboard-widget-changeme" class="extension-dashboard-widget-play_pause_button-needs-update extension-dashboard-hidden-widget-checkbox extension-dashboard-hidden">
-												<label for="extension-dashboard-widget-changeme" class="extension-dashboard-flex-center">
-													<div class="extension-dashboard-widget-media-player-control">
-														<div class="extension-dashboard-widget-media-player-control-play-button-container">
-															<span class="extension-dashboard-widget-icon-play-button-container">
-																<span class="extension-dashboard-widget-icon-play-button extension-dashboard-widget-icon-play-button-before"></span>
-																<span class="extension-dashboard-widget-icon-play-button extension-dashboard-widget-icon-play-button-after"></span>
-															</span>
-														</div>
-													</div>
-												</label>
-											</div>
-											<div>
-												<div class="extension-dashboard-widget-media-player-control-next-button-container">&raquo;</div>
-											</div>
-										 </div>
-									</div>
-									<div class="extension-dashboard-flex-center extension-dashboard-flex-grow100">
-										<div class="extension-dashboard-widget-volume-container">
-											<input type="range" class="extension-dashboard-widget-volume-needs-update" step="1" min="0" max="100">
+									
+									<div class="extension-dashboard-widget-name-needs-rename extension-dashboard-widget-hide-if-empty extension-dashboard-widget-hide-if-short extension-dashboard-widget-block-title-container">Media player</div>
+									
+									<div class="extension-dashboard-widget-media-player-controls">
+											
+										<div class="extension-dashboard-widget-media-player-control-previous-button extension-dashboard-widget-previous-needs-action">
+											<div class="extension-dashboard-widget-media-player-control-previous-button-icon"><!--&laquo;--></div>
 										</div>
+										
+										<div>
+											<input type="checkbox" name="extension-dashboard-widget-changeme" id="extension-dashboard-widget-changeme" class="extension-dashboard-widget-play_pause_button-needs-update extension-dashboard-hidden">
+											<label for="extension-dashboard-widget-changeme" class="extension-dashboard-flex-center">
+												<div class="extension-dashboard-widget-media-play-button-container extension-dashboard-flex-center">
+													<div class="extension-dashboard-widget-media-play-button">
+														<span class="extension-dashboard-widget-media-play-button-icon">
+															<span class="extension-dashboard-widget-media-play-button extension-dashboard-widget-media-play-button-before"></span>
+															<span class="extension-dashboard-widget-media-play-button extension-dashboard-widget-media-play-button-after"></span>
+														</span>
+													</div>
+												</div>
+											</label>
+										</div>
+										
+										<div class="extension-dashboard-widget-media-player-control-next-button extension-dashboard-widget-next-needs-action">
+											<div class="extension-dashboard-widget-media-player-control-next-button-icon extension-dashboard-widget-next-needs-action"><!--&raquo;--></div>
+										</div>
+											
 									</div>
-									<div class="extension-dashboard-widget-media-player-artist-container">
+									
+									
+									<div class="extension-dashboard-flex-center extension-dashboard-flex-grow extension-dashboard-widget-slider-container extension-dashboard-widget-allow-vertical-slider-if-thin">
+										<input type="range" class="extension-dashboard-widget-volume-needs-update" step="1" min="0" max="100">
+									</div>
+									
+									<div class="extension-dashboard-widget-media-player-artist-container extension-dashboard-flex-grow">
 										<div class="extension-dashboard-flex-center">
 											<div class="extension-dashboard-widget-icon-disc"></div>
-							          		<div class="extension-dashboard-widget-media-player-artist">
+							          		<div class="extension-dashboard-widget-media-player-artist extension-dashboard-click-to-copy-to-clipboard">
+												<p class="extension-dashboard-widget-source-needs-update"></p>
 							            		<p class="extension-dashboard-widget-song_title-needs-update"></p>
 							            		<small class="extension-dashboard-widget-artist-needs-update"></small>
 							          		</div>
@@ -342,13 +359,13 @@
 						<div style="width:300px;min-width:300px" class="extension-dashboard-template-container extension-dashboard-widget-round grid-stack-item" gs-w="2" gs-h="2">
 							<div data-template-name="thermostat" data-widget-has-dial="true" class="extension-dashboard-template extension-dashboard-widget-round extension-dashboard-widget-thermostat">
 								<div class="extension-dashboard-widget-dial-name-container">
-									<div class="extension-dashboard-widget-name-needs-rename">Thermostat widget</div>
+									<div class="extension-dashboard-widget-name-needs-rename extension-dashboard-widget-hide-if-empty">Thermostat</div>
 								</div>
 								
 								<div class="extension-dashboard-widget-split-compact">
 									
 									<div class="extension-dashboard-widget-thermostat-setpoint-display extension-dashboard-flex-center">
-							        	<strong><span class="extension-dashboard-widget-temperature-value"><span class="extension-dashboard-widget-temperature-needs-update" step="0.1">00,0</span><!--°--></span><span class="extension-dashboard-widget-setpoint-arrow"> ➝ </span><span class="extension-dashboard-widget-setpoint-container"><input type="number" step="0.5" value="20.5" class="extension-dashboard-widget-setpoint-needs-update" /><span class="extension-dashboard-widget-setpoint-degrees">°</span></span></strong>
+							        	<strong><span class="extension-dashboard-widget-temperature-value"><span class="extension-dashboard-widget-temperature-needs-update" step="0.1">00,0</span><!--°--></span><span class="extension-dashboard-widget-setpoint-arrow extension-dashboard-widget-hide-if-1x1"> ➝ </span><span class="extension-dashboard-widget-setpoint-container"><input type="number" step="0.5" value="20.5" class="extension-dashboard-widget-setpoint-needs-update" /><span class="extension-dashboard-widget-setpoint-degrees">°</span></span></strong>
 										<input type="number" class="extension-dashboard-hidden extension-dashboard-widget-minimum-value extension-dashboard-widget-minimum_temperature-needs-rename">
 										<input type="number" class="extension-dashboard-hidden extension-dashboard-widget-maximum-value extension-dashboard-widget-maximum_temperature-needs-rename">
 									</div>
@@ -359,7 +376,6 @@
 									</div>
 									
 								</div>
-								
 								
 								
 								<div class="extension-dashboard-widget-dial-container">
@@ -377,11 +393,17 @@
 						
 						
 				
-						<div style="width:150px" class="extension-dashboard-template-container">
+						<div style="width:300px;min-width:300px" class="extension-dashboard-template-container">
 							<div data-template-name="clock" class="extension-dashboard-template extension-dashboard-widget-clock">
-								<div class="extension-dashboard-widget-split">
-					                <div class="extension-dashboard-widget-clock-time extension-dashboard-flex-center">00:00</div>
-									<div class="extension-dashboard-flex-center">
+								
+						        <input type="checkbox" name="extension-dashboard-widget-changeme" id="extension-dashboard-widget-changeme" class="extension-dashboard-widget-save-value-locally extension-dashboard-hidden">
+						        <label for="extension-dashboard-widget-changeme" class="extension-dashboard-cursor-pointer extension-dashboard-hover-bg-button extension-dashboard-style-invisible-overlay extension-dashboard-style-cursor-pointer">
+								</label>
+								
+								
+								<div class="extension-dashboard-widget-split extension-dashboard-widget-checkbox-toggle-checked-content">
+					                <div class="extension-dashboard-widget-clock-time extension-dashboard-flex-center extension-dashboard-widget-style-minheight60 extension-dashboard-flex-grow">00:00</div>
+									<div class="extension-dashboard-flex-center extension-dashboard-flex-grow">
 						                <div class="extension-dashboard-widget-clock-date">
 						                    <div class="extension-dashboard-widget-clock-date-day"></div>
 						                    <div class="extension-dashboard-widget-clock-date-container">
@@ -392,6 +414,122 @@
 						                </div>
 									</div>
 								</div>
+								
+								<div class="extension-dashboard-widget-checkbox-toggle-unchecked-content extension-dashboard-style-thick-padding">
+									
+									<div class="extension-dashboard-style-square-outer">
+										<div class="extension-dashboard-style-square-inner extension-dashboard-flex-center">
+											
+											<div class="extension-dashboard-widget-clock-seiko">
+											    <div class="extension-dashboard-widget-clock-seiko-label extension-dashboard-widget-hide-if-short">CANDLE</div>
+												<div class="extension-dashboard-widget-clock-seiko-fix">
+											    	<div class="extension-dashboard-widget-clock-seiko-hourhand extension-dashboard-widget-clock-analog-hour"></div>
+											    	<div class="extension-dashboard-widget-clock-seiko-secondhand extension-dashboard-widget-clock-analog-second"></div>
+											    	<div class="extension-dashboard-widget-clock-seiko-minutehand extension-dashboard-widget-clock-analog-minute"></div>
+													<div class="extension-dashboard-widget-clock-seiko-alarmhand extension-dashboard-widget-clock-analog-alarm"></div>
+												</div>
+												<!--
+											    <div class="extension-dashboard-widget-clock-seiko-hour12"></div>
+											    <div class="extension-dashboard-widget-clock-seiko-hour1"></div>
+											    <div class="extension-dashboard-widget-clock-seiko-hour2"></div>
+											    <div class="extension-dashboard-widget-clock-seiko-hour3"></div>
+											    <div class="extension-dashboard-widget-clock-seiko-hour4"></div>
+											    <div class="extension-dashboard-widget-clock-seiko-hour5"></div>
+												-->
+												<ul>
+												    <li><i>12</i></li>
+												    <li><i>1</i></li>
+												    <li><i>2</i></li>
+												    <li><i>3</i></li>
+												    <li><i>4</i></li>
+												    <li><i>5</i></li>
+												    <li><i>6</i></li>
+												    <li><i>7</i></li>
+												    <li><i>8</i></li>
+												    <li><i>9</i></li>
+												    <li><i>10</i></li>
+												    <li><i>11</i></li>
+												</ul>
+												
+												<div class="extension-dashboard-widget-clock-seiko-minute-ticks extension-dashboard-widget-hide-if-1x1">
+													<span class="extension-dashboard-widget-clock-seiko-minute-tick"></span>
+													<span class="extension-dashboard-widget-clock-seiko-minute-tick"></span>
+													<span class="extension-dashboard-widget-clock-seiko-minute-tick"></span>
+													<span class="extension-dashboard-widget-clock-seiko-minute-tick"></span>
+													
+													<span class="extension-dashboard-widget-clock-seiko-minute-tick"></span>
+													<span class="extension-dashboard-widget-clock-seiko-minute-tick"></span>
+													<span class="extension-dashboard-widget-clock-seiko-minute-tick"></span>
+													<span class="extension-dashboard-widget-clock-seiko-minute-tick"></span>
+													
+													<span class="extension-dashboard-widget-clock-seiko-minute-tick"></span>
+													<span class="extension-dashboard-widget-clock-seiko-minute-tick"></span>
+												</div>
+												
+												<!--
+												<div class="extension-dashboard-widget-clock-seiko-minute-ticks2">
+													<span class="extension-dashboard-widget-clock-seiko-minute-tick2"></span>
+													<span class="extension-dashboard-widget-clock-seiko-minute-tick2"></span>
+												</div>
+												-->
+												
+							                    <div class="extension-dashboard-widget-clock-seiko-date-container extension-dashboard-widget-hide-if-1x1">
+													<div class="extension-dashboard-widget-clock-date-day extension-dashboard-widget-hide-if-2x2"></div>
+													<div class="extension-dashboard-flex-center">
+							                        	<span class="extension-dashboard-widget-clock-date-date">0</span>
+							                        	<span class="extension-dashboard-widget-clock-date-spacer">&nbsp;</span>
+							                        	<span class="extension-dashboard-widget-clock-date-month">Jan</span>
+													</div>
+							                    </div>
+												  
+												  
+											</div>
+											
+											<!--
+											<div class="extension-dashboard-widget-clock-braun-date-container-wrapper">
+											
+												<div class="extension-dashboard-widget-clock-braun">
+													<div class="extension-dashboard-widget-clock-braun-uur">
+														<div class="extension-dashboard-widget-clock-braun-minuut"></div>
+														<div class="extension-dashboard-widget-clock-braun-minuut"></div>
+														<div class="extension-dashboard-widget-clock-braun-minuut"></div>
+														<div class="extension-dashboard-widget-clock-braun-minuut"></div>
+														<div class="extension-dashboard-widget-clock-braun-minuut"></div>
+													</div>
+													<div class="extension-dashboard-widget-clock-braun-uur">
+														<div class="extension-dashboard-widget-clock-braun-minuut"></div>
+														<div class="extension-dashboard-widget-clock-braun-minuut"></div>
+														<div class="extension-dashboard-widget-clock-braun-minuut"></div>
+														<div class="extension-dashboard-widget-clock-braun-minuut"></div>
+														<div class="extension-dashboard-widget-clock-braun-minuut"></div>
+													</div>
+													<div class="extension-dashboard-widget-clock-braun-alarm extension-dashboard-widget-clock-analog-alarm"> </div>
+													<div class="extension-dashboard-widget-clock-braun-min extension-dashboard-widget-clock-analog-minute"></div>
+													<div class="extension-dashboard-widget-clock-braun-hour extension-dashboard-widget-clock-analog-hour"></div>
+													<div class="extension-dashboard-widget-clock-braun-sec extension-dashboard-widget-clock-analog-second"></div>
+												
+												
+									                    <div class="extension-dashboard-widget-clock-braun-date-container">
+															<div class="extension-dashboard-widget-clock-date-day"></div>
+															<div class="extension-dashboard-flex-center">
+									                        	<span class="extension-dashboard-widget-clock-date-date">0</span>
+									                        	<span class="extension-dashboard-widget-clock-date-spacer">&nbsp;</span>
+									                        	<span class="extension-dashboard-widget-clock-date-month">Jan</span>
+															</div>
+									                    </div>
+														
+												</div>
+												
+											</div>
+											-->
+										</div>
+									</div>
+									
+								</div>
+								
+								
+								
+
 							</div>
 						</div>
 					
@@ -399,13 +537,19 @@
 					
 						<div style="max-width:150px" class="extension-dashboard-template-container">
 							<div data-template-name="text" class="extension-dashboard-template extension-dashboard-widget-text">
-						        <h2 class="extension-dashboard-widget-large_title-needs-rename">Text + optional link widget</h2>
+						        <h2 class="extension-dashboard-widget-large_title-needs-rename">Text + optional link</h2>
 								<div class="extension-dashboard-widget-link-needs-rename"></div>
 								<p class="extension-dashboard-widget-additional_text-needs-rename">Additional optional text</p>
 							</div>
 						</div>
 					
 					
+						<div style="max-width:150px" class="extension-dashboard-template-container">
+							<div data-template-name="frame" class="extension-dashboard-template extension-dashboard-widget-frame">
+						        <iframe src="data:text/html;charset=utf-8,%3Chtml%3E%3Cbody%3E%3Ch1%3EShow%20a%20webpage%3C%2Fh1%3E%3Cp%3ENote%3A%20not%20all%20websites%20allow%20you%20to%20view%20them%20framed%20in%20another%20page%3C%2Fp%3E%3C%2Fbody%3E%3C%2Fhtml%3E" class="extension-dashboard-widget-URL-needs-rename"></iframe>
+								<!--  srcdoc="<html><body>Hello, <b>world</b>.</body></html>"   src="data:text/html;charset=utf-8,%3Chtml%3E%3Cbody%3Efoo%3C/body%3E%3C/html%3E"   -->
+							</div>
+						</div>
 					
 						
 						
@@ -484,14 +628,11 @@
 			
 	      	<ul id="extension-dashboard-dashboards-list"></ul>
             
-					<div>
-						<div id="extension-dashboard-dropzone">
-							<div>Drop files here to upload</div>
-						</div>
-					<div>
-					<button id="extension-dashboard-add-random-dashboard-button" class="text-button">Add random dashboard</button>
-				</div>
-	        </div>
+				<div>
+					<div id="extension-dashboard-dropzone">
+						<div>Drop files here to upload</div>
+					</div>
+	        	</div>
 
 	            <input id="extension-dashboard-dashboards-file-selector" accept=".gif,.png,.jpg,.jpeg,.webp,image/gif,image/png,image/jpeg,image/webp" type="file" multiple="multiple"/>
 	            <div id="extension-dashboard-dashboards-file-selector-overlay">&nbsp;</div>
