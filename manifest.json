@@ -9,7 +9,8 @@
       "js": [
         "js/extension.js",
 		"js/gridstack.js",
-		"js/d3.v7.min.js"
+		"js/d3.v7.min.js",
+		"js/color-scheme.min.js"
       ]
     }
   ],

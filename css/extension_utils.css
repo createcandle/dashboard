@@ -7,7 +7,9 @@
 
 .extension-dashboard-flex-grow,
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]) .extension-dashboard-widget-flex-grow-if-short,
-.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]) .extension-dashboard-widget-flex-grow-if-thin{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]) .extension-dashboard-widget-flex-grow-if-thin,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-flex-grow-if-not-thin,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-flex-grow-if-not-short{
 	flex-grow:1;
 }
 
@@ -29,8 +31,15 @@
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"]:not([gs-w="3"]) .extension-dashboard-widget-show-if-square,
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="4"]:not([gs-w="4"]) .extension-dashboard-widget-show-if-square,
 
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-show-if-at-least-2x2,
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-show-if-at-least-2x2,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-show-if-at-least-2x2,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h]) .extension-dashboard-widget-show-if-at-least-2x2,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h]) .extension-dashboard-widget-show-if-at-least-2x2,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="4"]:not([gs-h]) .extension-dashboard-widget-show-if-at-least-2x2,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="5"]:not([gs-h]) .extension-dashboard-widget-show-if-at-least-2x2,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"]:not([gs-w]) .extension-dashboard-widget-show-if-at-least-2x2,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"]:not([gs-w]) .extension-dashboard-widget-show-if-at-least-2x2,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="4"]:not([gs-w]) .extension-dashboard-widget-show-if-at-least-2x2,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="5"]:not([gs-w]) .extension-dashboard-widget-show-if-at-least-2x2,
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h="3"]):not([gs-h="4"]):not([gs-w]) .extension-dashboard-widget-hide-if-2x1,
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"]:not([gs-h="3"]):not([gs-h="4"]):not([gs-w]) .extension-dashboard-hide-if-1x2,
@@ -56,6 +65,53 @@
 	writing-mode: vertical-lr;
 	direction: rtl;
 	flex-grow:1;
+	height:100%;
+}
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-property-slider input[type=range]::-webkit-slider-thumb,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin input[type=range]::-webkit-slider-thumb,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin-above-h2 input[type=range]::-webkit-slider-thumb,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="4"]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin-above-h2 input[type=range]::-webkit-slider-thumb{
+	box-shadow: 
+	inset .8em .8em 5px -8px rgba(255, 255, 255, .1),
+      inset -1.5em 0 0.5em -0.25em var(--widget-editable-text-color),
+       0 -1em 0 0.25em var(--widget-lighter),
+       0 -2em 0 0.25em var(--widget-lighter),
+       0 -3em 0 0.25em var(--widget-lighter),
+       0 -4em 0 0.25em var(--widget-lighter),
+       0 -5em 0 0.25em var(--widget-lighter),
+       0 -6em 0 0.25em var(--widget-lighter),
+       0 -7em 0 0.25em var(--widget-lighter),
+       0 -8em 0 0.25em var(--widget-lighter),
+       0 -9em 0 0.25em var(--widget-lighter),
+      0 -10em 0 0.25em var(--widget-lighter),
+      0 -11em 0 0.25em var(--widget-lighter),
+      0 -12em 0 0.25em var(--widget-lighter),
+      0 -12em 0 0.25em var(--widget-lighter),
+      0 -13em 0 0.25em var(--widget-lighter),
+      0 -14em 0 0.25em var(--widget-lighter),
+      0 -15em 0 0.25em var(--widget-lighter),
+      0 -16em 0 0.25em var(--widget-lighter),
+      0 -17em 0 0.25em var(--widget-lighter),
+      0 -18em 0 0.25em var(--widget-lighter),
+      0 -19em 0 0.25em var(--widget-lighter),
+      0 -20em 0 0.25em var(--widget-lighter),
+      0 -21em 0 0.25em var(--widget-lighter),
+      0 -22em 0 0.25em var(--widget-lighter),
+      0 -23em 0 0.25em var(--widget-lighter),
+      0 -24em 0 0.25em var(--widget-lighter),
+      0 -25em 0 0.25em var(--widget-lighter),
+      0 -26em 0 0.25em var(--widget-lighter),
+      0 -27em 0 0.25em var(--widget-lighter),
+      0 -28em 0 0.25em var(--widget-lighter),
+      0 -29em 0 0.25em var(--widget-lighter),
+      0 -30em 0 0.25em var(--widget-lighter),
+      0 -31em 0 0.25em var(--widget-lighter),
+      0 -32em 0 0.25em var(--widget-lighter),
+      0 -33em 0 0.25em var(--widget-lighter),
+      0 -34em 0 0.25em var(--widget-lighter),
+      0 -35em 0 0.25em var(--widget-lighter),
+      0 -37em 0 0.25em var(--widget-lighter);
 }
 
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin-above-h2,
@@ -63,6 +119,14 @@
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin{
 	flex-direction:column;
 }
+
+
+#extension-dashboard-content .extension-dashboard-widget-dont-grow,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-dont-grow-if-thin{
+	flex-basis:auto;
+	flex-grow:0;
+}
+
 
 .extension-dashboard-widget-style-minheight30{
 	min-height: 30%;

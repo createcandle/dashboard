@@ -96,12 +96,27 @@
 			//console.log("initial this.current_grid_id: ", this.current_grid_id);
 			
 			this.locally_saved_values = {};
+			
+			//console.log("ColorScheme: ", ColorScheme);
+			
+			this.color_settings = ['dashboard-background-color','widget-background-color','widget-text-color','widget-editable-text-color'];
+			this.default_color_settings = ['#0d3b5c','#bdc8d2','#555555','#fa7204'];
+			
 			if(localStorage.getItem('extension_dashboard_locally_saved_values')){
 				try{
 					let decoded_locally_saved_values = localStorage.getItem('extension_dashboard_locally_saved_values');
 					decoded_locally_saved_values = JSON.parse(decoded_locally_saved_values);
 					this.locally_saved_values = decoded_locally_saved_values;
 					console.log("dashboard: this.locally_saved_values is now: ", this.locally_saved_values);
+					
+					for(let c = 0; c < this.color_settings.length; c++){
+						if(typeof this.locally_saved_values[this.color_settings[c]] == 'string' && this.locally_saved_values[this.color_settings[c]].startsWith('#')){
+							document.documentElement.style.setProperty('--' + this.color_settings[c], this.locally_saved_values[this.color_settings[c]]);
+						}
+					}
+					
+					
+					
 				}
 				catch(err){
 					console.error("dashboard: caught error loading locally_saved_values: ", err);
@@ -121,11 +136,8 @@
 			this.logs_data = null;	 // become a dictionary with the actual raw boolean and number datapoints from the logs
 			this.last_time_logs_loaded = 0;
 			
-			
 			this.icon_dirs = [];
 			this.icon_paths = [];
-			
-			this.created_template_color_wheel = false;
 			
 			
             this.update_things_data()
@@ -150,7 +162,8 @@
 			this.recent_events = {};
 			
 			// likely becomes null at this point, since show() has not been called yet
-			this.modal_el = document.getElementById('extension-dashboard-widget-modal');
+			this.modal_el = null; //document.getElementById('extension-dashboard-widget-modal');
+			this.settings_modal_el = null;
 			
 			this.delay_show_until_after_hide = false;
 			this.dashboard_menu_item = document.getElementById('extension-dashboard-menu-item');
@@ -393,7 +406,7 @@
 				//content_el.addEventListener('keydown', this.dashboard_key_listener);
 				
 				this.modal_el = document.getElementById('extension-dashboard-widget-modal');
-				
+				this.settings_modal_el = document.getElementById('extension-dashboard-settings-modal');
 				
 			}
 			else{
@@ -574,6 +587,7 @@
 				// Once per day
 				setInterval(function() {
 					this.update_moon();
+					this.update_things_data();
 				}, 86400000);
 				
 				
@@ -596,8 +610,10 @@
 			},2000);
             
 			
-			
-			this.get_init()
+			this.update_things_data()
+			.then(() => {
+				return this.get_init();
+			})
 			.then((body) => {
 				//if(this.debug){
 				//	console.log("dashboard debug: show: get_init promise returned: ", body);
@@ -729,8 +745,114 @@
 			
 			
 			
+			/*   DASHBOARD COLOR SETTINGS  */
 			
-		} // and of show function
+			
+			
+			document.getElementById('extension-dashboard-settings-modal-done-button').addEventListener('click', () => {
+				this.settings_modal_el.close();
+			});
+			
+			document.getElementById('extension-dashboard-settings-modal-reset-button').addEventListener('click', () => {
+				document.documentElement.style.setProperty('--dashboard-background-color', 'transparent');
+				document.documentElement.style.setProperty('--widget-background-color', '#bdc8d2');
+				document.documentElement.style.setProperty('--widget-text-color', '#555555');
+				document.documentElement.style.setProperty('--widget-editable-text-color', '#fa7204');
+				
+				const new_color = null;
+				this.locally_saved_values['dashboard-background-color'] = new_color;
+				this.locally_saved_values['widget-background-color'] = new_color;
+				this.locally_saved_values['widget-text-color'] = new_color;
+				this.locally_saved_values['widget-editable-text-color'] = new_color;
+				localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
+				
+				for(let c = 0; c < this.color_settings.length; c++){
+					const color_setting_input_el = document.querySelector('#extension-dashboard-setting-' + this.color_settings[c]);
+					if(color_setting_input_el){
+						color_setting_input_el.value = this.default_color_settings[c];
+					}
+				}
+				
+			});
+			
+			document.getElementById('extension-dashboard-setting-dashboard-background-color').addEventListener('change', () => {
+				const new_color = document.getElementById('extension-dashboard-setting-dashboard-background-color').value;
+				//document.getElementById('extension-dashboard-main-page').style.backgroundColor = new_color;
+				if(typeof new_color == 'string' && new_color.startsWith('#')){
+					document.documentElement.style.setProperty('--dashboard-background-color', new_color);
+					this.locally_saved_values['dashboard-background-color'] = new_color;
+					localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
+				}
+			});
+			
+			document.getElementById('extension-dashboard-setting-widget-background-color').addEventListener('change', () => {
+				const new_color = document.getElementById('extension-dashboard-setting-widget-background-color').value;
+				if(typeof new_color == 'string' && new_color.startsWith('#')){
+					document.documentElement.style.setProperty('--widget-background-color', new_color);
+					this.locally_saved_values['widget-background-color'] = new_color;
+					localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
+				}
+			});
+			
+			document.getElementById('extension-dashboard-setting-widget-text-color').addEventListener('change', () => {
+				const new_color = document.getElementById('extension-dashboard-setting-widget-text-color').value;
+				if(typeof new_color == 'string' && new_color.startsWith('#')){
+					document.documentElement.style.setProperty('--widget-text-color', new_color);
+					this.locally_saved_values['widget-text-color'] = new_color;
+					localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
+				}
+			});
+			
+			document.getElementById('extension-dashboard-setting-widget-editable-text-color').addEventListener('change', () => {
+				const new_color = document.getElementById('extension-dashboard-setting-widget-editable-text-color').value;
+				if(typeof new_color == 'string' && new_color.startsWith('#')){
+					document.documentElement.style.setProperty('--widget-editable-text-color', new_color);
+					this.locally_saved_values['widget-editable-text-color'] = new_color;
+					localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
+				}
+			});
+			
+			for(let c = 0; c < this.color_settings.length; c++){
+				if(typeof this.locally_saved_values[this.color_settings[c]] == 'string' && this.locally_saved_values[this.color_settings[c]].startsWith('#')){
+					const color_setting_input_el = document.querySelector('#extension-dashboard-setting-' + this.color_settings[c]);
+					if(color_setting_input_el){
+						color_setting_input_el.value = this.locally_saved_values[this.color_settings[c]];
+					}
+				}
+			}
+			
+			
+			document.getElementById('extension-dashboard-setting-widget-random-colors-button').addEventListener('click', () => {
+				//console.log("random colors");
+				this.generate_random_color_scheme();
+			});
+			
+			document.getElementById('extension-dashboard-setting-widget-random-shadow-button').addEventListener('click', () => {
+				//console.log("random shadow");
+				this.apply_random_box_shadow();
+			});
+			
+			if(typeof this.locally_saved_values['widget_shadow'] == 'string'){
+				this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button)', 'box-shadow', this.locally_saved_values['widget_shadow']);
+				document.getElementById('extension-dashboard-setting-widget-shadow').value = this.locally_saved_values['widget_shadow'];
+			}
+			
+			document.getElementById('extension-dashboard-setting-widget-shadow').addEventListener('change', () => {
+				console.log("user changed shadow");
+				let fresh_shadow = document.getElementById('extension-dashboard-setting-widget-shadow').value;
+				if(fresh_shadow == ''){
+					fresh_shadow = 'none';
+				}
+				this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button)','box-shadow',fresh_shadow);
+			
+				this.locally_saved_values['widget_shadow'] = random_shadow;
+				localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
+			});
+			
+			
+			
+			
+		} // end of show function
 
 
 
@@ -802,8 +924,192 @@
         }
 
 
+		modify_css(selector, cssProp, cssVal){
+			// ssMain is the stylesheet's index based on load order. See document.styleSheets. E.g. 0=reset.css, 1=main.css.
+			var ssMain = 1;
+			var cssRules = (document.all) ? 'rules': 'cssRules';
+
+			for (let w=0; w<document.styleSheets.length; w++) {
+				//console.log("CSS stylsheet #", w, " had number of styles: ", document.styleSheets[w][cssRules].length);
+				for (let i=0; i < document.styleSheets[w][cssRules].length; i++) {
+					//console.log("CSS selector: ", document.styleSheets[w][cssRules][i].selectorText);
+					if (document.styleSheets[w][cssRules][i].selectorText === selector) {
+						document.styleSheets[w][cssRules][i].style[cssProp] = cssVal;
+						if(this.debug){
+							console.log("dashboard debug: CSS modified: ", cssProp, cssVal);
+						}
+						return;
+					}
+				}
+			}
+			
+		}
+
+		generate_random_color_scheme(){
+			const randomNumber = () => {
+				return Math.floor(Math.random() * 360)
+			};
+			
+			const variations = ['pastel', 'soft', 'pale'];
+			const random_variation = variations[  Math.floor(Math.random() * variations.length) ];
+			//console.log("random color scheme variation: ", random_variation);
+			
+			const scheme = new ColorScheme;
+			scheme
+			.from_hue(randomNumber())
+			.scheme('mono') // triade, contrast, analogic, mono
+			.distance(Math.random())
+			.variation(random_variation); // pastel, soft, pale
+			let fresh_paint = scheme.colors();
+			
+			fresh_paint.sort(() => 0.5 - Math.random());
+			//let randomItems = array.slice(0, 4);
+			
+			//console.log("COLORS: ", fresh_paint);
+		   
+			for(let c = 0; c < this.color_settings.length; c++){
+			
+      			document.documentElement.style.setProperty('--' + this.color_settings[c], '#' + fresh_paint[c]);
+			
+      			this.locally_saved_values[this.color_settings[c]] = '#' + fresh_paint[c];
+			
+      			const color_setting_input_el = document.querySelector('#extension-dashboard-setting-' + this.color_settings[c]);
+      			if(color_setting_input_el){
+      				color_setting_input_el.value = '#' + fresh_paint[c];
+      			}
+			}
+			
+						
+			localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
+
+		}
 
 
+		apply_random_box_shadow(){
+			const shadows = [
+				"none",
+				"rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px",
+				"rgba(100, 100, 111, 0.2) 0px 7px 29px 0px","1px 0 10px 10px rgba(0, 0, 0, 0.03)",
+				"rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px",
+				"rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px",
+				"rgba(0, 0, 0, 0.45) 0px 25px 20px -20px",
+				"rgba(14, 63, 126, 0.04) 0px 0px 0px 1px, rgba(42, 51, 69, 0.04) 0px 1px 1px -0.5px, rgba(42, 51, 70, 0.04) 0px 3px 3px -1.5px, rgba(42, 51, 70, 0.04) 0px 6px 6px -3px, rgba(14, 63, 126, 0.04) 0px 12px 12px -6px, rgba(14, 63, 126, 0.04) 0px 24px 24px -12px",
+				"rgba(149, 157, 165, 0.2) 0px 8px 24px;",
+				"rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset",
+				"rgba(17, 12, 46, 0.15) 0px 48px 100px 0px",
+				"rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset",
+				"rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px",
+				"rgba(0, 0, 0, 0.1) 0px 10px 50px",
+				"rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px",
+				"rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px",
+				"rgba(0, 0, 0, 0.2) 0px 60px 40px -7px",
+				"rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px"
+			]
+			
+			//let random_index = Math.floor(Math.random() * shadows.length);
+			let random_shadow = shadows[  Math.floor(Math.random() * shadows.length) ];
+			if(this.debug){
+				console.log("random_shadow: ", random_shadow);
+			}
+			document.getElementById('extension-dashboard-setting-widget-shadow').value = random_shadow;
+			this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button)','box-shadow',random_shadow);
+			
+			this.locally_saved_values['widget_shadow'] = random_shadow;
+			localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
+		}
+
+
+
+		/*
+		generate_random_color_schemeX(){
+			
+			function getRandomColor() {
+  			  var letters = '0123456789ABCDEF';
+  			  var color = '#';
+  			  for (var i = 0; i < 6; i++) {
+  			    color += letters[Math.floor(Math.random() * 16)];
+  			  }
+  			  return color;
+			}
+			
+				
+			function hslToHex(h, s, l) {
+			  l /= 100;
+			  const a = s * Math.min(l, 1 - l) / 100;
+			  const f = n => {
+			    const k = (n + h / 30) % 12;
+			    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+			    return Math.round(255 * color).toString(16).padStart(2, '0');   // convert to Hex and prefix "0" if needed
+			  };
+			  return `#${f(0)}${f(8)}${f(4)}`;
+			}
+	   
+	   	 	// https://codingartistweb.com/2024/01/color-palette-generator-with-javascript/
+
+			function generateHarmoniousPalette(baseColor) {
+			  const numberOfColors = 5;
+			  const baseHue = extractHue(baseColor);
+			  const colorPalette = [];
+			  for (let i = 0; i < numberOfColors; i++) {
+			    const hue = (baseHue + (360 / numberOfColors) * i) % 360;
+			    //const color = `hsl(${hue},70%,50%)`;
+				const color = hslToHex(hue,70,50);
+			    colorPalette.push(color);
+			  }
+			  return colorPalette;
+			}
+
+			function extractHue(color) {
+			  const hex = color.slice(1);
+			  const rgb = parseInt(hex, 16);
+
+			  const r = (rgb >> 16) & 0xff;
+			  const g = (rgb >> 8) & 0xff;
+			  const b = (rgb >> 0) & 0xff;
+
+			  const max = Math.max(r, g, b);
+			  const min = Math.min(r, g, b);
+
+			  let hue;
+			  if (max === min) {
+			    hue = 0;
+			  } else {
+			    const d = max - min;
+			    switch (max) {
+			      case r:
+			        hue = ((g - b) / d + (g < b ? 6 : 0)) * 60;
+			        break;
+			      case g:
+			        hue = ((b - r) / d + 2) * 60;
+			        break;
+			      case b:
+			        hue = ((r - g) / d + 4) * 60;
+			        break;
+			    }
+			  }
+			  return hue;
+			}
+
+
+			const fresh_paint = generateHarmoniousPalette(getRandomColor());
+			for(let c = 0; c < this.color_settings.length; c++){
+				
+				document.documentElement.style.setProperty('--' + this.color_settings[c], fresh_paint[c]);
+				
+				this.locally_saved_values[this.color_settings[c]] = fresh_paint[c];
+				
+				const color_setting_input_el = document.querySelector('#extension-dashboard-setting-' + this.color_settings[c]);
+				if(color_setting_input_el){
+					color_setting_input_el.value = fresh_paint[c];
+				}
+				
+				
+			}
+			
+			localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
+
+		}
+		*/
 
 		
 
@@ -868,7 +1174,7 @@
 					this.show_voco_timers = body.show_voco_timers;
 				}
 
-				// TODO could be fun to allow a greyscale filteron the dashboard
+				// TODO could be fun to allow a greyscale filter on the dashboard
 				if(this.greyscale){
 					document.getElementById('extension-dashboard-content').classList.add('extension-dashboard-greyscale');
 				}
@@ -1131,6 +1437,27 @@
 				
 				//tab_buttons_container_container_el.appendChild(add_dashboard_button_el);
 				widget_management_container_el.appendChild(add_dashboard_button_el);
+				
+				
+				
+				// ADD BUTTON TO OPEN SETTINGS
+				
+				let open_settings_button_el = document.createElement('div');
+				open_settings_button_el.setAttribute('id','extension-dashboard-open-settings-button');
+				open_settings_button_el.classList.add('extension-dashboard-show-if-editing');
+				open_settings_button_el.addEventListener('click', () => {
+					if(this.settings_modal_el == null){
+						console.error("had to quickly this.create settings_modal_el");
+						this.settings_modal_el = document.getElementById('extension-dashboard-settings-modal');
+					}
+					if(this.settings_modal_el){
+						this.settings_modal_el.showModal();
+					}
+					
+				})
+				widget_management_container_el.appendChild(open_settings_button_el);
+				
+				
 				
 				//tabs_menu_el.appendChild(add_widget_button_el);
 				
@@ -1395,19 +1722,18 @@
 
 		
 		// swipe left or right on a dashboard to navigate between them
-		// TODO currently not enabled
 		check_swipe_direction() {
 			if(this.debug){
 				console.log('dashboard debug: in check_swipe_direction');
 			}
 			//this.last_activity_time = new Date().getTime();
-			if (this.touchendX < this.touchstartX - 50){
+			if (this.touchendX < this.touchstartX - 100){
 				if(this.debug){
 					console.log('dashboard debug: swiped left');
 				}
 				this.next_dashboard_tab();
 			}
-			if (this.touchendX > this.touchstartX + 50){
+			if (this.touchendX > this.touchstartX + 100){
 				if(this.debug){
 					console.log('dashboard debug: swiped right');
 				}
@@ -1417,7 +1743,6 @@
 		}
 
 
-		// TODO swiping between dashboards is not yet implemented
 		previous_dashboard_tab(){
 			if(this.debug){
 				console.log("dashboard debug: previous_dashboard_tab: before this.current_grid_id: ", this.current_grid_id);
@@ -1491,8 +1816,8 @@
 			  removable: '#extension-dashboard-trash',
   			  columnOpts: {
   			      breakpoints: [
-					{ w: 10000, c: 8, layout: 'moveScale' },
-					{ w: 2000, c: 8, layout: 'moveScale' },
+					{ w: 10000, c: 10, layout: 'moveScale' },
+					{ w: 2000, c: 9, layout: 'moveScale' },
 					{ w: 1800, c: 8, layout: 'moveScale' },
 					{ w: 1650, c: 7, layout: 'moveScale' },
 					{ w: 1500, c: 6, layout: 'moveScale' },
@@ -1722,50 +2047,11 @@
 			}
 		    
 			
-			//console.log("show_dashboard:  grid_id, this.highest_spotted_widget_id: ", grid_id, this.highest_spotted_widget_id);
-
-			// grid.removeWidget() // feed it with the element
-
-			// This adds a sub-grid (widget container)
-		    function addNewWidget(i) {
-  		      	let subGrid = document.querySelectorAll('grid' + dashboard_index + ' .grid-stack-nested')[i]?.gridstack;
-  		      	if (!subGrid) return;
-    		    let node = {
-    		        // x: Math.round(6 * Math.random()),
-    		        // y: Math.round(5 * Math.random()),
-    		        // w: Math.round(1 + 1 * Math.random()),
-    		        // h: Math.round(1 + 1 * Math.random()),
-    		        content: String(count++)
-    		    };
-    		    subGrid.addWidget(node);
-    		    return false;
-		    };
-			
-			// TODO let user delete a full dashboard tab by dragging it's number onto the trash icon
-		    function destroy(full = true) {
-		      if (!grid) return;
-		      if (full) {
-		        grid.destroy();
-		        grid = undefined;
-		      } else {
-		        grid.removeAll();
-		      }
-		    }
-			
-		    function load(full = true) {
-		      // destroy(full); // in case user didn't call
-		      if (full || !grid) {
-		        grid = GridStack.addGrid(document.querySelector('.extension-dashboard-tab-selected .container-fluid'), options);
-		      } else {
-		        grid.load(options);
-		      }
-		    }
-			
 		}
 
 
 		// Adds a widget to the current dashboard. 
-		// TODO In theory adding 'sub-widget', which acts like a widget container, could also be implemented
+		// TODO In theory adding a 'sub-widget', which acts like a widget container, could also be implemented
 	    add_main_widget(grid_id=null) {
 			if(grid_id == null){
 				grid_id = this.current_grid_id;
@@ -2187,7 +2473,7 @@
 												
 												
 											if(this.debug){
-												console.log("-- as expected, received a websocket message for this thing: " + thing_id + " with keys: " + JSON.stringify(Object.keys(data['data'])));
+												console.log("dashboard debug: as expected, received a websocket message for this thing: " + thing_id + " with keys: " + JSON.stringify(Object.keys(data['data'])));
 											}
 											for (let [property_id, property_value] of Object.entries( data['data'] )) {
 												
@@ -2225,7 +2511,7 @@
 												
 												
 												if(this.debug){
-													console.warn("elements_to_update: ", elements_to_update);
+													console.warn("dashboard debug: elements_to_update: ", elements_to_update);
 													//console.warn("dashboard debug: incoming websocket message -> elements_to_update count for thing_id,property_id: ", elements_to_update.length, thing_id, property_id);
 												}
 												
@@ -2262,14 +2548,14 @@
 													
 														// New value is not a number
 														if((typeof property_value == 'string' && property_value == "") || typeof property_value == 'boolean' || typeof property_value == 'object' || isNaN('' + property_value)){
-															console.log("The incoming value is not a number, so no need to clean it: ", typeof property_value, property_value);
+															console.log("dashboard debug: the incoming value is not a number, so no need to clean it: ", typeof property_value, property_value);
 														}
 													
 														// If the provided value is a number, clean it up to match any 'step' attribute that element it will be placed into may have
 														else{
 														
 															if(this.debug){
-																console.log("incoming value seems to be a number: ", property_value);
+																console.log("dashboard debug: incoming value seems to be a number: ", property_value);
 															}
 														
 															let new_value = parseInt(property_value);
@@ -2284,7 +2570,7 @@
 																	//new_value = (new_value - (new_value % 0.001));
 																	new_value = Math.round(new_value*1000)/1000;
 																	if(this.debug){
-																		console.log("initial new_value after quick adjustment to maximum of three decimals: ", new_value);
+																		console.log("dashboard debug: initial new_value after quick adjustment to maximum of three decimals: ", new_value);
 																	}
 																}
 													
@@ -2292,7 +2578,7 @@
 											
 																let input_step_raw = el_to_update.getAttribute('step');
 																if(this.debug){
-																	console.log("input_step_raw: ", typeof input_step_raw, input_step_raw);
+																	console.log("dashboard debug: input_step_raw: ", typeof input_step_raw, input_step_raw);
 																}
 											
 																if(typeof input_step_raw == 'string' && !isNaN(parseFloat(input_step_raw))){
@@ -2358,16 +2644,42 @@
 													
 													
 														//console.log("next..  el_to_update.tagName: ", el_to_update.tagName);
-													
+														
+														
+														//
+														//  UPDATE LIST SELECTOR
+														//
+														
+														if(el_to_update.tagName == 'UL'){
+														
+															if(this.debug){
+																console.log("dashboard debug: attempting to updated highlighted item in list: ", typeof property_value, property_value);
+															}
+															
+															for(let li = 0; li < el_to_update.children.length; li++){
+																if(el_to_update.children[li].textContent == '' + property_value){
+																	//console.log("FOUND THE LIST ITEM TO HIGHLIGHT: ", property_value);
+																	el_to_update.children[li].classList.add('extension-dashboard-widget-list-selector-highlighted-item');
+																}
+																else{
+																	el_to_update.children[li].classList.remove('extension-dashboard-widget-list-selector-highlighted-item');
+																}
+															}
+															
+															//el_to_update.value = '' + property_value;
+														
+														
+														}
+														
 														//
 														//  UPDATE SELECT OR TEXTAREA
 														//
 													
-														if(el_to_update.tagName == 'TEXTAREA' || el_to_update.tagName == 'SELECT'){
+														else if(el_to_update.tagName == 'TEXTAREA' || el_to_update.tagName == 'SELECT'){
 														
 														
 															if(this.debug){
-																console.log("Attempting to set select or teaxtarea to value: ", typeof property_value, property_value);
+																console.log("dashboard debug: attempting to set select or textarea to value: ", typeof property_value, property_value);
 															}
 															el_to_update.value = '' + property_value;
 														
@@ -2381,7 +2693,7 @@
 														else if(el_to_update.tagName != 'INPUT'){
 														
 															if(this.debug){
-																console.log("Attempting to set the element's textContent to value: ", typeof property_value, property_value);
+																console.log("dashboard debug: attempting to set the element's textContent to value: ", typeof property_value, property_value);
 															}
 															el_to_update.textContent = "" + property_value;
 														
@@ -2398,13 +2710,13 @@
 														
 															let input_type = el_to_update.getAttribute('type');
 															if(this.debug){
-																console.log("INPUT el to update input_type: ", input_type);
+																console.log("dashboard debug: INPUT el to update input_type: ", input_type);
 															}
 														
 															if(typeof input_type != 'string'){
 															
 																if(this.debug){
-																	console.error("INPUT ELEMENT WITHOUT A TYPE ATTRIBUTE. Will attempt to set it's value to: ", property_value);
+																	console.error("dashboard debug: INPUT ELEMENT WITHOUT A TYPE ATTRIBUTE. Will attempt to set it's value to: ", property_value);
 																}
 																el_to_update.value = property_value;
 															
@@ -2425,12 +2737,12 @@
 																
 																	if(typeof property_value != 'boolean'){
 																		if(this.debug){
-																			console.warn("dashboard: user seem to want to update a checkbox using a property that is not a boolean");
+																			console.warn("dashboard debug: user seem to want to update a checkbox using a property that is not a boolean");
 																		}
 																	}
 																
 																	if(this.debug){
-																		console.log("setting checkbox to: ", typeof property_value, property_value);
+																		console.log("dashboard debug: setting checkbox to: ", typeof property_value, property_value);
 																	}
 																	el_to_update.checked = Boolean(property_value);
 																
@@ -2446,7 +2758,7 @@
 																	//
 																
 																	if(this.debug){
-																		console.log("setting number or range input to (hopefully) a number value: ", typeof property_value, property_value);
+																		console.log("dashboard debug: setting number or range input to (hopefully) a number value: ", typeof property_value, property_value);
 																	}
 																	el_to_update.value = property_value;
 																
@@ -2477,7 +2789,7 @@
 																								const range = maximum_value - minimum_value;
 																								if(range != 0){
 																									if(this.debug){
-																										console.log("R A N G E: ", minimum_value, maximum_value, " --> ", range);
+																										console.log("dashboard debug: dial range: ", minimum_value, maximum_value, " --> ", range);
 																									}
 																									if(property_value >= minimum_value && property_value <= maximum_value){
 																										//console.log("OK, value is in the range");
@@ -3011,7 +3323,7 @@
 													const input_el_type = child_els[ix].getAttribute('type');
 													if(typeof input_el_type == 'string'){
 														
-														// TODO: these restrictions are currently not used
+														// TODO: these restrictions are currently not used to optimize the thing-property selector
 														needs['update'][what_property_is_needed]['restrictions']['input_type'] = input_el_type;
 												
 														if (input_el_type == 'text'){
@@ -3046,10 +3358,6 @@
 											
 												}
 												
-												
-												
-												
-										
 											}
 											
 											// There is thing-property information, so this widget aspect can be rendered fully
@@ -3226,10 +3534,12 @@
 													}
 													else{
 														
+														//console.log("ENUM getting closer");
+														
 														// If it's not a read-only property, and the element in an input element, 
 														// then allow any changes to input elements to update the backend via websockets
 														
-														if(child_els[ix].tagName == 'INPUT' || child_els[ix].tagName == 'TEXTAREA' || child_els[ix].tagName == 'SELECT'){
+														if(child_els[ix].tagName == 'INPUT' || child_els[ix].tagName == 'TEXTAREA'){
 															//console.log("adding input event_listener to input child_el: ", child_els[ix])
 															child_els[ix].addEventListener('change', (event) => {
 																//console.log("dashboard input element changed.  event: ", event.type, event);
@@ -3320,6 +3630,131 @@
 																//this.handle_user_input(event,grid_id,what_property_is_needed);
 															});
 														}
+														
+														else if(widget_type == 'list-selector' && child_els[ix].tagName == 'UL'){
+															
+															if(widget_type == 'list-selector' && typeof needs['update'][what_property_is_needed]['thing_id'] == 'string' && typeof needs['update'][what_property_is_needed]['property_id'] == 'string'){
+																const thing_id = needs['update'][what_property_is_needed]['thing_id'];
+																const property_id = needs['update'][what_property_is_needed]['property_id'];
+																const prop = this.get_property_by_ids(thing_id,property_id);
+																if(prop){
+																	console.log("list-selector ENUM!: ", prop);
+																	if(typeof prop['enum'] != 'undefined' && Array.isArray(prop['enum'])){
+																		
+																		let list_buttons_container_el = child_els[ix];
+																		//list_buttons_container_el.innerHTML = '';
+																		
+																		for(let e = 0; e < prop['enum'].length; e++ ){
+																			
+																			const list_item_name = prop['enum'][e];
+																			
+																			console.error("list_item_name: ", list_item_name);
+																			
+																			let enum_option_el = document.createElement('li');
+																			enum_option_el.classList.add('extension-dashboard-list-selector-item');
+																			enum_option_el.textContent = list_item_name;
+																			
+																			console.log("appending: ", enum_option_el, " to: ", list_buttons_container_el);
+																			//setTimeout(() => {
+																				list_buttons_container_el.appendChild(enum_option_el);
+																				console.log("child_els[ix].children.length: ", list_buttons_container_el.children.length);
+																				
+																				enum_option_el.addEventListener('click', (event) => {
+																					console.log("Clicked on list selector item: ", list_item_name);
+																				
+																					if(typeof this.websockets[thing_id] != 'undefined'){
+																						try{
+																						
+																							let outgoing_message = {
+																								"messageType": "setProperty",
+																								//"id":thing_id,
+																								"data":{}
+																							};
+																						
+																							outgoing_message['data'][property_id] = list_item_name;
+																						
+																							if(typeof this.recent_events[thing_id] == 'undefined'){
+																								this.recent_events[thing_id] = {};
+																							}
+																						
+																							if(typeof this.recent_events[thing_id][property_id] != 'undefined'){
+																								if(this.recent_events[thing_id][property_id]['timestamp'] > Date.now() - 1000){
+																									if(this.debug){
+																										console.warn("dashboard: ABORT SENDING, as something was already sent/received for this property in the last 1 seconds: \nproperty_id: " + property_id + "\n" + JSON.stringify(this.recent_events[thing_id][property_id],null,4));
+																									}
+																									if(this.recent_events[thing_id][property_id]['value'] == event.target.value){
+																										if(this.debug){
+																											console.warn("... ABORT SENDING as it was the same value too!: ", this.recent_events[thing_id][property_id]['value']);
+																										}
+																										return
+																									}
+																								}
+																							}
+																						
+																							// SENDING VALUE CHANGE VIA WEBSOCKET
+																						
+																							console.log("sending update to backend via websockets.  outgoing_message: ", outgoing_message);
+																							this.recent_events[thing_id][property_id] = {"timestamp":Date.now(), "value":event.target.value, "type":"sent"}; // remember what and when was sent
+																							this.websockets[thing_id].send(outgoing_message);
+																						
+																						}
+																						catch(err){
+																							console.error("dashboard: caught error trying to send message via websocket: ", err);
+																						}
+																					}
+																					else{
+																						console.error("dashboard: no websocket for thing_id (yet)");
+																					}
+																				});
+																				
+																				
+																			//},1);
+																			
+																			
+																		}
+																		
+																	}
+																}
+																else{
+																	console.log("ENUM?? ", prop);
+																}
+															}
+														}
+														/*
+														else if(child_els[ix].tagName == 'SELECT'){
+															console.log("unexpectedly spotted a select dropdown in a template");
+															
+															console.log("SPOTTED A SELECT .. almost enum");
+															console.log("widget_type: ", widget_type);
+															console.log("what_property_is_needed: ", what_property_is_needed);
+															
+															if(typeof needs['update'][what_property_is_needed]['thing_id'] == 'string' && typeof needs['update'][what_property_is_needed]['property_id'] == 'string'){
+																const prop = this.get_property_by_ids(needs['update'][what_property_is_needed]['thing_id'],needs['update'][what_property_is_needed]['property_id']);
+																if(prop){
+																	console.log("ENUM!: ", prop);
+																	if(typeof prop['enum'] != 'undefined' && Array.isArray(prop['enum'])){
+																		
+																		let select_el = child_els[ix];
+																		for(let e = 0; e < prop['enum'].length; e++ ){
+																			
+																			let enum_option_el = document.createElement('option');
+																			enum_option_el.setAttibute('value',prop['enum'][e]);
+																			enum_option_el.textContent = prop['enum'][e];
+																			child_els[ix].appendChild(enum_option_el);
+																		}
+																		select_el.addEventListener('change', () => {
+																			console.log("the select dropdown was changed to: ", select_el.value);
+																			//TODO No template with a dropdown exists. This is a partial implementation.
+																		})
+																	}
+																}
+																else{
+																	console.log("ENUM?? ", prop);
+																}
+															}
+															
+														}
+														*/
 														
 													}
 													
@@ -3602,7 +4037,6 @@
 											}
 											
 											
-											
 											const hopefully_unique_id = child_els[ix].className.replaceAll(' ','_').replace(/[^a-z0-9]/gi, '').replaceAll('extensiondashboard','');
 											//console.log("dashboard: save value locally: hopefully_unique_id: ", hopefully_unique_id);
 											
@@ -3637,9 +4071,7 @@
 												});
 											}
 											
-											
 										}
-										
 										
 										
 									}
@@ -3726,12 +4158,6 @@
 			const modal_el = document.getElementById('extension-dashboard-widget-modal');
 			if(modal_el){
 				
-				if(this.created_template_color_wheel == false){
-					this.created_template_color_wheel = true;
-					
-					// TODO: generate color wheel in template
-				}
-				
 				if(typeof this.dashboards[grid_id] == 'undefined'){
 					this.dashboards[grid_id] = {};
 				}
@@ -3752,7 +4178,7 @@
 					}
 					
 					if(modal_title == ''){
-						modal_title = 'Widget';
+						modal_title = 'Edit Widget';
 					}
 					this.modal_el.querySelector('#extension-dashboard-widget-modal-title').textContent = modal_title;
 					
@@ -4218,6 +4644,10 @@
 								let thing_id = null;
 								if(typeof needs['update'][what_property_is_needed]['thing_id'] == 'string'){
 									thing_id = needs['update'][what_property_is_needed]['thing_id'];
+									console.log("show_modal: a thing is already linked: ", thing_id);
+								}
+								else{
+									console.log("show_modal: no pre-linked thing spotted");
 								}
 								let property_id = null;
 								if(typeof needs['update'][what_property_is_needed]['property_id'] == 'string'){
@@ -4327,6 +4757,19 @@
 			return null
 		}
 		
+		get_property_by_ids(thing_id=null,property_id=null){
+			if(typeof thing_id == 'string' && typeof property_id == 'string'){
+				let thing = this.get_thing_by_thing_id(thing_id);
+				if(thing){
+					if(typeof thing['properties'] != 'undefined' && typeof thing['properties'][property_id] != 'undefined'){
+						return thing['properties'][property_id];
+					}
+				}
+			}
+			return null
+			
+		}
+		
 		
 		
 		generate_log_selector(grid_id=null,widget_id=null,provided_thing_id=null,provided_property_id=null,what_log_is_needed=null){
@@ -4372,11 +4815,13 @@
 							log_option_el.setAttribute('data-property_id',log_property_id);
 							log_option_el.value = log_thing_id + '--|--' + log_property_id;
 							
-							// TODO: get the nice thing and property title from thing data
-							log_option_el.textContent = log_thing_id.replaceAll('_',' ') + ' ' + log_property_id.replaceAll('_',' ');
-							
-							//console.log(log_thing_id, " =?=", provided_thing_id);
-							//console.log(log_property_id, " ==?==", provided_property_id);
+							// Generate human-readable title for the log selector
+							let log_option_title = log_thing_id.replaceAll('_',' ') + ' ' + log_property_id.replaceAll('_',' ');
+							const target_thing = this.get_thing_by_thing_id(log_thing_id);
+							if(target_thing && typeof target_thing['title'] == 'string' && typeof target_thing['title']['properties'] != 'undefined' && target_thing['title']['properties'][log_property_id] != 'undefined' && typeof target_thing['title']['properties'][log_property_id]['title'] == 'string'){
+								log_option_title = log_option_title['title'] + " - " + target_thing['title']['properties'][log_property_id]['title'];
+							}
+							log_option_el.textContent = log_option_title;
 							
 							if(log_thing_id == provided_thing_id && log_property_id == provided_property_id){
 								//console.log('setting log to selected: ', log_thing_id, log_property_id);
@@ -4476,7 +4921,10 @@
 		
 		
 		generate_thing_selector(grid_id=null,widget_id=null,provided_thing_id=null,provided_property_id=null,what_property_is_needed=null){
-	        
+	        console.log("generate_thing_selector: provided_thing_id, provided_property_id, what_property_is_needed: ", provided_thing_id, provided_property_id, what_property_is_needed);
+			
+			
+			
 			return new Promise((resolve, reject) => {
 				
 				if(grid_id == null){
@@ -4489,6 +4937,8 @@
 					}
 					reject(null);
 				}
+				
+				console.log("generate_thing_selector: available dashboard data: ", this.dashboards[grid_id]['widgets'][widget_id]);
 			
 				//console.log("in generate_thing_selector.  grid_id,widget_id,provided_thing_id,provided_property_id,what_property_is_needed: ", grid_id,widget_id,provided_thing_id,provided_property_id,what_property_is_needed);
 			
@@ -4509,8 +4959,18 @@
 					let thing_select_property_container_el = document.createElement('div');
 					thing_select_property_container_el.classList.add('extension-dashboard-modal-thing-selector-property-container');
 		
+		
+					// Create empty option
+					
+					let empty_thing_option_el = document.createElement('option');
+					empty_thing_option_el.value = "";
+					empty_thing_option_el.textContent = '-';
+					thing_select_el.appendChild(empty_thing_option_el);
+					
+					let found_already_selected_thing = false;
+		
 	    			// pre-populate the hidden 'new' item with all the thing names
-	    			var thing_ids = [];
+	    			//var thing_ids = [];
 	    			var thing_titles = [];
 		
 	    			for (let key in things){
@@ -4535,6 +4995,10 @@
 		
 						if(typeof things[key]['href'] == 'string'){
 		    				var thing_id = things[key]['href'].substr(things[key]['href'].lastIndexOf('/') + 1);
+							if(typeof thing_id != 'string'){
+								console.error("dashboard: thing_id was not a string!");
+								continue;
+							}
 		    				try{
 		    					if (thing_id.startsWith('highlights-') ){
 		    						// Skip items that are already highlight clones themselves.
@@ -4549,26 +5013,28 @@
 								}
 		                    }
 					
-		    				thing_ids.push( thing_id );
+		    				//thing_ids.push( thing_id );
 			
 							//console.log("thing_id: ", thing_id);
 			
 							if(provided_thing_id == null){
 								// TODO: could remember the last selected thing_id, and use that the next time?
-								provided_thing_id = thing_id; // Set the first thing_id we encounter as the one to be selected
+								//provided_thing_id = thing_id; // Set the first thing_id we encounter as the one to be selected
 							}
 				
 							let thing_option_el = document.createElement('option');
 							thing_option_el.value = thing_id;
 							thing_option_el.textContent = thing_title;
 				
-							if(thing_id == provided_thing_id){
+							if(typeof provided_thing_id == 'string' && thing_id == provided_thing_id){
+								found_already_selected_thing = true;
+								console.warn("thing selector creation FOUND already selected_thing. provided_thing_id: ", provided_thing_id);
 								//console.log('setting thing to selected: ', thing_id, thing_title)
 								thing_option_el.setAttribute('selected','selected');
 						
 								// if this is the selected thing, generate the initial properties select too
 						
-								const property_select_el = this.generate_property_select(grid_id, widget_id,provided_thing_id,provided_property_id);
+								const property_select_el = this.generate_property_select(grid_id, widget_id,provided_thing_id,provided_property_id,what_property_is_needed);
 								if(property_select_el){
 									thing_select_property_container_el.innerHTML = '';
 									thing_select_property_container_el.appendChild(property_select_el);
@@ -4592,23 +5058,83 @@
 	    				
 	    			}
 		
+					if(found_already_selected_thing == false){
+						console.log("thing selector creation did not find already selected_thing");
+						empty_thing_option_el.setAttribute('selected','selected');
+					}
+		
+					
+		
+		
+					let property_select_el = null;
+					
                 	thing_select_el.addEventListener("change", () => {
                 		const change_to_thing_id = thing_select_el.value;
 						if(this.debug){
 							console.log("dashboard debug: change_to_thing_id: ", change_to_thing_id);
 						}
-						
-						const property_select_el = this.generate_property_select(grid_id,widget_id,change_to_thing_id,null,what_property_is_needed);
-						if(property_select_el){
-							thing_select_property_container_el.innerHTML = '';
-							thing_select_property_container_el.appendChild(property_select_el);
+						if(change_to_thing_id == ''){
+							console.log("user deselected a thing.  But which property should be removed? property_select_el: ", property_select_el);
+							console.log("- what_property_is_needed: ", what_property_is_needed);
+							if(property_select_el && typeof property_select_el.value == 'string'){
+								console.log("- dangling property: ", property_select_el.value);
+							}
+							if(typeof what_property_is_needed == 'string'){
+								if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id'] == 'string'){
+									if(this.debug){
+										console.log("removed connection to previously linked thing: " + this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id']);
+									}
+									delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id'];
+								}
+								if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_title'] == 'string'){
+									delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_title'];
+								}
+								if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_id'] == 'string'){
+									delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_id'];
+								}
+								if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_title'] == 'string'){
+									delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_title'];
+								}
+								if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_details'] != 'undefined'){
+									delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_details'];
+								}
+								
+								console.warn("dashboard data is now: ", this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed])
+							}
+							
+							// delete any existing data from settings
+							//if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id'] == 'string'){
+							
+							
+							/*
+							if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id'] == 'string'){
+								delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id'];
+							}
+							*/
+							
+							
+							
+							
+							
+							
+							
+							//thing_select_property_container_el.innerHTML = '';
 						}
 						else{
-							if(this.debug){
-								console.error("dashboard: modal thing selector on change: generate_property_select did not return a select element");
+							console.log("calling generate_property_select with new thing_id: ", change_to_thing_id);
+							property_select_el = this.generate_property_select(grid_id,widget_id,change_to_thing_id,null,what_property_is_needed);
+							if(property_select_el){
+								thing_select_property_container_el.innerHTML = '';
+								thing_select_property_container_el.appendChild(property_select_el);
 							}
-							thing_select_property_container_el.innerHTML = '?';
+							else{
+								if(this.debug){
+									console.error("dashboard: modal thing selector on change: generate_property_select did not return a select element");
+								}
+								thing_select_property_container_el.innerHTML = '?';
+							}
 						}
+						
 						
                 	});
 					
@@ -4633,7 +5159,6 @@
 		
 		
 		generate_property_select(grid_id=null, widget_id=null, provided_thing_id=null, provided_property_id=null, what_property_is_needed=null){
-			
 			if(this.debug){
 				if(typeof grid_id != 'string'){
 					console.error("dashboard: generate_property_select: no grid_id provided");
@@ -4644,7 +5169,7 @@
 			}
 			
 			if(this.debug){
-				console.log("generate_property_select:  provided_thing_id, provided_property_id, what_property_is_needed: ", provided_thing_id, provided_property_id, what_property_is_needed);
+				console.log("in generate_property_select:  provided_thing_id, provided_property_id, what_property_is_needed: ", provided_thing_id, provided_property_id, what_property_is_needed);
 			}
 			
 			try{
@@ -4774,6 +5299,9 @@
 												// switched to unselected
 												if(typeof what_property_is_needed == 'string'){
 													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id'] == 'string'){
+														if(this.debug){
+															console.log("removed connection to previously linked thing: " + this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id']);
+														}
 														delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id'];
 													}
 													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_title'] == 'string'){
@@ -4800,7 +5328,7 @@
 												}
 												
 												if(this.debug){
-													console.log("dashboard debug: selected the property: ", property_title, " for ", what_property_is_needed);
+													console.log("dashboard debug: selected the property: ", property_title, ", for what_property_is_needed: ", what_property_is_needed);
 												}
 											
 												if(typeof what_property_is_needed == 'string'){
@@ -4811,7 +5339,7 @@
 													this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_details'] = properties[property_id];
 												}
 												else{
-													console.error("dashboard: what_property_is_needed is not a string?");
+													console.error("dashboard: property_select changed, but what_property_is_needed is not a string?");
 												}
 											}
 											
@@ -5328,9 +5856,9 @@ ticks.attr("class", function(d,i){
 										
 										let horizontal_tick_count = 2;
 										if(wideness_hint_el){
-											horizontal_tick_count = 5;
+											horizontal_tick_count = 4;
 										}
-								    	svg.append("g")
+								    	let x_axis = svg.append("g")
 								        	.attr("transform", `translate(0,${rect.height - 20})`)
 								        	.call(d3.axisBottom(xScale).tickSizeOuter(0).ticks(horizontal_tick_count).tickPadding(5).tickFormat(timeFormat))
 											/*
@@ -5339,6 +5867,29 @@ ticks.attr("class", function(d,i){
 												return "tick-text tick-text-month" + d.getUTCMonth();
 											});
 											*/
+										
+										if(x_axis){
+											x_axis
+											.selectAll(".tick")
+											//.attr("class", "vertical-tick")
+											.attr("class", function(d,i){
+												//console.log("HANDING TICK");
+											 	//if(data[i].value == 11){ return "eleven"}
+											 	//else if(data[i].value == 0){ return "zero"}
+												return "extension-dashboard-x-tick"
+											});
+										
+										
+										
+											//.call(d3.axisLeft(yScale).ticks(6))  
+										
+										
+										}
+										
+										
+										
+										
+										
 									}
 						
 						
@@ -5563,12 +6114,12 @@ ticks.attr("class", function(d,i){
 
         update_clocks() {
 			if(this.debug){
-				console.log("dashboard: in update_clocks.  update_clock: ", this.update_clock);
+				console.log("dashboard debug: in update_clocks.  update_clock: ", this.update_clock);
 			}
             if (this.update_clock) {
 				
 				if(this.last_time_clock_updated > Date.now() - 2){
-					console.warn("already updated the clock recently");
+					//console.warn("dashboard debug: already updated the clock recently");
 					return
 				}
 				this.last_time_clock_updated = Date.now();
@@ -5618,6 +6169,8 @@ ticks.attr("class", function(d,i){
 							}
 						}
 						
+						//console.log("dashboard: update_clocks: body.date: ", body.date);
+						//console.log("dashboard: update_clocks: body.month: ", body.month);
 						
 						// MONTH
                         //const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -5641,7 +6194,7 @@ ticks.attr("class", function(d,i){
 							const hour_rotation_degrees =  body.hours * 30 + body.minutes * (360/720);
 						
 							let seconds = new Date().getSeconds();
-							console.log("local seconds: ", seconds);
+							//console.log("local seconds: ", seconds);
 							let minute_rotation_degrees = body.minutes * 6 + seconds * (360/3600);
 							
 							for(let be = 0; be < analog_hour_els.length; be++){
@@ -5649,7 +6202,7 @@ ticks.attr("class", function(d,i){
 							}
 							
 							let analog_minute_els = this.view.querySelectorAll('.extension-dashboard-widget-clock-analog-minute');
-							console.log("analog_minute_els: ", analog_minute_els, typeof body.minutes, body.minutes);
+							//console.log("analog_minute_els: ", analog_minute_els, typeof body.minutes, body.minutes);
 							if(analog_minute_els.length){
 								for(let bm = 0; bm < analog_minute_els.length; bm++){
 									analog_minute_els[bm].style.transform = "rotate(" + minute_rotation_degrees + "deg)";
@@ -5657,10 +6210,10 @@ ticks.attr("class", function(d,i){
 							}
 							
 							let analog_second_els = this.view.querySelectorAll('.extension-dashboard-widget-clock-analog-second');
-							console.log("analog_second_els: ", analog_second_els);
+							//console.log("analog_second_els: ", analog_second_els);
 							if(analog_second_els.length){
 								for(let bs = 0; bs < analog_second_els.length; bs++){
-									analog_second_els[bs].style.animationDelay = "-" + (60 - seconds) + "s";
+									analog_second_els[bs].style.animationDelay = "-" + seconds + "s";
 								}
 							}
 							
@@ -5850,7 +6403,7 @@ ticks.attr("class", function(d,i){
 
 		
         // HELPER METHODS
-		// TODO Are these still used?
+		// TODO Are these still used? once..
 
         hasClass(ele, cls) {
             return !!ele.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));

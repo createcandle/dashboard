@@ -4,3 +4,4 @@ pkg/.DS_Store
 pkg/.DS_Store
 /pkg/__pycache__
 /pkg/__pycache__
+pkg/__pycache__/dashboard.cpython-311.pyc

@@ -1,3 +1,10 @@
+:root {
+	--dashboard-background-color: transparent;
+	--widget-background-color:#bdc8d2;
+	--widget-text-color:#555555;
+	--widget-editable-text-color:#fa7204;
+}
+
 
 /*
 #extension-dashboard-view .clicked{
@@ -33,6 +40,7 @@
 	align-content: space-between;
 	justify-content: center;
 	align-items: flex-end;
+	background-color: var(--dashboard-background-color);
 }
 
 
@@ -74,6 +82,7 @@
 .extension-dashboard-flex-column{
 	display:flex;
 	flex-direction:column;
+	max-height:100%;
 }
 
 .extension-dashboard-flex-wrap {
@@ -82,9 +91,11 @@
 }
 
 .extension-dashboard-flex-center{
-	display: flex;
+	/*display: flex;
 	justify-content:center;
-	align-items:center;
+	align-items:center;*/
+	display: grid;
+	place-items: center;
 }
 
 .extension-dashboard-flex-between{
@@ -105,6 +116,7 @@
 	margin:2rem 0 1rem 0;
 	padding:1rem 0;
 	border-top:1px solid rgba(0,0,0,.2);
+	flex-wrap:wrap;
 }
 
 /*
@@ -202,7 +214,6 @@
 
 #extension-dashboard-content.extension-dashboard-editing #extension-dashboard-tabs .extension-dashboard-template input{
 	pointer-events:none!important;
-	opacity:0.5!important;
 }
 
 
@@ -231,7 +242,7 @@
 	position: relative;
 	text-align: left;
 	font-size: 1.6rem;
-	color: #555;
+	color: var(--widget-text-color);
 	height:auto;
 	letter-spacing: .5px;
 }
@@ -288,9 +299,9 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 .extension-dashboard-editing #extension-dashboard-tab-menu{
 	justify-content:center;
-	flex-wrap:wrap;
 	min-height:9.6rem;
 	background-color: rgba(0, 0, 0, .1);
+	flex-wrap:wrap;
 }
 
 .extension-dashboard-editing #extension-dashboard-tab-menu:not(.extension-dashboard-wide-menu) > div{
@@ -304,16 +315,6 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 
 
-
-#extension-dashboard-tab-buttons-container > div,
-#extension-dashboard-tab-menu > div:not(#extension-dashboard-tab-buttons-container){
-	border-radius:1rem;
-	cursor:pointer;
-	color:#ddd;
-}
-
-
-
 /*
 #extension-dashboard-tab-menu > div:not(#extension-dashboard-tab-buttons-container):not(#extension-dashboard-add-widget-button){
 	background-color:rgba(255,255,255,.4);
@@ -323,9 +324,12 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 /*  #extension-dashboard-tab-menu > div:not(#extension-dashboard-trash):not(#extension-dashboard-tab-buttons-container)  */
 #extension-dashboard-tab-buttons-container > div{
-	padding:1rem 1.5rem;
+	padding:.6rem 1.5rem;
 	font-size: 3rem;
 	line-height: 3rem;
+	/*
+	box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+	*/
 }
 
 /*
@@ -338,12 +342,17 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 
 .extension-dashboard-tab-button{
-	margin: .5rem;
+	margin: 1rem;
 	background-color:rgba(0,0,0,.05);
 	white-space:nowrap;
+	border-radius:2rem;
+	cursor:pointer;
+	color:#ddd;
 	/*
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.12);
 	*/
+	background-color: rgba(255, 255, 255, .85);
+	color: #83a6bf;
 }
 
 /*
@@ -459,11 +468,11 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	height:100%;
 	min-height:100%;
 	overflow:hidden;
-	background-color: #bdc8d2;
+	background-color: var(--widget-background-color);
 }
 
 #extension-dashboard-templates .extension-dashboard-template{
-	/*background-color: #bdc8d2;*/
+	/*background-color: var(--widget-background-color);*/
 	border-radius:2rem;
 }
 #extension-dashboard-templates .extension-dashboard-template-container.extension-dashboard-widget-round{
@@ -516,10 +525,11 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	opacity:.5;
 }
 
-
-#extension-dashboard-widget-modal button{
+#extension-dashboard-widget-modal button,
+#extension-dashboard-settings-modal button{
 	padding: 1rem 1.5rem;
 	border-radius:0.5rem;
+	margin:.5rem 1rem;
 	border:none;
 	background-color: #7caed1;
 	color: white;
@@ -536,12 +546,13 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	border-radius:.5rem;
 }
 
-
+#extension-dashboard-settings-modal #extension-dashboard-settings-modal-done-button,
 #extension-dashboard-widget-modal #extension-dashboard-widget-modal-save-button{
 	background-color: #378c19;
 	letter-spacing:0.7px;
 }
 
+#extension-dashboard-settings-modal-reset-button,
 #extension-dashboard-widget-modal-cancel-button{
 	letter-spacing:0.7px;
 }
@@ -594,7 +605,8 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 #extension-dashboard-trash:hover,
 #extension-dashboard-add-widget-button:hover,
-#extension-dashboard-add-dashboard-button:hover{
+#extension-dashboard-add-dashboard-button:hover,
+#extension-dashboard-open-settings-button:hover{
 	box-shadow: inset -9px -9px 18px #779dc0,
 	            inset 9px 9px 18px #a1d5ff;
 }
@@ -617,21 +629,24 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 
 
-/*  WIDGET MODAL  */
+/*  WIDGET AND SETTINGS MODAL  */
 
 #extension-dashboard-widget-modal{
 	z-index:4;
 	border-radius:1rem;
 	height:90%;
 	max-height:90vh;
-	max-width:90vw;
 	border:none;
 	background-color: #0d3b5c;
+	max-width:90vw;
 }
+
 #extension-dashboard-widget-modal::backdrop{
 	background-color:rgba(0,0,0,.9);
 }
-#extension-dashboard-widget-modal > div{
+
+#extension-dashboard-widget-modal > div
+#extension-dashboard-settings-modal > div{
 	flex-direction:column;
 	justify-content: space-between;
 	box-sizing:border-box;
@@ -659,7 +674,6 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	background-color: rgba(255, 255, 255, .1);
 	border-radius: 1rem;
 }
-
 
 #extention-dashboard-widget-ui-rename-container input{
 	display:block;
@@ -1468,7 +1482,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 	z-index: 0!important
 }
 
-.grid-stack>.grid-stack-item {
+.grid-stack > .grid-stack-item {
 	position: absolute;
 	padding: 0;
 	top: 0;
@@ -1477,7 +1491,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 	height: var(--gs-cell-height);
 }
 
-.grid-stack>.grid-stack-item>.grid-stack-item-content {
+.grid-stack > .grid-stack-item > .grid-stack-item-content {
 	margin: 0;
 	position: absolute;
 	width: auto;
@@ -1485,25 +1499,26 @@ body:not(.screensaver) .extension-dashboard-effect{
 	border-radius:3rem;
 }
 
-.grid-stack>.grid-stack-item>.grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button){
-	background-color: #bdc8d2;
-	box-shadow: 1px 0 10px 10px rgba(0, 0, 0, 0.03);
+.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button){
+	background-color: var(--widget-background-color);
 	border-radius: 3rem;
 	overflow: hidden;
+	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 
-.grid-stack>.grid-stack-item.size-to-content:not(.size-to-content-max)>.grid-stack-item-content {
+.grid-stack > .grid-stack-item.size-to-content:not(.size-to-content-max) > .grid-stack-item-content {
 	overflow-y: hidden
 }
 
-.grid-stack>.grid-stack-item>.grid-stack-item-content,.grid-stack>.grid-stack-placeholder>.placeholder-content {
+.grid-stack > .grid-stack-item > .grid-stack-item-content,
+.grid-stack > .grid-stack-placeholder>.placeholder-content {
 	top: var(--gs-item-margin-top);
 	right: var(--gs-item-margin-right);
 	bottom: var(--gs-item-margin-bottom);
 	left: var(--gs-item-margin-left)
 }
 
-.grid-stack-item>.ui-resizable-handle {
+.grid-stack-item > .ui-resizable-handle {
 	position: absolute;
 	font-size: .1px;
 	display: block;
@@ -1513,44 +1528,48 @@ body:not(.screensaver) .extension-dashboard-effect{
 	padding:1rem;
 	border-radius:50%;
 }
-.grid-stack-item>.ui-resizable-handle:hover{
+.grid-stack-item > .ui-resizable-handle:hover{
 	background-color: #7dafd2;
 }
 
-#extension-dashboard-content:not(.extension-dashboard-editing) .grid-stack-item>.ui-resizable-handle{
+#extension-dashboard-content:not(.extension-dashboard-editing) .grid-stack-item > .ui-resizable-handle{
 	display:none;
 }
-#extension-dashboard-content.extension-dashboard-editing .grid-stack-item>.ui-resizable-handle{
+#extension-dashboard-content.extension-dashboard-editing .grid-stack-item > .ui-resizable-handle{
 	display:inline-block!important;
 }
 
-.grid-stack-item.ui-resizable-autohide>.ui-resizable-handle,.grid-stack-item.ui-resizable-disabled>.ui-resizable-handle {
+.grid-stack-item.ui-resizable-autohide > .ui-resizable-handle,
+.grid-stack-item.ui-resizable-disabled > .ui-resizable-handle {
 	display: none
 }
 
-.grid-stack-item>.ui-resizable-ne,.grid-stack-item>.ui-resizable-nw,.grid-stack-item>.ui-resizable-se,.grid-stack-item>.ui-resizable-sw {
+.grid-stack-item > .ui-resizable-ne,
+.grid-stack-item > .ui-resizable-nw,
+.grid-stack-item > .ui-resizable-se,
+.grid-stack-item > .ui-resizable-sw {
 	background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="%23666" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 20 20"><path d="m10 3 2 2H8l2-2v14l-2-2h4l-2 2"/></svg>');
 	background-repeat: no-repeat;
 	background-position: center
 }
 
-.grid-stack-item>.ui-resizable-ne {
+.grid-stack-item > .ui-resizable-ne {
 	transform: rotate(45deg)
 }
 
-.grid-stack-item>.ui-resizable-sw {
+.grid-stack-item > .ui-resizable-sw {
 	transform: rotate(45deg)
 }
 
-.grid-stack-item>.ui-resizable-nw {
+.grid-stack-item > .ui-resizable-nw {
 	transform: rotate(-45deg)
 }
 
-.grid-stack-item>.ui-resizable-se {
+.grid-stack-item > .ui-resizable-se {
 	transform: rotate(-45deg)
 }
 
-.grid-stack-item>.ui-resizable-nw {
+.grid-stack-item > .ui-resizable-nw {
 	cursor: nw-resize;
 	width: 20px;
 	height: 20px;
@@ -1558,7 +1577,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 	left: var(--gs-item-margin-left)
 }
 
-.grid-stack-item>.ui-resizable-n {
+.grid-stack-item > .ui-resizable-n {
 	cursor: n-resize;
 	height: 10px;
 	top: var(--gs-item-margin-top);
@@ -1566,7 +1585,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 	right: 25px
 }
 
-.grid-stack-item>.ui-resizable-ne {
+.grid-stack-item > .ui-resizable-ne {
 	cursor: ne-resize;
 	width: 20px;
 	height: 20px;
@@ -1574,7 +1593,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 	right: var(--gs-item-margin-right)
 }
 
-.grid-stack-item>.ui-resizable-e {
+.grid-stack-item > .ui-resizable-e {
 	cursor: e-resize;
 	width: 10px;
 	top: 15px;
@@ -1582,7 +1601,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 	right: var(--gs-item-margin-right)
 }
 
-.grid-stack-item>.ui-resizable-se {
+.grid-stack-item > .ui-resizable-se {
 	cursor: se-resize;
 	width: 20px;
 	height: 20px;
@@ -1590,7 +1609,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 	right: var(--gs-item-margin-right)
 }
 
-.grid-stack-item>.ui-resizable-s {
+.grid-stack-item > .ui-resizable-s {
 	cursor: s-resize;
 	height: 10px;
 	left: 25px;
@@ -1598,7 +1617,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 	right: 25px
 }
 
-.grid-stack-item>.ui-resizable-sw {
+.grid-stack-item > .ui-resizable-sw {
 	cursor: sw-resize;
 	width: 20px;
 	height: 20px;
@@ -1606,7 +1625,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 	left: var(--gs-item-margin-left)
 }
 
-.grid-stack-item>.ui-resizable-w {
+.grid-stack-item > .ui-resizable-w {
 	cursor: w-resize;
 	width: 10px;
 	top: 15px;
@@ -1643,13 +1662,25 @@ body:not(.screensaver) .extension-dashboard-effect{
 	transition: left 0s,top 0s,height 0s,width 0s
 }
 
-.grid-stack>.grid-stack-item:not(.grid-stack-sub-grid)[gs-y="0"] {
+.grid-stack > .grid-stack-item:not(.grid-stack-sub-grid)[gs-y="0"] {
 	top: 0
 }
 
-.grid-stack>.grid-stack-item:not(.grid-stack-sub-grid)[gs-x="0"] {
+.grid-stack > .grid-stack-item:not(.grid-stack-sub-grid)[gs-x="0"] {
 	left: 0
 }
+
+/*
+.extension-dashboard-editing .grid-stack {
+	background-image: linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 0px), linear-gradient(rgba(255, 255, 255, 0) 5px, transparent 100px), linear-gradient(90deg, rgb(255 255 255 / 0) 5px, transparent 100px);
+	background-size: 100px 62px, calc(8.33% + 0px) 100px, 20px 20px, 20px 20px;
+	background-position: -2px -2px, -1px -2px, -1px -1px, -1px -1px;
+}  
+*/
+
+
+
+
 
 
 
@@ -1663,7 +1694,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 .extension-dashboard-widget-split > div,
 .extension-dashboard-widget-thrit > div{
 	min-width:100px;
-	min-height:40px;
+	/*min-height:40px;*/
 	box-sizing:border-box;
 }
 /*
@@ -1761,7 +1792,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 .extension-dashboard-editing .grid-stack-item-content{
-	background-color: #bdc8d2;
+	background-color: var(--widget-background-color);
 	border-radius:3rem;
 	overflow:hidden;
 }
@@ -1960,13 +1991,16 @@ body:not(.screensaver) .extension-dashboard-effect{
 
 
 
-@media screen and (max-width: 640px) {
+@media screen and (min-width: 640px) {
 
 	/*
     #extension-dashboard-view li{
         margin:.5rem;
     }
 	*/
+	#extension-dashboard-tab-buttons-container{
+		flex-wrap:wrap;
+	}
 }
 
 
@@ -1997,17 +2031,14 @@ body:not(.screensaver) .extension-dashboard-effect{
 	}
 	*/
 	
-	#extension-dashboard-widget-modal{
+	#extension-dashboard-widget-modal,
+	#extension-dashboard-settings-modal{
 		padding:1rem 2rem;
 	}
 	
 	.extension-dashboard-tab-buttons-container-container{
 		margin-left:3rem;
 		margin-right:3rem;
-	}
-	
-	#extension-dashboard-tab-buttons-container{
-		flex-wrap:wrap;
 	}
 	
 }
@@ -2054,7 +2085,7 @@ body:not(.screensaver) .extension-dashboard-effect{
     position: absolute;
     width: 10px;
     height: 10px;
-    background-color: #fa7204;
+    background-color: var(--widget-editable-text-color);
     border-radius: 10px;
     top: 2rem;
     right: 2rem;
@@ -2149,6 +2180,49 @@ body:not(.screensaver) .extension-dashboard-effect{
 	flex-direction:column;
 }
 */
+
+
+
+
+
+
+
+/*   LIST SELECTOR WIDGET   */
+
+.extension-dashboard-widget-list-selector ul{
+	margin:0;
+	padding:.5rem 1.5rem;
+	overflow:auto;
+}
+
+.extension-dashboard-widget-list-selector ul li{
+	background-color:rgba(255,255,255,.3);
+	margin:.5rem;
+	padding:1rem 1.5rem;
+	border-radius:2rem;
+	cursor:pointer;
+}
+
+.extension-dashboard-widget-list-selector ul li:hover,
+.extension-dashboard-widget-list-selector ul li.extension-dashboard-widget-list-selector-highlighted-item{
+	color:var(--widget-editable-text-color);
+	background-color:rgba(255,255,255,.7);
+}
+
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"]:not([gs-w]) .extension-dashboard-widget-list-selector ul,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"]:not([gs-w]) .extension-dashboard-widget-list-selector ul,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="4"]:not([gs-w]) .extension-dashboard-widget-list-selector ul,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="5"]:not([gs-w]) .extension-dashboard-widget-list-selector ul{
+	flex-wrap:nowrap;
+	flex-direction:column;
+}
+
+
+.extension-dashboard-widget-name-needs-rename:empty() + .extension-dashboard-widget-options_list-needs-update{
+	margin-top:1.5rem;
+}
+
 
 
 
@@ -2271,7 +2345,11 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 
-
+.extension-dashboard-widget-block-title-container,
+.extension-dashboard-widget-name-needs-rename{
+	flex-basis:auto!important;
+	flex-grow:0!important;
+}
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"]:not([gs-h="3"]):not([gs-w]) .extension-dashboard-widget-media-player-artist-container,
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h]) .extension-dashboard-widget-media-player-artist-container,
@@ -2420,13 +2498,13 @@ body:not(.screensaver) .extension-dashboard-effect{
     height: 100px;
 	border-radius: 50%;
 	position:relative;
-	left:-10px;
+	/*left:-10px;*/
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-media-play-button-container:hover{
 	box-shadow: 20px 20px 60px #88949e, -20px -20px 60px #b8c8d6;
 	transition: box-shadow .3s ease-out;
-	background-color: #fa7204;
+	background-color: var(--widget-editable-text-color);
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-media-play-button,
@@ -2440,7 +2518,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 /*
 .extension-dashboard-widget-media-play-button:hover span{
-	background-color: #fa7204;
+	background-color: var(--widget-editable-text-color);
 }*/
 
 /*
@@ -2453,7 +2531,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 
 /*
 .extension-dashboard-widget-media-play-button:hover span{
-	background-color: #fa7204;
+	background-color: var(--widget-editable-text-color);
 	transition: background .3s ease-out;
 }
 */
@@ -2504,7 +2582,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 
 .extension-dashboard-widget-media-player-control-previous-button:hover > div,
 .extension-dashboard-widget-media-player-control-next-button:hover > div{
-	background-color:#fa7204
+	background-color:var(--widget-editable-text-color)
 }
 
 
@@ -2574,18 +2652,20 @@ body:not(.screensaver) .extension-dashboard-effect{
     width: calc(100% - 2rem);
     background: transparent;
     position: relative;
-}   
+}
+
 
 #extension-dashboard-content input[type="range"]:focus {
     outline: 0;
 }
 
+/*
 #extension-dashboard-content input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 3em;
     height: 3em;
     margin: .5em 0;
-    background: hsl(27, 98%, 50%);
+    background: var(--widget-editable-text-color); 
     border-radius: 100%;
     box-shadow: 
                 inset .8em .8em 5px -8px rgba(255, 255, 255, .4),
@@ -2599,7 +2679,7 @@ body:not(.screensaver) .extension-dashboard-effect{
     width: 3em;
     height: 3em;
     margin: .5em 0;
-    background: #fd8421;
+    background: var(--widget-editable-text-color); 
     border-radius: 100%;
     box-shadow: 
                 inset .8em .8em 5px -8px rgba(255, 255, 255, .4),
@@ -2617,7 +2697,7 @@ body:not(.screensaver) .extension-dashboard-effect{
     border-radius: 2em;
     box-shadow: 
                 inset .6em 1em 10px rgba(0,0,0,.15),
-                inset -.6em -1em 10px rgba(255, 255, 255, .415);
+                inset -.6em -1em 10px rgba(255, 255, 255, .315);
 }
 
 #extension-dashboard-content input[type=range]::-moz-range-track {
@@ -2628,7 +2708,7 @@ body:not(.screensaver) .extension-dashboard-effect{
     border-radius: 2em;
     box-shadow: 
                 inset .6em 1em 10px rgba(0,0,0,.15),
-                inset -.6em -1em 10px rgba(255, 255, 255, .415);
+                inset -.6em -1em 10px rgba(255, 255, 255, .315);
 }
 
 #extension-dashboard-content input[type="range"]::before {
@@ -2643,8 +2723,193 @@ body:not(.screensaver) .extension-dashboard-effect{
     text-shadow: .5px .5px 0.9px rgba(0,0,0, .4);
     z-index: -1;
 }
+*/
 
 
+
+input[type="range"] {
+    --base: var(--widget-editable-text-color); 
+    --light: color-mix(in sRGB, var(--base) 85%, #fff);
+    --lighter: color-mix(in sRGB, var(--base) 30%, #fff);
+    --dark: color-mix(in sRGB, var(--base) 95%, #000);
+    --widget-lighter: color-mix(in sRGB, var(--widget-background-color) 80%, #fff);
+    --transparent: color-mix(in sRGB, var(--widget-editable-text-color) 0%, #0000);
+    appearance: none;
+    width: calc(100% - 3rem);
+    height: 4rem;
+    border-radius: 2rem;
+    overflow: hidden;
+	box-shadow: 1px 0 10px 10px rgba(0, 0, 0, 0.04);
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+	width: 100%;
+	background:
+		linear-gradient(90deg, var(--lighter), var(--transparent) 1em),
+		linear-gradient(#0000 70%, var(--dark) 80%), var(--lighter);
+	background: var(--light);
+	border-radius: 2rem;
+	height: 4rem;
+	overflow: hidden;
+	cursor:pointer;
+}
+
+
+#extension-dashboard-content input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 3em;
+    height: 3em;
+    margin: 0;
+    background: var(--widget-editable-text-color); 
+    border-radius: 100%;
+    cursor: pointer;
+	
+    background:
+		radial-gradient(circle at 0.75em 0.6em, var(--light) calc(0.2em - 1px), #0000 0.2em),
+		linear-gradient(90deg, #0000 0.75em, var(--widget-editable-text-color) 0) 0 0 / 100% 50% no-repeat;
+	
+	background:  var(--widget-editable-text-color);
+    
+	box-shadow: 
+	inset .8em .8em 5px -8px rgba(255, 255, 255, .1),
+      inset -1.5em 0 0.5em -0.25em var(--widget-editable-text-color),
+       1em 0 0 0.25em var(--widget-lighter),
+       2em 0 0 0.25em var(--widget-lighter),
+       3em 0 0 0.25em var(--widget-lighter),
+       4em 0 0 0.25em var(--widget-lighter),
+       5em 0 0 0.25em var(--widget-lighter),
+       6em 0 0 0.25em var(--widget-lighter),
+       7em 0 0 0.25em var(--widget-lighter),
+       8em 0 0 0.25em var(--widget-lighter),
+       9em 0 0 0.25em var(--widget-lighter),
+      10em 0 0 0.25em var(--widget-lighter),
+      11em 0 0 0.25em var(--widget-lighter),
+      12em 0 0 0.25em var(--widget-lighter),
+      12em 0 0 0.25em var(--widget-lighter),
+      13em 0 0 0.25em var(--widget-lighter),
+      14em 0 0 0.25em var(--widget-lighter),
+      15em 0 0 0.25em var(--widget-lighter),
+      16em 0 0 0.25em var(--widget-lighter),
+      17em 0 0 0.25em var(--widget-lighter),
+      18em 0 0 0.25em var(--widget-lighter),
+      19em 0 0 0.25em var(--widget-lighter),
+      20em 0 0 0.25em var(--widget-lighter),
+      21em 0 0 0.25em var(--widget-lighter),
+      22em 0 0 0.25em var(--widget-lighter),
+      23em 0 0 0.25em var(--widget-lighter),
+      24em 0 0 0.25em var(--widget-lighter),
+      25em 0 0 0.25em var(--widget-lighter),
+      26em 0 0 0.25em var(--widget-lighter),
+      27em 0 0 0.25em var(--widget-lighter),
+      28em 0 0 0.25em var(--widget-lighter),
+      29em 0 0 0.25em var(--widget-lighter),
+      30em 0 0 0.25em var(--widget-lighter),
+      31em 0 0 0.25em var(--widget-lighter),
+      32em 0 0 0.25em var(--widget-lighter),
+      33em 0 0 0.25em var(--widget-lighter),
+      34em 0 0 0.25em var(--widget-lighter),
+      35em 0 0 0.25em var(--widget-lighter),
+      37em 0 0 0.25em var(--widget-lighter);
+}
+
+/*
+[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  height: 4rem;
+  width: 4rem;
+  color: var(--lighter);
+  background:
+    radial-gradient(circle at 0.75em 0.6em, var(--light) calc(0.2em - 1px), #0000 0.2em),
+    linear-gradient(90deg, #0000 0.75em, var(--base) 0) 0 0 / 100% 50% no-repeat;
+  border-radius: 50%; 0 50% 50% 0;
+  box-shadow: 
+    inset -1.5em 0 0.5em -0.25em var(--base),
+     1em 0 0 0.25em,
+     2em 0 0 0.25em,
+     3em 0 0 0.25em,
+     4em 0 0 0.25em,
+     5em 0 0 0.25em,
+     6em 0 0 0.25em,
+     7em 0 0 0.25em,
+     8em 0 0 0.25em,
+     9em 0 0 0.25em,
+    10em 0 0 0.25em,
+    11em 0 0 0.25em,
+    12em 0 0 0.25em,
+    12em 0 0 0.25em,
+    13em 0 0 0.25em,
+    14em 0 0 0.25em,
+    15em 0 0 0.25em,
+    16em 0 0 0.25em,
+    17em 0 0 0.25em,
+    18em 0 0 0.25em,
+    19em 0 0 0.25em,
+    20em 0 0 0.25em,
+    21em 0 0 0.25em,
+    22em 0 0 0.25em,
+    23em 0 0 0.25em,
+    24em 0 0 0.25em,
+    25em 0 0 0.25em,
+    26em 0 0 0.25em,
+    27em 0 0 0.25em,
+    28em 0 0 0.25em,
+    29em 0 0 0.25em,
+    30em 0 0 0.25em,
+    31em 0 0 0.25em,
+    32em 0 0 0.25em,
+    33em 0 0 0.25em,
+    34em 0 0 0.25em,
+    35em 0 0 0.25em,
+    37em 0 0 0.25em;
+}
+
+input[type="range"]::-moz-range-track {
+   background: 
+    radial-gradient(circle at 0.75em 30%, var(--light) calc(0.2em - 1px), #0000 0.2em),
+    radial-gradient(circle at 1.5em 30%, var(--light) calc(0.2em - 1px), #0000 0.2em),
+    radial-gradient(circle at 5.5em 30%, var(--light) calc(0.2em - 1px), #0000 0.2em),
+    linear-gradient(var(--light) 0 0) 1.5em calc(15% + 0.18em) / 4em calc(0.4em - 0.5px) no-repeat,
+    linear-gradient(90deg, var(--base), var(--transparent) 1em),
+    linear-gradient(var(--transparent) 70%, var(--dark) 80%),
+    var(--base);
+  border-radius: 2em;
+  height: 100%;
+  overflow: hidden;
+}
+
+input[type="range"].kawaii::-moz-range-thumb {
+  appearance: none;
+  height: 2em;
+  width: 2em;
+  border: 0;
+  color: var(--lighter);
+  background:
+    linear-gradient(90deg, var(--transparent) 0.75em, var(--base) 0) 0 0 / 100% 50% no-repeat;
+  border-radius: 50%; 0 50% 50% 0;
+  box-shadow: 
+    inset -0.5em 0 0.5em -0.25em var(--base),
+     1em 0 0 0.25em,
+     2em 0 0 0.25em,
+     3em 0 0 0.25em,
+     4em 0 0 0.25em,
+     5em 0 0 0.25em,
+     6em 0 0 0.25em,
+     7em 0 0 0.25em,
+     8em 0 0 0.25em,
+     9em 0 0 0.25em,
+    10em 0 0 0.25em,
+    11em 0 0 0.25em,
+    12em 0 0 0.25em,
+    12em 0 0 0.25em,
+    13em 0 0 0.25em,
+    14em 0 0 0.25em,
+    15em 0 0 0.25em,
+    16em 0 0 0.25em,
+    17em 0 0 0.25em,
+    18em 0 0 0.25em,
+    19em 0 0 0.25em;
+}
+*/
 
 
 
@@ -2783,6 +3048,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 	stroke:#0c3b5c;
 }
 
+.extension-dashboard-x-tick.
 .extension-dashboard-y-tick{
 	font-size:14px;
 }
@@ -2823,7 +3089,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 	background-color:transparent;
 	width:70px;
     /*color: #ff574e;*/
-	color: #fa7204;
+	color: var(--widget-editable-text-color);
     font-weight: bold;
 	font-size:3rem;
 	padding:2rem 0 2rem .5rem;
@@ -2855,13 +3121,15 @@ body:not(.screensaver) .extension-dashboard-effect{
 */
 
 
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"][gs-w="2"] .extension-dashboard-widget-thermostat-setpoint-buttons,
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"][gs-w="3"] .extension-dashboard-widget-thermostat-setpoint-buttons{
-    padding-left: 20%;
-    padding-right: 20%;
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"][gs-w="2"] .extension-dashboard-widget-thermostat-setpoint-buttons .extension-dashboard-widget-decrease-last-number-input,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"][gs-w="3"] .extension-dashboard-widget-thermostat-setpoint-buttons .extension-dashboard-widget-decrease-last-number-input{
+	padding-left: 20%;
     padding-bottom: 10%;
-    box-sizing: border-box;
-	/*box-shadow: 1px 0 10px 10px rgba(0, 0, 0, 0.03);*/
+}
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"][gs-w="2"] .extension-dashboard-widget-thermostat-setpoint-buttons .extension-dashboard-widget-increase-last-number-input,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"][gs-w="3"] .extension-dashboard-widget-thermostat-setpoint-buttons .extension-dashboard-widget-increase-last-number-input{
+	padding-right: 20%;
+    padding-bottom: 10%;
 }
 
 /*
@@ -2960,12 +3228,12 @@ body:not(.screensaver) .extension-dashboard-effect{
 	padding: 1rem .5rem 1rem 1rem;
 }
 
+
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-temperature-needs-update{
 	display:inline-block;
-	width:52px;
-	overflow:hidden;
-	font-size:2.5rem;
+	/*font-size:6rem;*/
 }
+
 
 
 .extension-dashboard-widget-temperature-needs-update::after{
@@ -3050,44 +3318,43 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 .extension-dashboard-widget-thermostat-setpoint-buttons > div{
+	padding:10px;
+	pointer-events:auto;
+	z-index:5;
+	cursor:pointer;
+}
+.extension-dashboard-widget-thermostat-setpoint-buttons > div > div{
 	width:45px;
 	height:45px;
-	margin:10px;
 	color:white;
 	border-radius:20px;
 	/*background-color:rgba(255,255,255,.2);*/
-	background-color:#bdc8d2;
-	box-shadow: 1px 0 10px 10px rgba(0, 0, 0, 0.03);
-	cursor:pointer;
-	pointer-events:auto;
+	background-color:var(--widget-background-color);
+	box-shadow: 1px 0 10px 10px rgba(0, 0, 0, 0.04);
 	border: 1px solid transparent;
-	/*transition: scale .1s ease-out, border 1s linear;
-	transition: all 1s linear;*/
-	box-sizing:border-box;
-	z-index:5;
 }
 /*
 .extension-dashboard-widget-thermostat-setpoint-buttons > div:active{
-	border: 1px solid #fa7204;
+	border: 1px solid var(--widget-editable-text-color);
 	transform: scale(1.1);
 	transition: scale .1s ease-out;
 }
 */
 
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-thermostat-setpoint-buttons > div{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-thermostat-setpoint-buttons > div > div{
 	width:65px;
 	height:65px;
 	border-radius:35px;
 	user-select: none;
 }
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="3"] .extension-dashboard-widget-thermostat-setpoint-buttons > div{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="3"] .extension-dashboard-widget-thermostat-setpoint-buttons > div > div{
 	width:90px;
 	height:90px;
 	border-radius:450px;
 }
 
-.extension-dashboard-widget-thermostat-setpoint-buttons > div:hover{
-	background-color: #fa7204!important;
+.extension-dashboard-widget-thermostat-setpoint-buttons > div:hover > div{
+	background-color: var(--widget-editable-text-color)!important;
 	color:white;
 	font-size:130%;
 }
@@ -3138,10 +3405,10 @@ body:not(.screensaver) .extension-dashboard-effect{
 	border-left: 2px solid rgba(255, 255, 255, .9);
 }
 
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-thermostat-setpoint-buttons > div,
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="4"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-thermostat-setpoint-buttons > div,
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-thermostat-setpoint-buttons > div{
-	/*background-color: #bdc8d2;*/
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-thermostat-setpoint-buttons > div > div,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="4"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-thermostat-setpoint-buttons > div > div,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-thermostat-setpoint-buttons > div > div{
+	/*background-color: var(--widget-background-color);*/
 	box-shadow: 1px 0 10px 10px rgba(0, 0, 0, 0.07);
 }
 
@@ -3252,8 +3519,8 @@ body:not(.screensaver) .extension-dashboard-effect{
 .extension-dashboard-widget-dial-needle {
     position: absolute;
     transform-origin: 0% 50%;
-    /*background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 80%, rgba(255,87,78, 1) 81%, rgba(255,87,78, 1) 95%);*/
-	background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 80%, rgb(249 113 1) 81%, rgb(249 113 1) 100%);
+    /*background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 80%, rgba(255,87,78, 1) 81%, rgba(255,87,78, 1) 95%);    rgb(249 113 1) */
+	background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 80%, var(--widget-editable-text-color) 81%, var(--widget-editable-text-color) 100%);
     width: 52%;
     height: 10px;
     left: 50%;
@@ -3323,10 +3590,9 @@ body:not(.screensaver) .extension-dashboard-effect{
 
 
 .extension-dashboard-widget-dial-ticks:not(.extension-dashboard-widget-dial-disabled) span:hover{
-	background: #fa7204;
+	background: var(--widget-editable-text-color);
 	font-size:130%;
 	text-align:center;
-	color:black;
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-dial-ticks span{
@@ -3400,6 +3666,7 @@ body:not(.developer) .extension-dashboard-widget-dial-name-container{
 #extension-dashboard-content .extension-dashboard-widget-round-dial input{
 	font-size:3rem;
 	text-align:center;
+	width: calc(80% - 4rem);
 	max-width: calc(80% - 4rem);
 	padding: 1.2rem 1.5rem;
 	margin-bottom:1rem;
@@ -3411,7 +3678,7 @@ body:not(.developer) .extension-dashboard-widget-dial-name-container{
 
 #extension-dashboard-content .extension-dashboard-widget-round-dial input:not([disabled]){
 	/*background-color:#ebeff1;*/
-	color:#fa7204;
+	color:var(--widget-editable-text-color);
 }
 
 
@@ -3582,7 +3849,7 @@ body:not(.developer) .extension-dashboard-widget-dial-name-container{
 
 
 #extension-dashboard-templates .extension-dashboard-widget-weather,
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-weather{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-weather{
 	background-image: url('../images/weather_landscape.svg');
 	background-repeat:no-repeat;
 	background-size:cover;
@@ -4370,7 +4637,7 @@ body.developer .extension-dashboard-widget-weather_description-needs-update:empt
 }
 
 #extension-dashboard-content .extension-dashboard-widget-number input:not([disabled]){
-	color:#fa7204;
+	color:var(--widget-editable-text-color);
 }
 
 
@@ -4430,9 +4697,13 @@ body.developer .extension-dashboard-widget-weather_description-needs-update:empt
     left: calc(100% - 6rem);
     top: 7rem;
     font-size: 4rem;
-    opacity: .2;
+    opacity: 0;
 	filter: saturate(50%);
-	transition: all 6s linear;
+	transition: all 60s ease-in-out;
+}
+
+body.developer .extension-dashboard-widget-weather-moon-container{
+	opacity: .4;
 }
 
 .extension-dashboard-night .extension-dashboard-widget-weather-moon-container{
@@ -4440,7 +4711,7 @@ body.developer .extension-dashboard-widget-weather_description-needs-update:empt
     top: 7rem;
     font-size: 6rem;
     opacity: .4;
-	transition: all 6s linear;
+	transition: all 60s linear;
 }
 
 
@@ -4544,7 +4815,7 @@ body.developer .extension-dashboard-widget-weather_description-needs-update:empt
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-clock-seiko-date-container{
 	top: auto;
-	bottom: -100%;
+	bottom: -140%;
 }
 
 
@@ -4736,6 +5007,8 @@ body.developer .extension-dashboard-widget-weather_description-needs-update:empt
 	border-top-right-radius: 20%;
 	border-bottom-right-radius: 20%;
 	background: #009bff;
+}
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-clock-seiko-hourhand{
 	box-shadow: -10px 0px 10px rgba(0,0,0,.4);
 }
 
@@ -4750,10 +5023,11 @@ body.developer .extension-dashboard-widget-weather_description-needs-update:empt
 	/*
 	box-shadow: -10px 10px 10px rgba(0,0,0,.4);
 	*/
-	box-shadow:-4px 4px 8px rgba(0, 0, 0, .3);
 	background: #0200a4;
 }
-
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-clock-seiko-minutehand {
+	box-shadow:-4px 4px 8px rgba(0, 0, 0, .3);
+}
 
 
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]) .extension-dashboard-widget-clock-seiko-hourhand,
@@ -5180,7 +5454,7 @@ body.developer .extension-dashboard-widget-weather_description-needs-update:empt
 */
 /*
 .extension-dashboard-widget-thermostat-setpoint-buttons > div,
-.grid-stack>.grid-stack-item>.grid-stack-item-content{
+.grid-stack > .grid-stack-item > .grid-stack-item-content{
 	box-shadow: inset 10px 10px 30px rgba(0, 0, 0, .2), inset 5px 5px 15px rgba(0, 0, 0, .4), 10px 10px 15px rgba(0, 0, 0, .3), 20px 20px 30px rgba(0, 0, 0, .3);
 }
 
@@ -5189,7 +5463,7 @@ body.developer .extension-dashboard-widget-weather_description-needs-update:empt
 	letter-spacing: .5px;
 }
 
-.grid-stack>.grid-stack-item>.grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button){
+.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button){
 	background-color:transparent;
 }
 
@@ -5201,3 +5475,50 @@ body.developer .extension-dashboard-widget-weather_description-needs-update:empt
 */
 
 
+
+
+/*   DASHBOARD SETTINGS   */
+
+#extension-dashboard-open-settings-button{
+	background: no-repeat center / 50% url(/images/settings-icon.png);
+	width: 5.6rem;
+    height: 5.6rem;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: #7dafd2;
+    flex-shrink: 0;
+    margin: 2rem 1rem;
+}
+#extension-dashboard-open-settings-button:hover{
+	background-color: #7caed1;
+}
+
+#extension-dashboard-settings-modal{
+	z-index:4;
+	border-radius:1rem;
+	max-height:90vh;
+	border:none;
+	background-color: #0d3b5c;
+	width:25rem;
+	max-width:50vw;
+	color:#eee;
+	box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+}
+
+#extension-dashboard-settings-modal h2{
+	margin-right:4rem;
+}
+
+.extension-dashboard-setting-container{
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+
+#extension-dashboard-setting-widget-shadow{
+	padding:1rem;
+	width:100%;
+    box-sizing: border-box;
+	min-height:8rem;
+}
