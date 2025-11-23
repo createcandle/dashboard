@@ -1,6 +1,9 @@
 # dashboard
-A dashboard addon for the Candle smart home controller
+A dashboard addon for the Candle smart home controller.
 
+![Candle Dashboard addon](https://github.com/createcandle/candle-controller/blob/master/screenshot.png?raw=true)
+
+![Candle Dashboard addon](https://github.com/createcandle/candle-controller/blob/master/screenshot.jpg?raw=true)
 
 
 # Sources and inspiration
