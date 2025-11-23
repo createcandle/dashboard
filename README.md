@@ -3,7 +3,7 @@ A dashboard addon for the Candle smart home controller.
 
 ![Candle Dashboard addon](https://github.com/createcandle/dashboard/blob/main/screenshot.png?raw=true)
 
-![Candle Dashboard editing](https://github.com/createcandle/dashboard/blob/master/screenshot.jpg?raw=true)
+![Candle Dashboard editing](https://github.com/createcandle/dashboard/blob/main/screenshot.jpg?raw=true)
 
 
 # Sources and inspiration
