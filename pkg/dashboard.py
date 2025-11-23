@@ -90,12 +90,7 @@ class DashboardAPIHandler(APIHandler):
 
         self.animations = True
         self.start_with_dashboard = False
-        self.greyscale = False
-        self.background_color = ""
-        
-        self.cups_printer_available = False
-        self.peripage_printer_available = False
-        #os.environ["DISPLAY"] = ":0.0"
+
             
         self.weather_addon_exists = False
         
@@ -140,8 +135,8 @@ class DashboardAPIHandler(APIHandler):
             self.logs_db_path = os.path.join(self.user_profile['logDir'], 'logs.sqlite3')
             #self.persistence_file_folder = os.path.join(self.user_profile['configDir'])
             self.persistence_file_path = os.path.join(self.user_profile['dataDir'], self.addon_name, 'persistence.json')
-            self.external_picture_drop_dir = os.path.join(self.user_profile['dataDir'], 'privacy-manager', 'printme')
-            self.display_toggle_path = os.path.join(self.user_profile['addonsDir'], 'display-toggle')
+            #self.external_picture_drop_dir = os.path.join(self.user_profile['dataDir'], 'privacy-manager', 'printme')
+
             
             # weather
             self.weather_addon_path =  os.path.join(self.user_profile['addonsDir'], 'weather-adapter')
@@ -178,14 +173,6 @@ class DashboardAPIHandler(APIHandler):
             
         self.scan_icons()
 
-        # Screensaver
-        if self.display_toggle_path:
-            if not os.path.isdir(self.display_toggle_path):
-                # Only keep the display on if the display toggle addon isn't installed.
-                if self.screensaver_delay > 0:
-                    os.system('xset -display :0 s off')
-                    os.system('xset -display :0 s noblank')
-                    os.system('xset -display :0 -dpms')
             
         # Respond to gateway version
         try:
@@ -246,17 +233,7 @@ class DashboardAPIHandler(APIHandler):
             if self.DEBUG:
                 print("Animations preference was in config: " + str(self.animations))
 
-        if "Black and white" in config:
-            self.greyscale = bool(config["Black and white"]) # can be "cover", "contain" or "mix"
-            if self.DEBUG:
-                print("Black and white preference was in config: " + str(self.greyscale))
-                
-        if "Background color" in config:
-            self.background_color = str(config["Background color"]) # can be "cover", "contain" or "mix"
-            if self.DEBUG:
-                print("Background color preference was in config: " + str(self.background_color))
-
-
+        
 
     def scan_icons(self):
         if self.DEBUG:
@@ -318,8 +295,6 @@ class DashboardAPIHandler(APIHandler):
                                                       'icons': self.icons_data,
                                                       'animations': self.animations,
                                                       'start_with_background':self.start_with_dashboard,
-                                                      'greyscale': self.greyscale,
-                                                      'background_color': self.background_color,
                                                       'debug': self.DEBUG
                                                     }),
                                 )

@@ -7,10 +7,10 @@
         "css/extension.css"
       ],
       "js": [
-        "js/extension.js",
 		"js/gridstack.js",
 		"js/d3.v7.min.js",
-		"js/color-scheme.min.js"
+		"js/color-scheme.min.js",
+        "js/extension.js"
       ]
     }
   ],
@@ -32,8 +32,6 @@
     "default": {
 	  "Start with Dashboard": false,
 	  "Hide animations": false,
-	  "Black and white": false,
-	  "Background color": "",
       "Debugging": false
     },
     "schema": {
@@ -46,14 +44,6 @@
             "description": "If you don't like things like rain animations in the weather widget, you can disable these flourishes here.",
             "type": "boolean"
         },
-		"Black and white": {
-          "description": "Show everything in black and white.",
-          "type": "boolean"
-        },
-		"Background color": {
-          "description": "If you choose your own dashboard background color, pick one that works for both light and dark text. The default is '#0d3b5c'.",
-          "type": "string"
-        },
         "Debugging": {
           "description": "Advanced. Enable this to see much more detail in the internal log about what this add-on is doing.",
           "type": "boolean"
@@ -64,7 +54,7 @@
     }
   },
   "short_name": "Dashboard",
-  "version": "0.0.8",
+  "version": "0.1.0",
   "web_accessible_resources": [
     "css/*.css",
 	"icons/*.svg",

@@ -628,16 +628,6 @@
 					this.parse_icons();
 				}
 				
-				if(typeof body.background_color == 'string' && body.background_color.startsWith('#')){
-					const dashboard_main_page_el = document.getElementById('extension-dashboard-main-page');
-					if(dashboard_main_page_el){
-						dashboard_main_page_el.style.backgroundColor = body.background_color;
-					}
-					else{
-						dashboard_main_page_el.style.backgroundColor = 'transparent';
-					}
-				}
-				
                 if(typeof body.animations == 'boolean'){
 					this.animations = body.animations;
 					
@@ -645,18 +635,6 @@
 						this.content_el.classList.add('extension-dashboard-hide-animations');
 					}
                 }
-				
-				if(typeof body['greyscale'] == 'boolean'){
-					const dashboard_content_el = document.getElementById('extension-dashboard-content');
-					if(dashboard_content_el){
-						if(body['greyscale']){
-							dashboard_content_el.classList.add('extension-dashboard-greyscale');
-						}
-						else{
-							dashboard_content_el.classList.remove('extension-dashboard-greyscale');
-						}
-					}
-				}
 				
 				//this.update_sidebar();
 				this.show_dashboard();
