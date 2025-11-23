@@ -99,8 +99,8 @@
 			
 			//console.log("ColorScheme: ", ColorScheme);
 			
-			this.color_settings = ['dashboard-background-color','widget-background-color','widget-text-color','widget-editable-text-color'];
-			this.default_color_settings = ['#0d3b5c','#bdc8d2','#555555','#fa7204'];
+			this.color_settings = ['extension-dashboard-background-color','extension-dashboard-widget-background-color','extension-dashboard-widget-text-color','extension-dashboard-widget-editable-text-color'];
+			this.default_color_settings = ['#3089bf','#cfdde6','#555555','#3089bf'];
 			
 			if(localStorage.getItem('extension_dashboard_locally_saved_values')){
 				try{
@@ -114,8 +114,6 @@
 							document.documentElement.style.setProperty('--' + this.color_settings[c], this.locally_saved_values[this.color_settings[c]]);
 						}
 					}
-					
-					
 					
 				}
 				catch(err){
@@ -447,6 +445,8 @@
 					}
 					this.set_tab_buttons_draggable(false);
 					
+					this.update_sidebar();
+					
 					/*
 					if(this.grids[this.current_grid_id]){
 						this.grids[this.current_grid_id].setStatic(true);
@@ -731,12 +731,12 @@
 				
 				const last_edited_widget_type = this.get_last_edited_widget_type();
 				if(this.debug){
-					console.log("last_edited_widget_type: ", last_edited_widget_type);
+					console.log("dashboard debug: last_edited_widget_type: ", last_edited_widget_type);
 				}
 				
 				if(last_edited_widget_type == 'log'){
 					if(this.debug){
-						console.log("doing a quick logs re-render after editing a log");
+						console.log("dashboard debug: doing a quick logs re-render after editing a log");
 					}
 					this.render_logs(true); // do a quick re-render
 				}
@@ -745,25 +745,24 @@
 			
 			
 			
+			
 			/*   DASHBOARD COLOR SETTINGS  */
-			
-			
 			
 			document.getElementById('extension-dashboard-settings-modal-done-button').addEventListener('click', () => {
 				this.settings_modal_el.close();
 			});
 			
 			document.getElementById('extension-dashboard-settings-modal-reset-button').addEventListener('click', () => {
-				document.documentElement.style.setProperty('--dashboard-background-color', 'transparent');
-				document.documentElement.style.setProperty('--widget-background-color', '#bdc8d2');
-				document.documentElement.style.setProperty('--widget-text-color', '#555555');
-				document.documentElement.style.setProperty('--widget-editable-text-color', '#fa7204');
+				document.documentElement.style.setProperty('--extension-dashboard-background-color', '#3089bf');
+				document.documentElement.style.setProperty('--extension-dashboard-widget-background-color', '#cfdde6');
+				document.documentElement.style.setProperty('--extension-dashboard-widget-text-color', '#555555');
+				document.documentElement.style.setProperty('--extension-dashboard-widget-editable-text-color', '#3089bf');
 				
 				const new_color = null;
-				this.locally_saved_values['dashboard-background-color'] = new_color;
-				this.locally_saved_values['widget-background-color'] = new_color;
-				this.locally_saved_values['widget-text-color'] = new_color;
-				this.locally_saved_values['widget-editable-text-color'] = new_color;
+				this.locally_saved_values['extension-dashboard-background-color'] = new_color;
+				this.locally_saved_values['extension-dashboard-widget-background-color'] = new_color;
+				this.locally_saved_values['extension-dashboard-widget-text-color'] = new_color;
+				this.locally_saved_values['extension-dashboard-widget-editable-text-color'] = new_color;
 				localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
 				
 				for(let c = 0; c < this.color_settings.length; c++){
@@ -775,39 +774,51 @@
 				
 			});
 			
-			document.getElementById('extension-dashboard-setting-dashboard-background-color').addEventListener('change', () => {
-				const new_color = document.getElementById('extension-dashboard-setting-dashboard-background-color').value;
+			document.getElementById('extension-dashboard-setting-extension-dashboard-background-color').addEventListener('change', () => {
+				const new_color = document.getElementById('extension-dashboard-setting-extension-dashboard-background-color').value;
 				//document.getElementById('extension-dashboard-main-page').style.backgroundColor = new_color;
 				if(typeof new_color == 'string' && new_color.startsWith('#')){
-					document.documentElement.style.setProperty('--dashboard-background-color', new_color);
-					this.locally_saved_values['dashboard-background-color'] = new_color;
+					if(this.debug){
+						console.log("dashboard debug: new_color: ", new_color);
+					}
+					document.documentElement.style.setProperty('--extension-dashboard-background-color', new_color);
+					this.locally_saved_values['extension-dashboard-background-color'] = new_color;
 					localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
 				}
 			});
 			
-			document.getElementById('extension-dashboard-setting-widget-background-color').addEventListener('change', () => {
-				const new_color = document.getElementById('extension-dashboard-setting-widget-background-color').value;
+			document.getElementById('extension-dashboard-setting-extension-dashboard-widget-background-color').addEventListener('change', () => {
+				const new_color = document.getElementById('extension-dashboard-setting-extension-dashboard-widget-background-color').value;
 				if(typeof new_color == 'string' && new_color.startsWith('#')){
-					document.documentElement.style.setProperty('--widget-background-color', new_color);
-					this.locally_saved_values['widget-background-color'] = new_color;
+					if(this.debug){
+						console.log("dashboard debug: new_color: ", new_color);
+					}
+					document.documentElement.style.setProperty('--extension-dashboard-widget-background-color', new_color);
+					this.locally_saved_values['extension-dashboard-widget-background-color'] = new_color;
 					localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
 				}
 			});
 			
-			document.getElementById('extension-dashboard-setting-widget-text-color').addEventListener('change', () => {
-				const new_color = document.getElementById('extension-dashboard-setting-widget-text-color').value;
+			document.getElementById('extension-dashboard-setting-extension-dashboard-widget-text-color').addEventListener('change', () => {
+				const new_color = document.getElementById('extension-dashboard-setting-extension-dashboard-widget-text-color').value;
 				if(typeof new_color == 'string' && new_color.startsWith('#')){
-					document.documentElement.style.setProperty('--widget-text-color', new_color);
-					this.locally_saved_values['widget-text-color'] = new_color;
+					if(this.debug){
+						console.log("dashboard debug: new_color: ", new_color);
+					}
+					document.documentElement.style.setProperty('--extension-dashboard-widget-text-color', new_color);
+					this.locally_saved_values['extension-dashboard-widget-text-color'] = new_color;
 					localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
 				}
 			});
 			
-			document.getElementById('extension-dashboard-setting-widget-editable-text-color').addEventListener('change', () => {
-				const new_color = document.getElementById('extension-dashboard-setting-widget-editable-text-color').value;
+			document.getElementById('extension-dashboard-setting-extension-dashboard-widget-editable-text-color').addEventListener('change', () => {
+				const new_color = document.getElementById('extension-dashboard-setting-extension-dashboard-widget-editable-text-color').value;
 				if(typeof new_color == 'string' && new_color.startsWith('#')){
-					document.documentElement.style.setProperty('--widget-editable-text-color', new_color);
-					this.locally_saved_values['widget-editable-text-color'] = new_color;
+					if(this.debug){
+						console.log("dashboard debug: new_color: ", new_color);
+					}
+					document.documentElement.style.setProperty('--extension-dashboard-widget-editable-text-color', new_color);
+					this.locally_saved_values['extension-dashboard-widget-editable-text-color'] = new_color;
 					localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
 				}
 			});
@@ -817,6 +828,9 @@
 					const color_setting_input_el = document.querySelector('#extension-dashboard-setting-' + this.color_settings[c]);
 					if(color_setting_input_el){
 						color_setting_input_el.value = this.locally_saved_values[this.color_settings[c]];
+					}
+					else{
+						console.error("dashboard: did not find color input element to update from localstorage: ", this.color_settings[c]);
 					}
 				}
 			}
@@ -845,7 +859,7 @@
 				}
 				this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button)','box-shadow',fresh_shadow);
 			
-				this.locally_saved_values['widget_shadow'] = random_shadow;
+				this.locally_saved_values['widget_shadow'] = fresh_shadow;
 				localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
 			});
 			
@@ -1003,7 +1017,12 @@
 				"rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px",
 				"rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px",
 				"rgba(0, 0, 0, 0.2) 0px 60px 40px -7px",
-				"rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px"
+				"rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px",
+				"rgba(0, 0, 0, 0.56) 0px 22px 70px 4px",
+				"rgba(0, 0, 0, 0.35) 0px -50px 36px -28px inset",
+				"rgba(0, 0, 0, 0.4) 0px 30px 90p;",
+				"rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px",
+				"rgba(240, 46, 170, 0.4) 5px 5px, rgba(240, 46, 170, 0.3) 10px 10px, rgba(240, 46, 170, 0.2) 15px 15px, rgba(240, 46, 170, 0.1) 20px 20px, rgba(240, 46, 170, 0.05) 25px 25px"
 			]
 			
 			//let random_index = Math.floor(Math.random() * shadows.length);
@@ -1019,99 +1038,6 @@
 		}
 
 
-
-		/*
-		generate_random_color_schemeX(){
-			
-			function getRandomColor() {
-  			  var letters = '0123456789ABCDEF';
-  			  var color = '#';
-  			  for (var i = 0; i < 6; i++) {
-  			    color += letters[Math.floor(Math.random() * 16)];
-  			  }
-  			  return color;
-			}
-			
-				
-			function hslToHex(h, s, l) {
-			  l /= 100;
-			  const a = s * Math.min(l, 1 - l) / 100;
-			  const f = n => {
-			    const k = (n + h / 30) % 12;
-			    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-			    return Math.round(255 * color).toString(16).padStart(2, '0');   // convert to Hex and prefix "0" if needed
-			  };
-			  return `#${f(0)}${f(8)}${f(4)}`;
-			}
-	   
-	   	 	// https://codingartistweb.com/2024/01/color-palette-generator-with-javascript/
-
-			function generateHarmoniousPalette(baseColor) {
-			  const numberOfColors = 5;
-			  const baseHue = extractHue(baseColor);
-			  const colorPalette = [];
-			  for (let i = 0; i < numberOfColors; i++) {
-			    const hue = (baseHue + (360 / numberOfColors) * i) % 360;
-			    //const color = `hsl(${hue},70%,50%)`;
-				const color = hslToHex(hue,70,50);
-			    colorPalette.push(color);
-			  }
-			  return colorPalette;
-			}
-
-			function extractHue(color) {
-			  const hex = color.slice(1);
-			  const rgb = parseInt(hex, 16);
-
-			  const r = (rgb >> 16) & 0xff;
-			  const g = (rgb >> 8) & 0xff;
-			  const b = (rgb >> 0) & 0xff;
-
-			  const max = Math.max(r, g, b);
-			  const min = Math.min(r, g, b);
-
-			  let hue;
-			  if (max === min) {
-			    hue = 0;
-			  } else {
-			    const d = max - min;
-			    switch (max) {
-			      case r:
-			        hue = ((g - b) / d + (g < b ? 6 : 0)) * 60;
-			        break;
-			      case g:
-			        hue = ((b - r) / d + 2) * 60;
-			        break;
-			      case b:
-			        hue = ((r - g) / d + 4) * 60;
-			        break;
-			    }
-			  }
-			  return hue;
-			}
-
-
-			const fresh_paint = generateHarmoniousPalette(getRandomColor());
-			for(let c = 0; c < this.color_settings.length; c++){
-				
-				document.documentElement.style.setProperty('--' + this.color_settings[c], fresh_paint[c]);
-				
-				this.locally_saved_values[this.color_settings[c]] = fresh_paint[c];
-				
-				const color_setting_input_el = document.querySelector('#extension-dashboard-setting-' + this.color_settings[c]);
-				if(color_setting_input_el){
-					color_setting_input_el.value = fresh_paint[c];
-				}
-				
-				
-			}
-			
-			localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
-
-		}
-		*/
-
-		
 
 
 
@@ -1355,43 +1281,6 @@
 				
 				
 				
-				/*
-				document.addEventListener('dragenter', (event) => {
-					event.preventDefault();
-					//console.log("dragging over trash? ", event.target.tagName);
-					trash_zone_el.classList.add('extension-dashboard-drag-over-scale');
-				});
-				trash_zone_container_el.addEventListener('dragout', (event) => {
-					event.preventDefault();
-					//console.log("dragging out of trash");
-					trash_zone_el.classList.remove('extension-dashboard-drag-over-scale');
-				});
-				trash_zone_container_el.addEventListener('mouseOver', (event) => {
-					event.preventDefault();
-					//console.log("mousing over trash");
-					trash_zone_el.classList.add('extension-dashboard-drag-over-scale');
-				});
-				
-				trash_zone_container_el.addEventListener('dragenter', function(event) {
-				    this.style.backgroundColor = '#f0f0f0';
-				});
-
-				trash_zone_container_el.addEventListener('dragleave', function(event) {
-				    this.style.backgroundColor = '';
-				});
-				*/
-				
-				/*
-				trash_zone_el.addEventListener("mouseout", () => { 
-					//console.log("mouse moved out of trash");
-					trash_zone_el.classList.remove('extension-dashboard-drag-over-scale');
-				})
-				*/
-				
-				//trash_zone_container_el.appendChild(trash_zone_el);
-				//tabs_menu_el.appendChild(trash_zone_container_el);
-				
-				
 				let widget_management_container_el = document.createElement('div');
 				widget_management_container_el.classList.add('extension-dashboard-flex');
 				
@@ -1548,39 +1437,12 @@
 								tab_name_input_el.addEventListener('input', () => {
 									//console.log("dashboard: tab name is being changed to: ", tab_name_input_el.value);
 									this.dashboards[this.current_grid_id]['name'] = tab_name_input_el.value;
-									/*
-									const tab_button_el = tab_buttons_container_el.querySelector('#extension-dashboard-show-' + this.current_grid_id);
-									if(tab_button_el){
-										if(tab_name_input_el.value.length){
-											tab_button_el.textContent = tab_name_input_el.value;
-											if(tab_name_input_el.value.length > 2){
-												tab_button_el.classList.add('extension-dashboard-tab-button-with-name');
-											}
-											else{
-												tab_button_el.classList.remove('extension-dashboard-tab-button-with-name');
-											}
-										}
-										else{
-											tab_button_el.textContent = '?';
-											tab_button_el.classList.remove('extension-dashboard-tab-button-with-name');
-										}
-										if(typeof this.dashboards[this.current_grid_id] == 'undefined'){
-											this.dashboards[this.current_grid_id] = {}
-										}
-									
-						
-									}
-									*/
-								
 								});
 								
 								tab_buttons_container_el.appendChild(tab_name_input_el);
 								continue
 								
 							}
-							
-							
-							
 							
 							
 						}
@@ -1598,31 +1460,27 @@
 							//event.preventDefault();
 							//event.currentTarget.classList.remove("extension-dashboard-being-dragged");
 							//console.log("drag ended for: ", grid_id, event);
-							
-							
 						});
 						
-						
+						let show_dashboard_button_inner_el = document.createElement('div');
+						show_dashboard_button_inner_el.classList.add('extension-dashboard-tab-button-with-name');
+						show_dashboard_button_inner_el.classList.add('extension-dashboard-tab-button');
 						
 						let show_dashboard_button_text = dashboard_counter; //grid_id.replaceAll('grid','');
 						if(typeof details['name'] == 'string' && details['name'].length){
 							show_dashboard_button_text = details['name'];
-							show_dashboard_button_el.classList.add('extension-dashboard-tab-button-with-name');
+							show_dashboard_button_inner_el.classList.add('extension-dashboard-tab-button-with-name');
 						}
-						show_dashboard_button_el.classList.add('extension-dashboard-tab-button');
-						show_dashboard_button_el.textContent = show_dashboard_button_text;
+						show_dashboard_button_el.classList.add('extension-dashboard-tab-button-wrapper');
+						
+						show_dashboard_button_inner_el.textContent = show_dashboard_button_text;
+						show_dashboard_button_el.appendChild(show_dashboard_button_inner_el);
+						
+						//show_dashboard_button_el.textContent = show_dashboard_button_text;
 						show_dashboard_button_el.addEventListener('click', () => {
-							console.log("clicked on show_dashboard_button");
+							//console.log("clicked on show_dashboard_button");
 							if(this.editing){
 								this.save_grid();
-								/*
-								if(typeof this.dashboards[grid_id] != 'undefined' && typeof this.dashboards[grid_id]['name'] == 'string'){
-									tab_name_input_el.value = this.dashboards[grid_id]['name'];
-								}else{
-									tab_name_input_el.value = '';
-								}
-								*/
-							
 								this.show_dashboard(grid_id);
 							}
 							else{
@@ -1634,11 +1492,8 @@
 							
 						});
 						
-						
 						if(dashboards_keys.length > 1){
 							tab_buttons_container_el.appendChild(show_dashboard_button_el);
-							//tabs_menu_el.appendChild(tab_buttons_container_el);
-							//tab_buttons_container_el.appendChild(tab_buttons_container_el);
 						}
 				
 					}
@@ -1695,16 +1550,14 @@
 				}
 				else{
 					if(this.debug){
-						console.log("dashboard debug: the innerWidth is not that narrow. ", tab_buttons_container_el.textContent.length, tab_buttons_container_el.textContent, " should fit in ", window.innerWidth);
+						console.log("dashboard debug: the innerWidth is not that narrow.  textContent character count: ", tab_buttons_container_el.textContent.length, ". \nThe menu textContent: ", tab_buttons_container_el.textContent, " ...should fit in ", window.innerWidth);
 					}
 					tabs_menu_el.classList.remove('extension-dashboard-wide-menu');
 				}
 				
-				
-				
-				
 			}
 		}
+		
 		
 		
 		set_tab_buttons_draggable(draggable=true){
@@ -1741,6 +1594,7 @@
 			}
 	
 		}
+
 
 
 		previous_dashboard_tab(){
@@ -1792,6 +1646,7 @@
 			}
 			//this.show_selected_dashboard_indicator();
 		}
+
 
 
 		// provides dashboard settings with thre initial empty widgets
@@ -1870,6 +1725,14 @@
 				console.log("dashboard debug: show_dashboard: data to render: ", this.dashboards[grid_id]);
 			}
 			
+			
+			if(this.tooltip_el == null){
+				this.tooltip_el = this.view.querySelector('#extension-dashboard-log-tooltip');
+			}
+			if(this.tooltip_el){
+				this.tooltip_el.setAttribute('left','-1000');
+				this.tooltip_el.setAttribute('opacity','0');
+			}
 			
 			this.update_clock = false;
 			
@@ -2198,7 +2061,7 @@
                 }
             ).then((body) => {
                 if (this.debug) {
-					console.log("\nDashboard debug: saved dashboards to backend\n");
+					console.log("\ndashboard debug: saved dashboards to backend\n");
 				}
 			
             }).catch((e) => {
@@ -2465,7 +2328,9 @@
 										}
 										
 										if(typeof this.websockets_lookup[thing_id] != 'undefined'){
-											console.log("in theory these properties could be updated in the dashboard: ", this.websockets_lookup[thing_id]);
+											if(this.debug){
+												console.log("dashboard debug: in theory these properties could be updated in the dashboard: ", this.websockets_lookup[thing_id]);
+											}
 										}
 										
 										if(this.view && this.content && typeof data['id'] == 'string' && data['id'] == thing_id && typeof data['messageType'] == 'string' && data['messageType'] == 'propertyStatus' && typeof data['data'] != 'undefined'){
@@ -2854,7 +2719,7 @@
 																												expected_span_els_count = Math.floor(range*do_halves) + 1;
 																											}
 																											if(this.debug){
-																												console.log("expected span el count in the dial: ", expected_span_els_count, " vs actual count: ", widget_ticks_el.children.length, ", read_only:", read_only);
+																												console.log("dashboard debug: expected span el count in the dial: ", expected_span_els_count, " vs actual count: ", widget_ticks_el.children.length, ", read_only:", read_only);
 																											}
 																									
 																											if(widget_ticks_el.children.length != expected_span_els_count){
@@ -3145,7 +3010,7 @@
 				// Disconnect all the websockets that are no longer relevant (every thing_id from the lookup table that is not in the current grid_id)
 				for (const [websocket_thing_id, websocket_client] of Object.entries( this.websockets )) {
 					if(this.debug){
-						console.log("*\n*\n* * * checking if websocket is still needed for: ", websocket_thing_id, " in currently_relevant_thing_ids?: ", currently_relevant_thing_ids);
+						console.log("dashboard debug: checking if websocket is still needed for: ", websocket_thing_id, " in currently_relevant_thing_ids?: ", currently_relevant_thing_ids);
 					}
 					if(currently_relevant_thing_ids.indexOf(websocket_thing_id) == -1){
 						if(this.debug){
@@ -3160,12 +3025,12 @@
 							},100);
 						}
 						else{
-							console.error("websocket_client was invalid? ", typeof websocket_client, websocket_client);
+							console.error("dashboard debug: websocket_client was invalid? ", typeof websocket_client, websocket_client);
 						}
 					}
 					else{
 						if(this.debug){
-							console.log("Yes, websocket is still useful for thing_id: ", websocket_thing_id);
+							console.log("dashboard debug: OK, websocket is still useful for thing_id: ", websocket_thing_id);
 						}
 					}
 				}
@@ -3218,16 +3083,18 @@
 				}
 			}
 			
+			/*
 			let widget_icon = null;
 			if(typeof this.dashboards[grid_id]['widgets'][widget_id]['icon'] == 'string'){
 				widget_icon = this.dashboards[grid_id]['widgets'][widget_id]['icon'];
 			}
+			*/
 			
-			// This dictionary will be filled based on the html contente of the template, and then used to generate the template's UI in the widget edit modal
+			// This dictionary will be filled based on the html contents of the template, and then used to generate the template's UI in the widget edit modal
 			let needs = {};
 			if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'] != 'undefined'){
 				needs = this.dashboards[grid_id]['widgets'][widget_id]['needs'];
-				//console.log("generate_widget_content: needs beforehand: ", needs);
+				console.log("generate_widget_content: needs beforehand: ", needs);
 			}
 			
 			
@@ -3853,8 +3720,8 @@
 											}
 									
 											if(typeof needs['icon'][what_icon_is_needed] == 'string' && needs['icon'][what_icon_is_needed].endsWith('.svg')){
-												if(child_els[ix].tagName == 'img'){
-													child_els[ix].src = '/extensions/dashboard/icons/' + needs['icon'][what_icon_is_needed];
+												if(child_els[ix].tagName == 'IMG'){
+													child_els[ix].src = '/extensions/dashboard/icons' + needs['icon'][what_icon_is_needed];
 												}
 												else{
 													child_els[ix].style.backgroundImage="url(/extensions/dashboard/icons" + needs['icon'][what_icon_is_needed] + ")";
@@ -3886,6 +3753,9 @@
 												child_els[ix].setAttribute('data-extension-dashboard-log-id', needs['log'][what_log_is_needed]['log_id']);
 												child_els[ix].setAttribute('data-extension-dashboard-log-thing', needs['log'][what_log_is_needed]['thing_id']);
 												child_els[ix].setAttribute('data-extension-dashboard-log-property', needs['log'][what_log_is_needed]['property_id']);
+												child_els[ix].setAttribute('data-extension-dashboard-log-what_log_is_needed', what_log_is_needed);
+												child_els[ix].setAttribute('data-extension-dashboard-log-widget_id', widget_id);
+												
 												//child_els[ix].setAttribute('data-extension-dashboard-log-thing-combo', needs['update'][what_property_is_needed]['thing_id'] + '-' + needs['update'][what_property_is_needed]['property_id'] );
 												if(this.current_logs.indexOf(needs['log'][what_log_is_needed]['log_id']) == -1){
 													this.current_logs.push(needs['log'][what_log_is_needed]['log_id']);
@@ -4705,6 +4575,46 @@
 											log_container_el.appendChild(what_log_is_needed_title_el);
 						
 											log_container_el.appendChild(new_log_selector_el);
+											
+											
+											// Let user select the type of visualisation too
+											
+											let selected_log_type = '';
+											if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['log'][what_log_is_needed]['viz'] != 'undefined' && typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['log'][what_log_is_needed]['viz']['type'] == 'string'){
+												selected_log_type = this.dashboards[grid_id]['widgets'][widget_id]['needs']['log'][what_log_is_needed]['viz']['type'];
+											}
+											
+											/*
+											let log_type_selector_el = document.createElement('select');
+											
+											let line_log_el = document.createElement('option');
+											line_log_el.textContent = '📈 Line chart';
+											line_log_el.value = 'line';
+											if(line_log_el.value == selected_log_type){
+												line_log_el.setAttribute('selected','selected');
+											}
+											log_type_selector_el.appendChild(line_log_el);
+											
+											
+											let hourly_averages_log_el = document.createElement('option');
+											hourly_averages_log_el.textContent = '🕑 Hourly';
+											hourly_averages_log_el.value = 'hourly_average';
+											if(hourly_averages_log_el.value == selected_log_type){
+												hourly_averages_log_el.setAttribute('selected','selected');
+											}
+											log_type_selector_el.appendChild(hourly_averages_log_el);
+											
+											log_type_selector_el.addEventListener('change', () => {
+												console.log("log type switched to: ", log_type_selector_el.value);
+												if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['log'][what_log_is_needed]['viz'] == 'undefined'){
+													this.dashboards[grid_id]['widgets'][widget_id]['needs']['log'][what_log_is_needed]['viz'] = {};
+												}
+												this.dashboards[grid_id]['widgets'][widget_id]['needs']['log'][what_log_is_needed]['viz']['type'] = log_type_selector_el.value;
+											});
+											
+											log_container_el.appendChild(log_type_selector_el);
+											*/
+											
 										}
 										else{
 											if(this.debug){
@@ -4799,6 +4709,10 @@
 					let logs_select_el = document.createElement('select');
 					logs_select_el.classList.add('extension-dashboard-modal-log-selector');
 					
+					let empty_log_option_el = document.createElement('option');
+					empty_log_option_el.setAttribute('value','');
+					empty_log_option_el.textContent = '-';
+					logs_select_el.appendChild(empty_log_option_el);
 					
 					for (let li = 0; li < logs.length; li++){
 						//console.log("looping over log: ", logs[li]);
@@ -4818,8 +4732,8 @@
 							// Generate human-readable title for the log selector
 							let log_option_title = log_thing_id.replaceAll('_',' ') + ' ' + log_property_id.replaceAll('_',' ');
 							const target_thing = this.get_thing_by_thing_id(log_thing_id);
-							if(target_thing && typeof target_thing['title'] == 'string' && typeof target_thing['title']['properties'] != 'undefined' && target_thing['title']['properties'][log_property_id] != 'undefined' && typeof target_thing['title']['properties'][log_property_id]['title'] == 'string'){
-								log_option_title = log_option_title['title'] + " - " + target_thing['title']['properties'][log_property_id]['title'];
+							if(target_thing && typeof target_thing['title'] == 'string' && typeof target_thing['properties'] != 'undefined' && target_thing['properties'][log_property_id] != 'undefined' && typeof target_thing['properties'][log_property_id]['title'] == 'string'){
+								log_option_title = target_thing['title'] + " - " + target_thing['properties'][log_property_id]['title'];
 							}
 							log_option_el.textContent = log_option_title;
 							
@@ -4848,6 +4762,7 @@
 						
 						if(selected_option_el){
 							
+							
 							const selected_thing_id = selected_option_el.getAttribute('data-thing_id');
 							const selected_property_id = selected_option_el.getAttribute('data-property_id');
 							const selected_log_id = selected_option_el.getAttribute('data-log_id');
@@ -4873,11 +4788,19 @@
 								}
 							
 								if(typeof selected_thing_id == 'string' && typeof selected_property_id == 'string'){
-									//console.log("setting this.dashboards data for log.  grid_id, widget_id, what_log_is_needed, selected_thing_id,selected_log_id:  ", grid_id, widget_id, what_log_is_needed, selected_thing_id, selected_log_id );
-									this.dashboards[grid_id]['widgets'][widget_id]['needs']['log'][what_log_is_needed]['thing_id'] = selected_thing_id;
-									this.dashboards[grid_id]['widgets'][widget_id]['needs']['log'][what_log_is_needed]['property_id'] = selected_property_id;
-									this.dashboards[grid_id]['widgets'][widget_id]['needs']['log'][what_log_is_needed]['log_id'] = selected_log_id;
-									//this.dashboards[grid_id]['widgets'][widget_id]['type'] = 'log';
+									
+									if(selected_option_el.value == ''){
+										console.log("user selected to unlink a log");
+										this.dashboards[grid_id]['widgets'][widget_id]['needs']['log'][what_log_is_needed] = {};
+									}
+									else{
+										//console.log("setting this.dashboards data for log.  grid_id, widget_id, what_log_is_needed, selected_thing_id,selected_log_id:  ", grid_id, widget_id, what_log_is_needed, selected_thing_id, selected_log_id );
+										this.dashboards[grid_id]['widgets'][widget_id]['needs']['log'][what_log_is_needed]['thing_id'] = selected_thing_id;
+										this.dashboards[grid_id]['widgets'][widget_id]['needs']['log'][what_log_is_needed]['property_id'] = selected_property_id;
+										this.dashboards[grid_id]['widgets'][widget_id]['needs']['log'][what_log_is_needed]['log_id'] = selected_log_id;
+										//this.dashboards[grid_id]['widgets'][widget_id]['type'] = 'log';
+									}
+									
 									
 								}
 								else{
@@ -5502,7 +5425,12 @@
 									}
 							
 								}
-						
+								
+								// make sure the recorded data points are sorted in temporal order
+								let logs_keys = Object.keys(this.logs_data);
+								for(let lk = 0; lk < logs_keys.length; lk++){
+									this.logs_data[ logs_keys[lk] ].sort(function(a,b) { return a['d'].getTime() - b['d'].getTime() });
+								}
 								resolve();
 						
 							}
@@ -5553,15 +5481,17 @@
 		// if fresh_log_data_load is null, the load_log_data function makes to choice based on how long ago fresh log data was last loaded
 			
 		render_logs(fresh_log_data_load=null,log_id_to_render=null){
-			if(this.debug){
-				//console.log("dashboard debug: in render_logs.  fresh_log_data_load, log_id_to_render: ", fresh_log_data_load, log_id_to_render);
-			}
+			
 			
 			if(this.current_logs.length == 0){
 				if(this.debug){
 					//console.log("dashboard debug: current dashboard does not have any logs, so no need to render logs.");
 				}
 				return
+			}
+			
+			if(this.debug){
+				console.log("dashboard debug: in render_logs.  fresh_log_data_load, log_id_to_render: ", fresh_log_data_load, log_id_to_render);
 			}
 			
 			if(typeof log_id_to_render == 'string' && this.logs_data[log_id_to_render] == 'undefined'){
@@ -5576,10 +5506,12 @@
 	
 						if(typeof log_id_to_render == 'string' && log_id != log_id_to_render){
 							if(this.debug){
-								console.log("render_logs: skipping a render because specific log_id_to_render was set: ", log_id_to_render);
+								console.log("dashboard debug: render_logs: skipping a render because specific log_id_to_render was set: ", log_id_to_render);
 							}
 							continue
 						}
+						
+						//let log_data = structuredClone(original_log_data);
 	
 						for (let lo = 0; lo < this.logs.length; lo++){
 							if(this.logs[lo]['id'] == log_id){
@@ -5594,16 +5526,106 @@
 								}
 								//console.log("log_thing_id: ", log_thing_id);
 								//console.log("log_property_id: ", log_property_id);
-				
-								// extension-dashboard-grid7-widget0
-								let log_viz_el = document.querySelector('#extension-dashboard-' + this.current_grid_id + ' div[data-extension-dashboard-log-id="' + log_id + '"]');
-								if(log_viz_el){
+								
+								let log_viz_container_el = document.querySelector('#extension-dashboard-' + this.current_grid_id + ' div[data-extension-dashboard-log-id="' + log_id + '"]');
+								if(log_viz_container_el){
+									
+									let log_viz_el = log_viz_container_el.querySelector('.extension-dashboard-widget-checkbox-toggle-unchecked-content');
+									let log_viz_el2 = log_viz_container_el.querySelector('.extension-dashboard-widget-checkbox-toggle-checked-content');
+									
+									if(log_viz_el == null){
+										log_viz_el = document.createElement('div');
+										log_viz_container_el.appendChild(log_viz_el);
+									}
+									log_viz_el.classList.remove('extension-dashboard-widget-checkbox-toggle-unchecked-content');
+									
+									if(log_viz_el2){
+										console.log("log_viz_el2 already existed");
+										log_viz_el2.classList.add('extension-dashboard-hidden');
+										log_viz_el2.classList.remove('extension-dashboard-widget-checkbox-toggle-checked-content');
+									}
+									
+									// Did the user set a prefered visualization type?
+									
+									/*
+									// Get Widget_id from DOM
+									let widget_root_el = log_viz_el.closest('.grid-stack-item[gs-id]');
+									
+									if(widget_root_el == null){
+										console.error("could not find widget root element?");
+										continue
+									}
+									
+									let widget_id = widget_root_el.getAttribute('gs-id');
+									if(typeof widget_id != 'string'){
+										console.error("widget root element had invalid widget id?");
+										continue
+									}
+									*/
+									
+									
+									
+									// GET INFORMATION ABOUT THE WIDGET, INCLUDING IT'S PIXEL DIMENSIONS
+									
+									let log_viz_type = 'line';
+									const widget_id = log_viz_el.getAttribute('data-extension-dashboard-log-widget_id');
+									const what_log_id_needed = log_viz_el.getAttribute('data-extension-dashboard-log-what_log_id_needed');
+									
+									
+									if(
+										typeof this.dashboards[this.current_grid_id] != 'undefined' && 
+										typeof this.dashboards[this.current_grid_id]['widgets'] != 'undefined' && 
+										typeof this.dashboards[this.current_grid_id]['widgets'][widget_id] != 'undefined' && 
+										typeof this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs'] != 'undefined' && 
+										typeof this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs']['log'] != 'undefined' &&
+										typeof this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs']['log'][what_log_id_needed] != 'undefined' && 
+										typeof this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs']['log'][what_log_id_needed]['viz'] != 'undefined' && 
+										typeof this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs']['log'][what_log_id_needed]['viz']['type'] == 'string'
+									){
+										if(this.debug){
+											console.log("dashboard debug: render_logs: log needs: ", this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs']['log']);
+										}
+										log_viz_type = this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs']['log']['viz']['type'];
+									}
+									
+									if(this.debug){
+										console.log("dashboard debug: render_logs: log_viz_type: ", log_viz_type);
+									}
 					
 									// Should the dataviz be rendered in a compact manner for a 1x1 widget?
-									let wideness_hint_el = log_viz_el.closest('[gs-w="2"],[gs-w="3"],[gs-w="4"]');
-									let tallness_hint_el = log_viz_el.closest('[gs-h="2"],[gs-h="3"],[gs-h="4"]');
+									let wideness_hint_el = log_viz_el.closest('[gs-w]');
+									let tallness_hint_el = log_viz_el.closest('[gs-h]');
 									//console.log("closest_hint_el: ", closest_hint_el);
-						
+									
+									let wideness_hint_number = 1;
+									if(wideness_hint_el){
+										let wideness_hint = wideness_hint_el.getAttribute("gs-w");
+										//console.log("wideness_hint: ", wideness_hint);
+										if(typeof wideness_hint == 'string'){
+											wideness_hint = parseInt(wideness_hint);
+											if(!isNaN(wideness_hint)){
+												wideness_hint_number = wideness_hint;
+												if(this.debug){
+													console.log("dashboard debug: render_logs: widget's horizontal size: ", typeof wideness_hint_number, wideness_hint_number);
+												}
+											}
+										}
+									}
+									
+									let tallness_hint_number = 1;
+									if(tallness_hint_el){
+										let tallness_hint = tallness_hint_el.getAttribute("gs-h");
+										if(typeof tallness_hint == 'string'){
+											tallness_hint = parseInt(tallness_hint);
+											if(!isNaN(tallness_hint)){
+												tallness_hint_number = tallness_hint;
+												if(this.debug){
+													console.log("dashboard debug: render_logs: widget's vertical size: ", typeof tallness_hint_number, tallness_hint_number);
+												}
+											}
+										}
+									}
+									
 									let svg_width_padding = 0;
 									let svg_height_padding = 0;
 									if(wideness_hint_el){
@@ -5616,17 +5638,40 @@
 					
 									//console.log("the relevant  log_data: ", log_data);
 					
-									const real_rect = log_viz_el.getBoundingClientRect(log_viz_el);
-									//console.log("log_viz_el real_rect: ", real_rect);
+									const real_rect = log_viz_container_el.getBoundingClientRect(log_viz_el);
+									if(this.debug){
+										console.log("dashboard debug: render_logs: log_viz_el real_rect: ", real_rect);
+									}
+					
+									if(real_rect.width < 20){
+										if(this.debug){
+											console.error("dashboard debug: render_logs: could not get pixel size of container:  width,height:", real_rect.width, real_rect.height);
+										}
+										//real_rect = {'width':300,'height':150} // just guessing a size
+									}
 					
 									const rect = {
 											"width":Math.floor(real_rect.width),
 											"height":Math.floor(real_rect.height),
 											}
 										
-										
+									
+									// for very wide widgets, allow the svg to render a little wider
+									if(tallness_hint_number == 2 && wideness_hint_number > 2){
+										rect['width'] = Math.round(rect['width'] * 1.15);
+									}
+									
+									
+									
+									// ANALYZE THE DATA
+									
+									// Find out some information about the length of time we have data for
+									const real_oldest = d3.min(log_data, d => d.d);
+									
+									
 									// Check if the data is for a boolean
 									let is_boolean_log = true;
+									let spotted_a_one = false;
 									for(let dp = 0; dp < log_data.length; dp++){
 										if(typeof log_data[dp]['v'] != 'number' || typeof log_data[dp]['d'] == 'undefined'){
 											if(this.debug){
@@ -5634,12 +5679,515 @@
 											}
 											continue
 										}
+										if(log_data[dp]['v'] === 1){
+											spotted_a_one = true;
+										}
+										
 										if(log_data[dp]['v'] != 1 && log_data[dp]['v'] != 0){
 											is_boolean_log = false;
 											break
 										}
 									}
+									if(spotted_a_one == false){ // empty logs only have the value zero, but that doesn't mean they are boolean
+										is_boolean_log = false;
+									}
 									
+									if(this.debug){
+										console.log("dashboard debug: render_logs:  is_boolean_log: ", is_boolean_log);
+									}
+									
+									
+									
+									/*
+									// used to during development to make the graph less dense
+									if(is_boolean_log == false){
+										// PRUNING
+										
+										let pruned_data = [];
+										for(let g = 0; g < log_data.length; g++){
+											if(g % 6 == 0){
+												pruned_data.push(log_data[g]);
+											}
+										}
+										log_data = pruned_data;
+									}
+									*/
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									const highest = d3.max(log_data, d => d.v);
+									const lowest = d3.min(log_data, d => d.v);
+									
+									let hourly_data = [];
+									
+									let now_timestamp = Date.now();
+									
+									//console.log("now_timestamp: ", now_timestamp);
+									
+									// We work our way backwards in time as we loop over the data
+									
+									// above_zero: the amount of milliseconds that the device was switched on (boolean 1) during a particular hour
+									
+									let hours_into_the_past = 0;
+									let start_of_this_hour = now_timestamp - (now_timestamp % (60000*60));
+									let end_of_this_hour = start_of_this_hour + (60000*60);
+									let above_zero_end_stamp = null;
+									//let above_zero = 0; 
+									let next_value = null;
+									let next_date_stamp = null;
+									let future_boolean_off_date_stamp = null;
+									let last_boolean_off_hour = null;
+									
+									//let total_data = {'minimum':[],'maximum':[],'average':[],'above_zero':[]};
+									//let hour_data = {'minimum':null,'maximum':null,'average':null,'above_zero':0};  
+									
+									
+									let alt_log_data = [];
+									
+									// Create an array with empty slots
+									let hours_data = [];
+									//let decreaser = 25;
+									for(let h = 0; h < 25; h++){
+										
+										hours_data.push({'hours_into_the_past': h,'minimum':null,'maximum':null,'average':null,'start':null,'end':null,'beyond_start_value':null,'beyond_end_value':null,'values_to_average':[],'above_zero':0});
+										alt_log_data.push({"d":new Date(end_of_this_hour - (60000 * 60 * (25 - h))),"v":null})
+										
+										//decreaser--;
+									}
+									
+									
+									/*
+									for(let ah = 25; ah >= 0; ah--){
+										alt_log_data[ah] = {"d":new Date(start_of_this_hour - (60000 * 60 * ah)),"v":null}
+									}
+									*/
+									
+									hours_data[0]['start'] = start_of_this_hour;
+									hours_data[0]['end'] = end_of_this_hour;
+									hours_data[0]['incomplete'] = true;
+									
+									//console.log("inital start_of_this_hour: ", start_of_this_hour);
+									//console.log("inital end_of_this_hour: ", end_of_this_hour);
+									
+									
+									
+									
+									
+									
+									let min_max_lines_would_be_nice = false; // would it even make sense to display the minimum and maximum values spotted during the hour?
+									for(let dp = log_data.length - 1; dp >= 0; dp--){
+										//console.log("dp: ", dp);
+										const this_date_stamp = log_data[dp]['d'].getTime();
+										const this_value = log_data[dp]['v'];
+										
+										
+										// If could be that the first datapoint is in the previous hour, or even hours old
+										if(this_date_stamp < start_of_this_hour){
+											//console.warn("\nDONGGGGG\n\nShifting to an earlier hour.\n\n");
+											
+											
+											//
+											// CALCULATE HOUR AVERAGES
+											//
+											
+											if(is_boolean_log == false){
+												
+												
+												//console.warn("CALCULATING AVERAGES FOR THE HOUR THAT IS NOW COMPLETE");
+												//console.log("values_to_average: ", hours_data[hours_into_the_past]['values_to_average'])
+												let nuanced_values = [];
+												
+												let total_score = 0;
+												
+												// for completeness, remember what datapoint ended the hour loop. This will be useful to calculate averages later that take into account how the value was changing over time
+												hours_data[hours_into_the_past]['beyond_start_value'] = {'t':this_date_stamp, 'v':this_value};
+											
+												if(hours_data[hours_into_the_past]['values_to_average'].length){
+													
+													let raw_nuance = [];
+													let total_millis_accounted_for = 0;
+													let hypothetical_value_at_end_of_hour = null;
+													let hypothetical_value_at_start_of_hour = null;
+													
+													
+													
+													// calculate the slope between the most futuristic datapoint inside the hour, and a futuristic datapoint outside of the that hour;
+													if(hours_data[hours_into_the_past]['beyond_end_value'] != null){
+														
+														let newest_point_inside_the_hour = hours_data[hours_into_the_past]['values_to_average'][0]; // hours_data[hours_into_the_past]['values_to_average'].length  - 1
+														
+														
+														
+														const millis_in_this_hour = hours_data[hours_into_the_past]['end'] - newest_point_inside_the_hour['t'];
+														//console.log("millis_in_this_hour, as sec: ", millis_in_this_hour / 1000);
+														//console.log("millis outside of the hour, as sec: ", (hours_data[hours_into_the_past]['beyond_end_value']['t'] - hours_data[hours_into_the_past]['end'])/1000  );
+														total_millis_accounted_for += millis_in_this_hour;
+														let ratio_inside_this_hour = millis_in_this_hour / (hours_data[hours_into_the_past]['beyond_end_value']['t'] - newest_point_inside_the_hour['t']);
+														//console.log("ratio_inside_this_hour: ", ratio_inside_this_hour);
+														
+														
+														//console.log("value of point outside of the hour: ", hours_data[hours_into_the_past]['beyond_end_value']['v']);
+														//console.log("value of newest_point_inside_the_hour['v']: ", newest_point_inside_the_hour['v']);
+														let value_delta = Math.abs(newest_point_inside_the_hour['v'] - hours_data[hours_into_the_past]['beyond_end_value']['v']);
+														//console.log("value_delta: ", value_delta);
+														
+														value_delta = value_delta * ratio_inside_this_hour;
+														//console.log("value_delta after applying ratio: ", value_delta);
+														
+														if(hours_data[hours_into_the_past]['beyond_end_value']['v'] > newest_point_inside_the_hour['v']){
+															hypothetical_value_at_end_of_hour = newest_point_inside_the_hour['v'] + value_delta;
+														}
+														else{
+															hypothetical_value_at_end_of_hour = newest_point_inside_the_hour['v'] - value_delta;
+														}
+														
+														//console.log("hypothetical_value_at_end_of_hour: ", hypothetical_value_at_end_of_hour);
+														//raw_nuance.push({'m':millis_in_this_hour,'v':((hypothetical_value_at_end_of_hour + newest_point_inside_the_hour['v']) / 2 )});
+														//nuanced_values.push( ((hypothetical_value_at_end_of_hour + newest_point_inside_the_hour['v']) / 2 ) * millis_in_this_hour);
+														
+														total_score += ((hypothetical_value_at_end_of_hour + newest_point_inside_the_hour['v']) / 2 ) * (millis_in_this_hour / 1000);
+														delete hours_data[hours_into_the_past]['beyond_end_value'];
+													}
+													
+													
+													
+													
+													
+													let dumb_total = hours_data[hours_into_the_past]['values_to_average'][0]['v'];
+													for(let vt = 1; vt < hours_data[hours_into_the_past]['values_to_average'].length; vt++){
+														dumb_total += hours_data[hours_into_the_past]['values_to_average'][vt]['v'];
+														const average_value = (hours_data[hours_into_the_past]['values_to_average'][vt - 1]['v'] + hours_data[hours_into_the_past]['values_to_average'][vt]['v']) / 2;
+														//console.log("average_value: ", hours_data[hours_into_the_past]['values_to_average'][vt - 1]['v'], hours_data[hours_into_the_past]['values_to_average'][vt]['v'], " -> ", average_value);
+														const duration = hours_data[hours_into_the_past]['values_to_average'][vt - 1]['t'] - hours_data[hours_into_the_past]['values_to_average'][vt]['t'];
+														
+														//raw_nuance.push({'m':duration,'v':average_value});
+														total_millis_accounted_for += duration;
+														//console.log("- duration: ", duration);
+														total_score += (duration/1000) * average_value;
+														//nuanced_values.push( average_value * duration );
+													}
+													
+													
+													
+													
+													
+													
+													// calculate the slope between the most futuristic datapoint inside the hour, and a futuristic datapoint outside of the that hour;
+													if(hours_data[hours_into_the_past]['beyond_start_value'] != null){
+														
+														let oldest_point_inside_the_hour = hours_data[hours_into_the_past]['values_to_average'][ hours_data[hours_into_the_past]['values_to_average'].length  - 1 ];
+														const start_millis_in_this_hour = (oldest_point_inside_the_hour['t'] - hours_data[hours_into_the_past]['start']);
+														//console.log("start_millis_in_this_hour: ", start_millis_in_this_hour);
+														total_millis_accounted_for += start_millis_in_this_hour;
+														let start_ratio_inside_this_hour = start_millis_in_this_hour / (oldest_point_inside_the_hour['t'] - hours_data[hours_into_the_past]['beyond_start_value']['t']);
+														//console.log("beyond start start_ratio_inside_this_hour: ", start_ratio_inside_this_hour);
+														//console.log("beyond start point outside of the hour: ", hours_data[hours_into_the_past]['beyond_start_value']['v']);
+														//console.log("beyond start oldest_point_inside_the_hour['v']: ", oldest_point_inside_the_hour['v']);
+														let start_value_delta = Math.abs(oldest_point_inside_the_hour['v'] - hours_data[hours_into_the_past]['beyond_start_value']['v']);
+														//console.log("beyond start start_value_delta: ", start_value_delta);
+														
+														start_value_delta = start_value_delta * start_ratio_inside_this_hour;
+														//console.log("beyond start start_value_delta after applying ratio: ", start_value_delta);
+														
+														if(hours_data[hours_into_the_past]['beyond_start_value']['v'] > oldest_point_inside_the_hour['v']){
+															hypothetical_value_at_start_of_hour = oldest_point_inside_the_hour['v'] + start_value_delta;
+														}
+														else{
+															hypothetical_value_at_start_of_hour = oldest_point_inside_the_hour['v'] - start_value_delta;
+														}
+														
+														//console.log("hypothetical_value_at_start_of_hour: ", hypothetical_value_at_start_of_hour);
+														//raw_nuance.push({'m':start_millis_in_this_hour,'v':((hypothetical_value_at_start_of_hour + oldest_point_inside_the_hour['v']) / 2 )});
+														//nuanced_values.push( ((hypothetical_value_at_start_of_hour + oldest_point_inside_the_hour['v']) / 2 ) * start_millis_in_this_hour);
+														total_score += ((hypothetical_value_at_start_of_hour + oldest_point_inside_the_hour['v']) / 2 ) * (start_millis_in_this_hour / 1000);
+														delete hours_data[hours_into_the_past]['beyond_start_value'];
+													}
+													
+													delete hours_data[hours_into_the_past]['values_to_average'];
+													
+													
+													//console.error('raw_nuance: ', raw_nuance);
+													
+													//console.log("hours_into_the_past, total_millis_accounted_for, in minutes: ", hours_into_the_past, (total_millis_accounted_for / 60000));
+													
+													
+													//console.log("nuanced_values: ", nuanced_values);
+													//let added_up = 0;
+													/*
+													for(let a = 0; a < nuanced_values.length; a++){
+														added_up += nuanced_values[a];
+													}
+													*/
+													/*
+													let seconds_added = 0;
+													for(let rn = 0; rn < raw_nuance.length; rn++){
+														console.log(rn, ". raw_nuance[rn]: ", raw_nuance[rn]);
+														const raw_seconds = Math.round(raw_nuance[rn]['m'] / 1000);
+														seconds_added = seconds_added + raw_seconds;
+														
+														console.log("raw_seconds: ", raw_seconds, " at: ", typeof raw_nuance[rn]['v'], raw_nuance[rn]['v']);
+														console.log("total seconds_added: ", seconds_added);
+														
+														let score = Math.round(raw_seconds * raw_nuance[rn]['v']);
+														console.log(rn, ". raw score: ", score);
+														added_up = added_up + score;
+														console.log(" --> added_up: ", typeof added_up, added_up);
+														console.log("   --> avrg would be: ", added_up, " / ",  (rn+1), " / ", seconds_added, " ==> ", (added_up / (rn+1)) / seconds_added);
+														console.log("   --> avrg would be: ", (added_up / seconds_added));
+													}
+													*/
+													
+													
+													//added_up = added_up / Math.round(total_millis_accounted_for / 1000); //raw_nuance.length; /// total_millis_accounted_for;
+													//const adjusted = added_up / (Math.round(total_millis_accounted_for / 1000));
+													//console.log("nuanced average: ", adjusted);
+													
+													const final_average = Math.round((total_score / (total_millis_accounted_for / 1000)) * 1000) / 1000;
+													hours_data[hours_into_the_past]['average'] = final_average;
+													
+													alt_log_data[hours_into_the_past] = {"v":final_average,"d":new Date(hours_data[hours_into_the_past]['start'])};
+													
+													
+													//const raw_average = adjusted / raw_nuance.length;  //added_up / total_millis_accounted_for;//(added_up / total_millis_accounted_for) / raw_nuance.length;
+													//console.log("\n\nraw_average: ", raw_average);
+													/*
+													
+													const nuanced_average = (added_up / nuanced_values.length);
+													console.error("\n\nnuanced_average: ", nuanced_average);
+													hours_data[hours_into_the_past]['average'] = nuanced_average;
+													*/
+													//console.log("dumb_average: ", dumb_total / hours_data[hours_into_the_past]['values_to_average'].length); 
+													
+													
+												}
+											
+											
+											}
+											
+											
+											
+											
+											
+											let old_hours_into_the_past = hours_into_the_past;
+											//console.log("old hours_into_the_past: ", hours_into_the_past);
+											
+											
+											
+											// calculate how many hours into the past we've traveled now
+											//hours_into_the_past += Math.floor((start_of_this_hour - this_date_stamp) / (60 * 60 * 1000));
+											
+											hours_into_the_past = Math.floor( ((hours_data[0]['end']) - this_date_stamp) / (60 * 60 * 1000));
+											
+											//console.warn("... hours_into_the_past is now: " + hours_into_the_past);
+											
+											if(hours_into_the_past == old_hours_into_the_past){
+												console.error("dashboard: hours in the past did not increase!");
+												hours_into_the_past++;
+											}
+											
+											// and set the boundaries for this hour
+											start_of_this_hour = this_date_stamp - (this_date_stamp % (60 * 60 * 1000));
+											end_of_this_hour = start_of_this_hour + (60 * 60 * 1000);
+											//console.log("start_of_this_hour is now: ", start_of_this_hour);
+											
+											hours_data[hours_into_the_past]['start'] = start_of_this_hour;
+											hours_data[hours_into_the_past]['end'] = end_of_this_hour;
+											
+											// Similar to the beyond_start_value, we keep track of the value outside of the hour that will be useful later to calculate averages
+											if(is_boolean_log == false && next_date_stamp != null && next_value != null){
+												//console.log("adding beyond_end_value into the hour that is now complete");
+												hours_data[hours_into_the_past]['beyond_end_value'] = {'t':next_date_stamp, 'v':next_value};
+											}
+											
+										} // end of calculating hour average
+										
+										
+										// If it's a boolean log, we're interested in how much of the hour it was 'on'.
+										// So we remembered the last time it was switched off in future_boolean_off_date_stamp
+										
+										if(is_boolean_log){
+											if(this_value == 1){
+												
+												if(dp == log_data.length - 1){
+													// the very first datapoint we handle is one in which the switch was enabled. We can assume it has been on since that time, until now.
+													//console.log("The first boolean datapoint was 'ON'.");
+													hours_data[hours_into_the_past]['above_zero'] += (now_timestamp - this_date_stamp);
+													
+													// Pretend that the device was switched off right now
+													
+													future_boolean_off_date_stamp = now_timestamp;
+													last_boolean_off_hour = 0;
+													
+												}
+												
+												if(future_boolean_off_date_stamp != null && last_boolean_off_hour != null){
+													// We've spotted an OFF datapoint before, and this timestamp is for an event further in the past where the switch was enabled. Time to do some calculations.
+													
+													// Does the other moment reach over the hour boundary? If so, that complicates calculations a bit.
+													if(future_boolean_off_date_stamp > end_of_this_hour){
+														// There are three sections to update. The first is the bit in this hour (where it was switched on) until the end of this hour. The second part is the partial bit of the hour during which it was switched off again (which lies in the future).
+														// And thirdly, optionally, there may be an hour or more in between those two partial hours during which the switch was on too.
+													
+														// update the duration that the switch was on in this hour
+														hours_data[hours_into_the_past]['above_zero'] += (future_boolean_off_date_stamp - this_date_stamp);
+													
+														// update the duration that the switch was on during the hour in which it was switched off
+														hours_data[last_boolean_off_hour]['above_zero'] += (end_of_this_hour - this_date_stamp)
+														
+														/*
+														if(hours_into_the_past > last_boolean_off_hour + 1){
+															console.log("Also have to fill in lots of hours in between");
+															// Loop over all the hours in the future, up to the one in which it was switched off, and set the 'on' duration to the entire hour.
+															for(let nh = last_boolean_off_hour; nh < hours_into_the_past; nh++){
+																hours_data[nh]['above_zero'] = 60 * 60 * 1000; // it must have been on for the full hour
+															}
+														}
+														*/
+														
+													
+													}
+													else{
+													
+														// nice and simple
+														//console.log("switch was briefly on within the hour. Seconds on: ", Math.round((future_boolean_off_date_stamp - this_date_stamp)/1000));
+													
+														hours_data[hours_into_the_past]['above_zero'] += (future_boolean_off_date_stamp - this_date_stamp);
+														/*
+														let timestamp_of_next_point_or_hour_limit = next_date_stamp;
+														if(next_date_stamp >= end_of_this_hour){
+															timestamp_of_next_point_or_hour_limit = end_of_this_hour;
+														}
+														above_zero += (timestamp_of_next_point_or_hour_limit - this_data_stamp);
+														*/
+														
+													}
+													// reset
+													future_boolean_off_date_stamp = null;
+													last_boolean_off_hour = null;
+												}	
+												
+											}
+											else if(future_boolean_off_date_stamp == null){
+												//console.log("remembering when the device was switched off");
+												future_boolean_off_date_stamp = this_date_stamp;
+												last_boolean_off_hour = hours_into_the_past;
+											}
+											else{
+												if(this.debug){
+													console.warn("dashboard debug: oddly, there are two datapoints in a row that indicate the device was OFF");
+												}
+												
+											}
+											
+											//console.log("BOOLEAN hours_data: ", hours_data);
+											
+											
+											
+										}
+										
+										
+										// If the log type is hourly, then calculate the required values first
+										//else if(log_viz_type == 'hourly'){
+											
+											
+										
+										// Update spotted minimum and/or maximum value for this hour
+										//console.log("INSIDE HOUR? ", start_of_this_hour, this_date_stamp, end_of_this_hour);
+										if(this_date_stamp >= start_of_this_hour && this_date_stamp < end_of_this_hour){
+											
+											if(hours_data[hours_into_the_past]['minimum'] == null){
+												hours_data[hours_into_the_past]['minimum'] = this_value
+											}
+											else if(this_value < hours_data[hours_into_the_past]['minimum']){
+												hours_data[hours_into_the_past]['minimum'] = this_value;
+											}
+									
+											if(hours_data[hours_into_the_past]['maximum'] == null){
+												hours_data[hours_into_the_past]['maximum'] = this_value;
+											}
+											else if(this_value > hours_data[hours_into_the_past]['maximum']){
+												hours_data[hours_into_the_past]['maximum'] = this_value;
+											}
+											
+											hours_data[hours_into_the_past]['values_to_average'].push({"t":this_date_stamp, "v":this_value});
+											
+											
+										}
+										
+										if(is_boolean_log == false && min_max_lines_would_be_nice == false && hours_data[hours_into_the_past]['minimum'] != null && hours_data[hours_into_the_past]['maximum'] != null){
+											if(hours_data[hours_into_the_past]['minimum'] != hours_data[hours_into_the_past]['maximum']){
+												min_max_lines_would_be_nice = true;
+											}
+										}
+										
+										
+										next_value = this_value;
+										next_date_stamp = this_date_stamp;
+										
+										/*
+										if(is_boolean_log && value == 0){
+											future_boolean_off_date_stamp = next_date_stamp; // remember the last seen timestamp at which point the boolean was false
+											last_boolean_off_hour = hours_into_the_past; // and remember in which hour that took place.
+										}
+										*/
+										
+									} // END OF LOOPING OVER DATA POINTS TO CALCULATE AVERAGES
+									
+									
+									if(this.debug){
+										console.log("dashboard debug: min_max_lines_would_be_nice: ", min_max_lines_would_be_nice);
+										//console.error("hours_data: ", hours_data);
+									}
+									
+									
+									
+									
+									if(is_boolean_log){
+										for (let [hour_id, details] of Object.entries(hours_data)) {
+											if(typeof details['above_zero'] == 'number'){
+												alt_log_data[ 24 - parseInt(hour_id) ]['v'] = Math.round(details['above_zero'] / 60000);
+											}
+										}
+										//console.error("\n\n\nboolean alt_log_data: ", log_thing_id, log_property_id, "\n", JSON.stringify(alt_log_data,null,2));
+									}
+									else{
+										//console.error("\n\n\nnumeric alt_log_data: ", log_thing_id, log_property_id, alt_log_data);
+									}
+									
+									
+									
+										
+										
+									
+										
+									//} // End of log_viz_hourly
+									
+									
+									// PRUNING.. well trimming really. Removing older datapoints so that what remains will be rendered nicely in the available horizontal pixels
+									
+									if(rect.width > 50 && log_data.length > 100){
+										if(this.debug){
+											console.log("dashboard debug: log_data.length before pruning: ", log_data.length);
+										}
+										while(log_data.length > Math.floor(rect.width / 4) ){
+											log_data.shift();
+										}
+										if(this.debug){
+											console.log("dashboard debug: log_data.length after pruning: ", log_data.length);
+										}
+									}
+									
+						
+						
 									// For a boolean log, we add extra datapoints to create a square-wave shape
 									if(is_boolean_log){
 										let new_log_data = [];
@@ -5671,21 +6219,9 @@
 										
 									}
 									
-									
-										
-									if(rect.width > 50 && log_data.length > 100){
-										if(this.debug){
-											console.log("dashboard debug: log_data.length before pruning: ", log_data.length);
-										}
-										while(log_data.length > Math.floor(rect.width / 4) ){
-											log_data.shift();
-										}
-										if(this.debug){
-											console.log("dashboard debug: log_data.length after pruning: ", log_data.length);
-										}
-									}
 						
-						
+					
+					
 					
 									log_viz_el.innerHTML = '';
 					
@@ -5700,17 +6236,19 @@
 										.attr("width", rect.width + 10)
 										.attr("height", rect.height + 10)
 										.attr("viewBox", [-10, -10, rect.width, rect.height+20])  //  - (svg_height_padding/2)
-										.attr("style", "max-width: 100%; height: auto;");
+										//.attr("style", "max-width: 100%; height: auto;");
 					
 									log_viz_el.appendChild(svg.node());
 					
+									
+									// the data has been trimmed to better be able to fit the amount of available pixels
 									const oldest = d3.min(log_data, d => d.d);
 									const newest = Date.now(); //d3.max(log_data, d => d.d); // with the old method the time delta between the first and last data point is interesting, but it's not useful for saying "showing data from X minutes ago", since the timespan for which data is availble may be far in the past
 									const delta_millis = newest - oldest;
-
 						
 									const delta_millis_until_now = Date.now() - oldest;
 									if(delta_millis_until_now > 120000){
+										//console.log("creating log description element");
 										let time_delta_description_el = document.createElement('div');
 										time_delta_description_el.classList.add('extension-dashboard-widget-log-time-description');
 										let time_delta_description = '';
@@ -5840,11 +6378,18 @@ ticks.attr("class", function(d,i){
 							        	.attr('d', line);
 					
 
+
+									let horizontal_tick_count = wideness_hint_number * 2;
+									//console.log("wideness * 2 -> horizontal_tick_count: ", horizontal_tick_count);
+										
 									//var timeFormat = d3.timeFormat("%I:%M %p %a %Y");
 									var timeFormat = null
 					
 									if(delta_millis > 67200000){ // 2 hours
 										timeFormat = d3.timeFormat("%H"); // hourly ticks
+										if(is_boolean_log && wideness_hint_number > 2){
+											horizontal_tick_count = Math.floor(delta_millis / (60*60*1000)); // as many ticks as there are hours
+										}
 									}
 									else if(delta_millis > 300000){ // 5 minutes
 										timeFormat = d3.timeFormat("%H:%M"); // tick on minutes
@@ -5854,10 +6399,8 @@ ticks.attr("class", function(d,i){
 									}
 									if(timeFormat){
 										
-										let horizontal_tick_count = 2;
-										if(wideness_hint_el){
-											horizontal_tick_count = 4;
-										}
+										
+										
 								    	let x_axis = svg.append("g")
 								        	.attr("transform", `translate(0,${rect.height - 20})`)
 								        	.call(d3.axisBottom(xScale).tickSizeOuter(0).ticks(horizontal_tick_count).tickPadding(5).tickFormat(timeFormat))
@@ -6012,6 +6555,229 @@ ticks.attr("class", function(d,i){
 									          .style("opacity", 0);  
 									}
 
+						
+						
+						
+						
+						
+						
+						
+						
+									
+									
+									
+									
+									
+									
+									
+									//
+									//
+									//   B A R C H A R T
+									//
+									//
+									
+									
+									const generate_alternate_chart = (log_viz_el=null,log_data=null) => {
+										//log_viz_el.innerHTML = '';
+					
+										if(log_viz_el == null){
+											return null;
+										}
+										
+										if(log_data == null){
+											return log_viz_el;
+										}
+										
+										log_viz_el.innerHTML = '';
+										
+										
+					
+										// -1*(svg_padding/2)
+										const svg = d3.create("svg")
+									    	.attr("title", "Alternate dataviz")
+									    	.attr("version", 1.1)
+									    	.attr("xmlns", "http://www.w3.org/2000/svg")
+											
+											.attr("width", rect.width - 20)
+											.attr("height", rect.height - 50)
+											.attr("viewBox", [-10, -30, rect.width, rect.height+50])  //  - (svg_height_padding/2)
+											/*
+											.attr("width", rect.width + 10)
+											.attr("height", rect.height + 10)
+											.attr("viewBox", [-10, -10, rect.width, rect.height+20])  //  - (svg_height_padding/2)
+											*/
+											
+											//.attr("style", "max-width: 100%; height: auto;");
+					
+										log_viz_el.appendChild(svg.node());
+					
+									
+										
+										const highest = d3.max(log_data, d => d.v);
+										const lowest = d3.min(log_data, d => d.v);
+										const oldest = d3.min(log_data, d => d.d);
+										
+									  	// X axis
+									  	var x = d3.scaleBand()
+									    .range([ 0, rect.width ])
+									    .domain(log_data.map(function(d) { return d.d; }))
+									    .padding(0.2);
+										
+										
+										/*
+									  	svg.append("g")
+									    .attr("transform", "translate(0," + rect.height + ")")
+									    .call(d3.axisBottom(x))
+									    .selectAll("text")
+									      .attr("transform", "translate(-10,0)rotate(-45)")
+									      .style("text-anchor", "end");
+										*/
+										
+										let horizontal_tick_count = log_data.length;
+	  									//var timeFormat = d3.timeFormat("%I:%M %p %a %Y");
+	  									var timeFormat = d3.timeFormat("%H");
+					
+										/*
+										var formatDay = function(d) {
+											console.log("formatDay: d: ", d);
+										    return "Hello world"; //weekdays[d % 7] + "day";      
+										}
+										*/
+					
+	  								    let x_axis = svg.append("g")
+	  								        .attr("transform", `translate(0,${rect.height})`)
+	  								        .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%H")))   //  timeFormat   //  .tickSizeOuter(0).ticks(horizontal_tick_count).tickPadding(5).tickFormat(timeFormat)
+								    		.selectAll("text")
+								      		.attr("transform", "translate(-10,0)rotate(-45)")
+											.attr("class", "extension-dashboard-bar-x-tick-text")
+								      		.style("text-anchor", "end");
+							    			/*
+											.selectAll(".tick text")
+											.attr("class", function(d,i){
+												return "tick-text tick-text-month" + d.getUTCMonth();
+											});
+											*/
+	  										
+	  								    		
+										
+	  									if(x_axis){
+	  										x_axis
+	  										.selectAll(".tick")
+	  										.attr("class", function(d,i){
+	  											return "extension-dashboard-bar-x-tick"
+	  										});
+	  									}
+										
+										
+										let domain_max = highest;
+										
+										if(is_boolean_log){
+											domain_max = 60; // minutes in the hour that the device was on
+										}
+
+									  	// Add Y axis
+									  	var y = d3.scaleLinear()
+									    .domain([0, domain_max])
+									    .range([ rect.height, -20]);
+									  
+									  	svg.append("g")
+									    .call(d3.axisLeft(y));
+
+									
+										function onBarMouseOver(d){
+											//console.log("in onBarMouseOver. d: ", d);
+											
+									    	tooltip
+												.transition()        
+												.duration(200)      
+												.style("opacity", 1);    
+
+
+											const tooltip_x = d.pageX - 12;
+											const tooltip_y = d.pageY + 25;
+											
+								    		tooltip
+											.text(d.target['__data__']['v'])
+											.style("cursor", "pointer")
+											.style("left",tooltip_x + "px") 
+											.style("top", tooltip_y + "px")
+											.style("color", "#333333");
+										}
+										function onBarMouseOut(){
+											//console.log("in onBarMouseOut");
+								    		tooltip.transition()        
+											.duration(500)      
+											.style("opacity", 0);
+										}
+										
+										
+										
+									  	// Bars
+									  	svg.selectAll("mybar")
+									    .data(log_data)
+									    .enter()
+									    .append("rect")
+									      .attr("x", function(d) { return x(d.d); })
+									      .attr("y", function(d) { return y(d.v); })
+											.attr("class", "extension-dashboard-widget-log-bar-bar")
+									      .attr("width", x.bandwidth())
+									      .attr("height", function(d) { return rect.height - y(d.v); })
+									      .attr("fill", "#69b3a2")
+										
+										.on("mouseover", (d) => onBarMouseOver(d))                  
+										.on("mouseout", onBarMouseOut)
+										
+
+										
+
+
+										//})
+										
+										let time_delta_description_el = document.createElement("div");
+										time_delta_description_el.classList.add('extension-dashboard-widget-log-time-description');
+										
+										time_delta_description_el.textContent = 'Hourly averages'; //'Averages over last ' + log_data.length + ' hours';
+										log_viz_el.appendChild(time_delta_description_el);
+										
+										
+										
+										
+										
+										
+										
+										return log_viz_el;
+						
+						
+									}
+									
+									
+									
+									//log_viz_el.innerHTML = '';
+									
+									
+									log_viz_el.classList.add('extension-dashboard-hidden'); // temporarily hide it so that generate_alternate_chart has real dimensions to work with
+									
+									if(log_viz_el2 == null){
+										log_viz_el2 = document.createElement('div');
+										log_viz_container_el.appendChild(log_viz_el2);
+									}
+									else{
+										log_viz_el2.classList.remove('extension-dashboard-hidden');
+									}
+									
+									const bar_chart_el = generate_alternate_chart(log_viz_el2,alt_log_data);
+									//console.log("bar_chart_el: ", bar_chart_el);
+									
+									log_viz_el.classList.remove('extension-dashboard-hidden');
+									
+									
+									log_viz_el.classList.add("extension-dashboard-widget-checkbox-toggle-unchecked-content");
+									log_viz_el.classList.add("extension-dashboard-widget-log-viz");
+									log_viz_el.classList.add("extension-dashboard-flex-column");
+									log_viz_el2.classList.add("extension-dashboard-widget-checkbox-toggle-checked-content");
+									log_viz_el2.classList.add("extension-dashboard-widget-log-viz");
+									log_viz_el2.classList.add("extension-dashboard-flex-column");
+									
 						
 						
 					

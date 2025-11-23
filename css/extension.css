@@ -1,8 +1,8 @@
 :root {
-	--dashboard-background-color: transparent;
-	--widget-background-color:#bdc8d2;
-	--widget-text-color:#555555;
-	--widget-editable-text-color:#fa7204;
+	--extension-dashboard-background-color: #3089bf;
+	--extension-dashboard-widget-background-color: #cfdde6; /*#bdc8d2;*/
+	--extension-dashboard-widget-text-color:#555555;
+	--extension-dashboard-widget-editable-text-color: #3089bf; /*#fa7204; orange*/
 }
 
 
@@ -40,7 +40,7 @@
 	align-content: space-between;
 	justify-content: center;
 	align-items: flex-end;
-	background-color: var(--dashboard-background-color);
+	background-color: var(--extension-dashboard-background-color);
 }
 
 
@@ -75,42 +75,6 @@
 
 
 
-.extension-dashboard-flex {
-    display: flex;
-}
-
-.extension-dashboard-flex-column{
-	display:flex;
-	flex-direction:column;
-	max-height:100%;
-}
-
-.extension-dashboard-flex-wrap {
-	display: flex;
-    flex-wrap: wrap;
-}
-
-.extension-dashboard-flex-center{
-	/*display: flex;
-	justify-content:center;
-	align-items:center;*/
-	display: grid;
-	place-items: center;
-}
-
-.extension-dashboard-flex-between{
-	display:flex;
-	justify-content:space-between;
-}
-
-.extension-dashboard-flex-end {
-    align-items: flex-end;
-}
-
-.extension-dashboard-widget-split-compact{
-	display:flex;
-	flex-direction:column;
-}
 
 .extension-dashboard-button-bar{
 	margin:2rem 0 1rem 0;
@@ -118,25 +82,6 @@
 	border-top:1px solid rgba(0,0,0,.2);
 	flex-wrap:wrap;
 }
-
-/*
-#extension-dashboard-picture-exit{
-	border:1px solid white;
-	opacity:.4;
-	cursor:pointer;
-	padding:2rem;
-	border-bottom: none;
-	border-top-left-radius: .5rem;
-	border-top-right-radius: .5rem;
-	display: inline-block;
-}
-
-
-#extension-dashboard-picture-exit:hover{
-	opacity:1;
-	background-color:#5288af;
-}
-*/
 
 
 #extension-dashboard-view input::placeholder { 
@@ -242,7 +187,7 @@
 	position: relative;
 	text-align: left;
 	font-size: 1.6rem;
-	color: var(--widget-text-color);
+	color: var(--extension-dashboard-widget-text-color);
 	height:auto;
 	letter-spacing: .5px;
 }
@@ -323,7 +268,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 
 /*  #extension-dashboard-tab-menu > div:not(#extension-dashboard-trash):not(#extension-dashboard-tab-buttons-container)  */
-#extension-dashboard-tab-buttons-container > div{
+#extension-dashboard-tab-buttons-container > div > div{
 	padding:.6rem 1.5rem;
 	font-size: 3rem;
 	line-height: 3rem;
@@ -335,7 +280,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 /*
 #extension-dashboard-tab-menu > div:not(#extension-dashboard-tab-buttons-container):not(#extension-dashboard-add-widget-button):hover
 */
-#extension-dashboard-tab-buttons-container > div:hover{
+#extension-dashboard-tab-buttons-container > div:hover > div{
 	background-color:#7dafd2;
 	color:white;
 }
@@ -351,8 +296,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	/*
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.12);
 	*/
-	background-color: rgba(255, 255, 255, .85);
-	color: #83a6bf;
+	background-color: rgba(0,0,0, .15);
 }
 
 /*
@@ -362,10 +306,10 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 }
 */
 
-.extension-dashboard-tab-button-selected{
+.extension-dashboard-tab-button-selected > div{
 	color:#eee;
 	/*border-bottom:1px solid white;*/
-	background-color:rgba(0,0,0,.25);
+	background-color:rgba(0,0,0,.4);
 	/*
 	box-shadow:  -9px -9px 18px #0b324e,
 	             9px 9px 18px #0f446a;
@@ -416,7 +360,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	padding-right:1rem;
 }*/
 
-#extension-dashboard-tab-buttons-container > div.extension-dashboard-tab-button-with-name{
+#extension-dashboard-tab-buttons-container div.extension-dashboard-tab-button-with-name{
 	font-size:1.6rem;
 }
 
@@ -468,11 +412,11 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	height:100%;
 	min-height:100%;
 	overflow:hidden;
-	background-color: var(--widget-background-color);
+	background-color: var(--extension-dashboard-widget-background-color);
 }
 
 #extension-dashboard-templates .extension-dashboard-template{
-	/*background-color: var(--widget-background-color);*/
+	/*background-color: var(--extension-dashboard-widget-background-color);*/
 	border-radius:2rem;
 }
 #extension-dashboard-templates .extension-dashboard-template-container.extension-dashboard-widget-round{
@@ -580,9 +524,11 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	border-radius:50%;
 	background-color: #7dafd2;
 	margin: 2rem 1rem;
+	cursor:pointer;
 }
 .extension-dashboard-trash:hover{
 	background-position:center 70%;
+	background-color:#9c0101;
 }
 
 
@@ -601,6 +547,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	background-repeat:no-repeat;
 	border-radius:50%;
 	margin:2rem 1rem;
+	cursor:pointer;
 }
 
 #extension-dashboard-trash:hover,
@@ -673,6 +620,10 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	padding: 2rem;
 	background-color: rgba(255, 255, 255, .1);
 	border-radius: 1rem;
+}
+
+body.kiosk #extension-dashboard-widget-modal-ui-container:not(:empty){
+	margin-bottom:40vh;
 }
 
 #extention-dashboard-widget-ui-rename-container input{
@@ -1028,6 +979,7 @@ input[type="checkbox"]:not(:checked) ~ .extension-dashboard-widget-checkbox-togg
     background-color: #7dafd2;
 	flex-shrink:0;
 	margin: 2rem 1rem;
+	cursor:pointer;
 }
 
 
@@ -1500,7 +1452,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 .grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button){
-	background-color: var(--widget-background-color);
+	background-color: var(--extension-dashboard-widget-background-color);
 	border-radius: 3rem;
 	overflow: hidden;
 	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
@@ -1792,7 +1744,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 .extension-dashboard-editing .grid-stack-item-content{
-	background-color: var(--widget-background-color);
+	background-color: var(--extension-dashboard-widget-background-color);
 	border-radius:3rem;
 	overflow:hidden;
 }
@@ -2054,12 +2006,10 @@ body:not(.screensaver) .extension-dashboard-effect{
 .extension-dashboard-widget-property-switch label,
 .extension-dashboard-widget-property-slider label,
 .extension-dashboard-widget-property-color  label{
-	cursor: pointer;
 	width:100%;
-	padding: 1px;
-	background-color: #97bedb;
-	background-color: rgb(151,190,219,0.04);
-	padding-bottom:1rem;
+	padding: 0;
+	/*background-color: rgb(151,190,219,0.04);*/
+	/*padding-bottom:1rem;*/
 	box-sizing:border-box;
 }
 
@@ -2071,8 +2021,8 @@ body:not(.screensaver) .extension-dashboard-effect{
     width: 100%;
     height: 100%;
     z-index: 0;
-    /*background-color: rgba(255,255,255,.3);*/
-	background-color: #97bedb;
+    /*background-color: rgba(255,255,255,.3);
+	background-color: #97bedb;*/
     content: "";
 }
 .extension-dashboard-widget-property-switch label * {
@@ -2085,7 +2035,7 @@ body:not(.screensaver) .extension-dashboard-effect{
     position: absolute;
     width: 10px;
     height: 10px;
-    background-color: var(--widget-editable-text-color);
+    background-color: var(--extension-dashboard-widget-editable-text-color);
     border-radius: 10px;
     top: 2rem;
     right: 2rem;
@@ -2103,18 +2053,29 @@ body:not(.screensaver) .extension-dashboard-effect{
 .extension-dashboard-widget-property-color  input:not(:checked) + label::before {
     content: "";
 }
+/*
 .extension-dashboard-widget-property-switch input:checked + label *,
 .extension-dashboard-widget-property-slider input:checked + label *,
 .extension-dashboard-widget-property-color  input:checked + label *{
     color: white;
 }
+*/
+
+.extension-dashboard-widget-property-slider input[type="checkbox"].extension-dashboard-widget-switch_state-needs-update:not([data-extension-dashboard-update-property]) + label small{
+	display:none;
+}
+
+.extension-dashboard-widget-property-slider input[type="checkbox"].extension-dashboard-widget-switch_state-needs-update:not([data-extension-dashboard-update-property]) + label .extension-dashboard-widget-thing_title-needs-rename:empty{
+	display:none;
+}
+
 
 .extension-dashboard-widget-property-switch input:not(:checked) + label small,
 .extension-dashboard-widget-property-slider input:not(:checked) + label small,
 .extension-dashboard-widget-property-color  input:not(:checked) + label small{
     width: 30px;
     height: 15px;
-    background-color: #3976f6;
+    background-color: var(--extension-dashboard-widget-editable-text-color); /*#3976f6;*/
 }
 
 .extension-dashboard-widget-property-switch input:not(:checked) + label small::before,
@@ -2157,23 +2118,55 @@ body:not(.screensaver) .extension-dashboard-effect{
     padding-left: 1.5rem;
 	padding-right: 1rem;
     display: inline-block;
-	width: calc(100% - 75px);
+	width:100%;
 	font-weight:100;
 }
 
 .extension-dashboard-widget-slider-container{
-	padding:1rem .5rem;
+	padding:1.5rem .5rem;
 	width:100%;
-	max-height:calc(100% - 2rem);
+	/*max-height:calc(100% - 2rem);*/
 }
 
+.extension-dashboard-widget-property-switch input[type="checkbox"][data-extension-dashboard-update-property] + label,
+.extension-dashboard-widget-property-color input[type="checkbox"][data-extension-dashboard-update-property] + label{
+	cursor:pointer;
+}
+
+.extension-dashboard-widget-property-slider input[type="checkbox"][data-extension-dashboard-update-property] + label{
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    min-height: 37px;
+}
+
+.extension-dashboard-widget-property-slider input[type="checkbox"][data-extension-dashboard-update-property] + label:hover,
+.extension-dashboard-widget-property-color input[type="checkbox"][data-extension-dashboard-update-property] + label:hover{
+	background-color:rgba(0,0,0,.05);
+}
+
+.extension-dashboard-widget-property-switch input[type="checkbox"][data-extension-dashboard-update-property] + label strong,
+.extension-dashboard-widget-property-slider input[type="checkbox"][data-extension-dashboard-update-property] + label strong,
+.extension-dashboard-widget-property-color input[type="checkbox"][data-extension-dashboard-update-property] + label strong{
+	width: calc(100% - 75px);
+}
+
+.extension-dashboard-widget-property-slider input[type="checkbox"][data-extension-dashboard-update-property] + label strong:not(:empty){
+	padding-bottom:1rem;
+}
+
+/*
 .extension-dashboard-widget-property-slider label{
+	cursor:pointer;
+}
+.extension-dashboard-widget-property-slider label strong:not(empty){
     display: block;
 	width:100%;
 	height:100%;
-	cursor:pointer;
 	min-height:37px;
 }
+*/
 
 /*
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-flex-center{
@@ -2189,6 +2182,10 @@ body:not(.screensaver) .extension-dashboard-effect{
 
 /*   LIST SELECTOR WIDGET   */
 
+.extension-dashboard-widget-list-selector .extension-dashboard-widget-block-title-container{
+	padding-bottom:0;
+}
+
 .extension-dashboard-widget-list-selector ul{
 	margin:0;
 	padding:.5rem 1.5rem;
@@ -2197,16 +2194,21 @@ body:not(.screensaver) .extension-dashboard-effect{
 
 .extension-dashboard-widget-list-selector ul li{
 	background-color:rgba(255,255,255,.3);
-	margin:.5rem;
-	padding:1rem 1.5rem;
+	margin:0 1rem 1rem 0;
+	padding:0.9rem 1.5rem;
 	border-radius:2rem;
 	cursor:pointer;
 }
 
+.extension-dashboard-widget-list-selector ul li:hover{
+	box-shadow: 1px 1px 3px 2px rgba(0, 0, 0, 0.1);
+}
+
+
 .extension-dashboard-widget-list-selector ul li:hover,
 .extension-dashboard-widget-list-selector ul li.extension-dashboard-widget-list-selector-highlighted-item{
-	color:var(--widget-editable-text-color);
-	background-color:rgba(255,255,255,.7);
+	color:var(--extension-dashboard-widget-editable-text-color);
+	background-color:rgba(255,255,255,.4);
 }
 
 
@@ -2219,10 +2221,9 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 
-.extension-dashboard-widget-name-needs-rename:empty() + .extension-dashboard-widget-options_list-needs-update{
-	margin-top:1.5rem;
+.extension-dashboard-widget-name-needs-rename:empty + .extension-dashboard-widget-options_list-needs-update{
+	margin-top:1rem;
 }
-
 
 
 
@@ -2351,15 +2352,16 @@ body:not(.screensaver) .extension-dashboard-effect{
 	flex-grow:0!important;
 }
 
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"]:not([gs-h="3"]):not([gs-w]) .extension-dashboard-widget-media-player-artist-container,
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h]) .extension-dashboard-widget-media-player-artist-container,
-.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w="3"]) .extension-dashboard-widget-media-player-artist-container{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"]:not([gs-h="3"]):not([gs-w]) .extension-dashboard-widget-media-player-info-container,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h]) .extension-dashboard-widget-media-player-info-container,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w="3"]) .extension-dashboard-widget-media-player-info-container{
 	display:none;
 }
 
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-media-player-artist-container{
-	padding-bottom:1.5rem;
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-media-player-info-container{
+	padding-bottom:0 1.5rem;
 }
+
 
 
 .extension-dashboard-widget-media-player p{
@@ -2375,17 +2377,17 @@ body:not(.screensaver) .extension-dashboard-effect{
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]) .extension-dashboard-widget-media-player .extension-dashboard-widget-icon-disc{
 	display:none;
 }
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-media-player-artist{
-	padding-left:1rem;
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-media-player-info,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-media-player-info{
+	padding:1.5rem;
 }
 
-.extension-dashboard-widget-media-player-artist{
+.extension-dashboard-widget-media-player-info{
 	position:relative;
-	color:#333;
 	border-radius:.5rem;
 }
 
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-media-player-artist{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-media-player-info{
 	padding-right:2rem;
 	flex-grow:1;
 }
@@ -2502,9 +2504,9 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-media-play-button-container:hover{
-	box-shadow: 20px 20px 60px #88949e, -20px -20px 60px #b8c8d6;
+	box-shadow: 1px 0 10px 10px rgba(0, 0, 0, 0.1);
 	transition: box-shadow .3s ease-out;
-	background-color: var(--widget-editable-text-color);
+	background-color: var(--extension-dashboard-widget-editable-text-color);
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-media-play-button,
@@ -2518,7 +2520,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 /*
 .extension-dashboard-widget-media-play-button:hover span{
-	background-color: var(--widget-editable-text-color);
+	background-color: var(--extension-dashboard-widget-editable-text-color);
 }*/
 
 /*
@@ -2531,7 +2533,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 
 /*
 .extension-dashboard-widget-media-play-button:hover span{
-	background-color: var(--widget-editable-text-color);
+	background-color: var(--extension-dashboard-widget-editable-text-color);
 	transition: background .3s ease-out;
 }
 */
@@ -2582,7 +2584,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 
 .extension-dashboard-widget-media-player-control-previous-button:hover > div,
 .extension-dashboard-widget-media-player-control-next-button:hover > div{
-	background-color:var(--widget-editable-text-color)
+	background-color:var(--extension-dashboard-widget-editable-text-color)
 }
 
 
@@ -2603,7 +2605,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-media-player-control-previous-button:hover,
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-media-player-control-next-button:hover{
-	box-shadow: 20px 20px 60px #88949e, -20px -20px 60px #b8c8d6;
+	box-shadow: 1px 0 10px 10px rgba(0, 0, 0, 0.1);
 	transition: box-shadow .3s ease-out;
 }
 
@@ -2627,6 +2629,11 @@ body:not(.screensaver) .extension-dashboard-effect{
 .extension-dashboard-widget-song_title-needs-update:empty,
 .extension-dashboard-widget-artist-needs-update:empty{
 	display:none;
+}
+
+.extension-dashboard-widget-artist-needs-update:not(:empty){
+	display: inline-block;
+	margin-bottom:2rem;
 }
 
 .extension-dashboard-widget-source-needs-update{
@@ -2665,7 +2672,7 @@ body:not(.screensaver) .extension-dashboard-effect{
     width: 3em;
     height: 3em;
     margin: .5em 0;
-    background: var(--widget-editable-text-color); 
+    background: var(--extension-dashboard-widget-editable-text-color); 
     border-radius: 100%;
     box-shadow: 
                 inset .8em .8em 5px -8px rgba(255, 255, 255, .4),
@@ -2679,7 +2686,7 @@ body:not(.screensaver) .extension-dashboard-effect{
     width: 3em;
     height: 3em;
     margin: .5em 0;
-    background: var(--widget-editable-text-color); 
+    background: var(--extension-dashboard-widget-editable-text-color); 
     border-radius: 100%;
     box-shadow: 
                 inset .8em .8em 5px -8px rgba(255, 255, 255, .4),
@@ -2727,13 +2734,13 @@ body:not(.screensaver) .extension-dashboard-effect{
 
 
 
-input[type="range"] {
-    --base: var(--widget-editable-text-color); 
+#extension-dashboard-content input[type="range"] {
+    --base: var(--extension-dashboard-widget-editable-text-color); 
     --light: color-mix(in sRGB, var(--base) 85%, #fff);
     --lighter: color-mix(in sRGB, var(--base) 30%, #fff);
     --dark: color-mix(in sRGB, var(--base) 95%, #000);
-    --widget-lighter: color-mix(in sRGB, var(--widget-background-color) 80%, #fff);
-    --transparent: color-mix(in sRGB, var(--widget-editable-text-color) 0%, #0000);
+    --widget-lighter: color-mix(in sRGB, var(--extension-dashboard-widget-background-color) 80%, #fff);
+    --transparent: color-mix(in sRGB, var(--extension-dashboard-widget-editable-text-color) 0%, #0000);
     appearance: none;
     width: calc(100% - 3rem);
     height: 4rem;
@@ -2742,7 +2749,19 @@ input[type="range"] {
 	box-shadow: 1px 0 10px 10px rgba(0, 0, 0, 0.04);
 }
 
-input[type="range"]::-webkit-slider-runnable-track {
+#extension-dashboard-content input[type="range"]::-webkit-slider-runnable-track {
+	width: 100%;
+	background:
+		linear-gradient(90deg, var(--lighter), var(--transparent) 1em),
+		linear-gradient(#0000 70%, var(--dark) 80%), var(--lighter);
+	background: var(--light);
+	border-radius: 2rem;
+	height: 4rem;
+	overflow: hidden;
+	cursor:pointer;
+}
+
+#extension-dashboard-content input[type="range"]::-moz-range-track{
 	width: 100%;
 	background:
 		linear-gradient(90deg, var(--lighter), var(--transparent) 1em),
@@ -2755,24 +2774,25 @@ input[type="range"]::-webkit-slider-runnable-track {
 }
 
 
+
 #extension-dashboard-content input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 3em;
     height: 3em;
     margin: 0;
-    background: var(--widget-editable-text-color); 
+    background: var(--extension-dashboard-widget-editable-text-color); 
     border-radius: 100%;
     cursor: pointer;
-	
+	/*
     background:
 		radial-gradient(circle at 0.75em 0.6em, var(--light) calc(0.2em - 1px), #0000 0.2em),
-		linear-gradient(90deg, #0000 0.75em, var(--widget-editable-text-color) 0) 0 0 / 100% 50% no-repeat;
-	
-	background:  var(--widget-editable-text-color);
+		linear-gradient(90deg, #0000 0.75em, var(--extension-dashboard-widget-editable-text-color) 0) 0 0 / 100% 50% no-repeat;
+	*/
+	background:  var(--extension-dashboard-widget-editable-text-color);
     
 	box-shadow: 
 	inset .8em .8em 5px -8px rgba(255, 255, 255, .1),
-      inset -1.5em 0 0.5em -0.25em var(--widget-editable-text-color),
+      inset -1.5em 0 0.5em -0.25em var(--extension-dashboard-widget-editable-text-color),
        1em 0 0 0.25em var(--widget-lighter),
        2em 0 0 0.25em var(--widget-lighter),
        3em 0 0 0.25em var(--widget-lighter),
@@ -2809,107 +2829,136 @@ input[type="range"]::-webkit-slider-runnable-track {
       33em 0 0 0.25em var(--widget-lighter),
       34em 0 0 0.25em var(--widget-lighter),
       35em 0 0 0.25em var(--widget-lighter),
-      37em 0 0 0.25em var(--widget-lighter);
+      36em 0 0 0.25em var(--widget-lighter);
 }
 
-/*
-[type="range"]::-webkit-slider-thumb {
-  appearance: none;
-  height: 4rem;
-  width: 4rem;
-  color: var(--lighter);
-  background:
-    radial-gradient(circle at 0.75em 0.6em, var(--light) calc(0.2em - 1px), #0000 0.2em),
-    linear-gradient(90deg, #0000 0.75em, var(--base) 0) 0 0 / 100% 50% no-repeat;
-  border-radius: 50%; 0 50% 50% 0;
-  box-shadow: 
-    inset -1.5em 0 0.5em -0.25em var(--base),
-     1em 0 0 0.25em,
-     2em 0 0 0.25em,
-     3em 0 0 0.25em,
-     4em 0 0 0.25em,
-     5em 0 0 0.25em,
-     6em 0 0 0.25em,
-     7em 0 0 0.25em,
-     8em 0 0 0.25em,
-     9em 0 0 0.25em,
-    10em 0 0 0.25em,
-    11em 0 0 0.25em,
-    12em 0 0 0.25em,
-    12em 0 0 0.25em,
-    13em 0 0 0.25em,
-    14em 0 0 0.25em,
-    15em 0 0 0.25em,
-    16em 0 0 0.25em,
-    17em 0 0 0.25em,
-    18em 0 0 0.25em,
-    19em 0 0 0.25em,
-    20em 0 0 0.25em,
-    21em 0 0 0.25em,
-    22em 0 0 0.25em,
-    23em 0 0 0.25em,
-    24em 0 0 0.25em,
-    25em 0 0 0.25em,
-    26em 0 0 0.25em,
-    27em 0 0 0.25em,
-    28em 0 0 0.25em,
-    29em 0 0 0.25em,
-    30em 0 0 0.25em,
-    31em 0 0 0.25em,
-    32em 0 0 0.25em,
-    33em 0 0 0.25em,
-    34em 0 0 0.25em,
-    35em 0 0 0.25em,
-    37em 0 0 0.25em;
+
+
+#extension-dashboard-content input[type="range"]::-moz-range-thumb{
+    -webkit-appearance: none;
+    width: 3em;
+    height: 3em;
+    margin: 0;
+    background: var(--extension-dashboard-widget-editable-text-color); 
+    border-radius: 100%;
+    cursor: pointer;
+	
+    background:
+		radial-gradient(circle at 0.75em 0.6em, var(--light) calc(0.2em - 1px), #0000 0.2em),
+		linear-gradient(90deg, #0000 0.75em, var(--extension-dashboard-widget-editable-text-color) 0) 0 0 / 100% 50% no-repeat;
+	
+	background:  var(--extension-dashboard-widget-editable-text-color);
+    
+	box-shadow: 
+	inset .8em .8em 5px -8px rgba(255, 255, 255, .1),
+      inset -1.5em 0 0.5em -0.25em var(--extension-dashboard-widget-editable-text-color),
+       1em 0 0 0.25em var(--widget-lighter),
+       2em 0 0 0.25em var(--widget-lighter),
+       3em 0 0 0.25em var(--widget-lighter),
+       4em 0 0 0.25em var(--widget-lighter),
+       5em 0 0 0.25em var(--widget-lighter),
+       6em 0 0 0.25em var(--widget-lighter),
+       7em 0 0 0.25em var(--widget-lighter),
+       8em 0 0 0.25em var(--widget-lighter),
+       9em 0 0 0.25em var(--widget-lighter),
+      10em 0 0 0.25em var(--widget-lighter),
+      11em 0 0 0.25em var(--widget-lighter),
+      12em 0 0 0.25em var(--widget-lighter),
+      12em 0 0 0.25em var(--widget-lighter),
+      13em 0 0 0.25em var(--widget-lighter),
+      14em 0 0 0.25em var(--widget-lighter),
+      15em 0 0 0.25em var(--widget-lighter),
+      16em 0 0 0.25em var(--widget-lighter),
+      17em 0 0 0.25em var(--widget-lighter),
+      18em 0 0 0.25em var(--widget-lighter),
+      19em 0 0 0.25em var(--widget-lighter),
+      20em 0 0 0.25em var(--widget-lighter),
+      21em 0 0 0.25em var(--widget-lighter),
+      22em 0 0 0.25em var(--widget-lighter),
+      23em 0 0 0.25em var(--widget-lighter),
+      24em 0 0 0.25em var(--widget-lighter),
+      25em 0 0 0.25em var(--widget-lighter),
+      26em 0 0 0.25em var(--widget-lighter),
+      27em 0 0 0.25em var(--widget-lighter),
+      28em 0 0 0.25em var(--widget-lighter),
+      29em 0 0 0.25em var(--widget-lighter),
+      30em 0 0 0.25em var(--widget-lighter),
+      31em 0 0 0.25em var(--widget-lighter),
+      32em 0 0 0.25em var(--widget-lighter),
+      33em 0 0 0.25em var(--widget-lighter),
+      34em 0 0 0.25em var(--widget-lighter),
+      35em 0 0 0.25em var(--widget-lighter),
+      36em 0 0 0.25em var(--widget-lighter);
 }
 
-input[type="range"]::-moz-range-track {
-   background: 
-    radial-gradient(circle at 0.75em 30%, var(--light) calc(0.2em - 1px), #0000 0.2em),
-    radial-gradient(circle at 1.5em 30%, var(--light) calc(0.2em - 1px), #0000 0.2em),
-    radial-gradient(circle at 5.5em 30%, var(--light) calc(0.2em - 1px), #0000 0.2em),
-    linear-gradient(var(--light) 0 0) 1.5em calc(15% + 0.18em) / 4em calc(0.4em - 0.5px) no-repeat,
-    linear-gradient(90deg, var(--base), var(--transparent) 1em),
-    linear-gradient(var(--transparent) 70%, var(--dark) 80%),
-    var(--base);
-  border-radius: 2em;
-  height: 100%;
-  overflow: hidden;
+
+
+
+/*  vertical range slider */
+
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-property-slider input[type=range],
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin input[type=range],
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin-above-h2 input[type=range],
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="4"]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin-above-h2 input[type=range]{
+	width:auto;
+	writing-mode: vertical-lr;
+	direction: rtl;
+	flex-grow:1;
+	height:100%;
 }
 
-input[type="range"].kawaii::-moz-range-thumb {
-  appearance: none;
-  height: 2em;
-  width: 2em;
-  border: 0;
-  color: var(--lighter);
-  background:
-    linear-gradient(90deg, var(--transparent) 0.75em, var(--base) 0) 0 0 / 100% 50% no-repeat;
-  border-radius: 50%; 0 50% 50% 0;
-  box-shadow: 
-    inset -0.5em 0 0.5em -0.25em var(--base),
-     1em 0 0 0.25em,
-     2em 0 0 0.25em,
-     3em 0 0 0.25em,
-     4em 0 0 0.25em,
-     5em 0 0 0.25em,
-     6em 0 0 0.25em,
-     7em 0 0 0.25em,
-     8em 0 0 0.25em,
-     9em 0 0 0.25em,
-    10em 0 0 0.25em,
-    11em 0 0 0.25em,
-    12em 0 0 0.25em,
-    12em 0 0 0.25em,
-    13em 0 0 0.25em,
-    14em 0 0 0.25em,
-    15em 0 0 0.25em,
-    16em 0 0 0.25em,
-    17em 0 0 0.25em,
-    18em 0 0 0.25em,
-    19em 0 0 0.25em;
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-property-slider input[type=range]::-webkit-slider-thumb,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin input[type=range]::-webkit-slider-thumb,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin-above-h2 input[type=range]::-webkit-slider-thumb,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="4"]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin-above-h2 input[type=range]::-webkit-slider-thumb{
+	box-shadow: 
+	inset .8em .8em 5px -8px rgba(255, 255, 255, .1),
+      inset -1.5em 0 0.5em -0.25em var(--extension-dashboard-widget-editable-text-color),
+       0 -1em 0 0.25em var(--widget-lighter),
+       0 -2em 0 0.25em var(--widget-lighter),
+       0 -3em 0 0.25em var(--widget-lighter),
+       0 -4em 0 0.25em var(--widget-lighter),
+       0 -5em 0 0.25em var(--widget-lighter),
+       0 -6em 0 0.25em var(--widget-lighter),
+       0 -7em 0 0.25em var(--widget-lighter),
+       0 -8em 0 0.25em var(--widget-lighter),
+       0 -9em 0 0.25em var(--widget-lighter),
+      0 -10em 0 0.25em var(--widget-lighter),
+      0 -11em 0 0.25em var(--widget-lighter),
+      0 -12em 0 0.25em var(--widget-lighter),
+      0 -12em 0 0.25em var(--widget-lighter),
+      0 -13em 0 0.25em var(--widget-lighter),
+      0 -14em 0 0.25em var(--widget-lighter),
+      0 -15em 0 0.25em var(--widget-lighter),
+      0 -16em 0 0.25em var(--widget-lighter),
+      0 -17em 0 0.25em var(--widget-lighter),
+      0 -18em 0 0.25em var(--widget-lighter),
+      0 -19em 0 0.25em var(--widget-lighter),
+      0 -20em 0 0.25em var(--widget-lighter),
+      0 -21em 0 0.25em var(--widget-lighter),
+      0 -22em 0 0.25em var(--widget-lighter),
+      0 -23em 0 0.25em var(--widget-lighter),
+      0 -24em 0 0.25em var(--widget-lighter),
+      0 -25em 0 0.25em var(--widget-lighter),
+      0 -26em 0 0.25em var(--widget-lighter),
+      0 -27em 0 0.25em var(--widget-lighter),
+      0 -28em 0 0.25em var(--widget-lighter),
+      0 -29em 0 0.25em var(--widget-lighter),
+      0 -30em 0 0.25em var(--widget-lighter),
+      0 -31em 0 0.25em var(--widget-lighter),
+      0 -32em 0 0.25em var(--widget-lighter),
+      0 -33em 0 0.25em var(--widget-lighter),
+      0 -34em 0 0.25em var(--widget-lighter),
+      0 -35em 0 0.25em var(--widget-lighter),
+      0 -36em 0 0.25em var(--widget-lighter);
 }
-*/
+
+
+
+
+
+
 
 
 
@@ -2962,34 +3011,75 @@ input[type="range"].kawaii::-moz-range-thumb {
 	background-color:rgba(0,0,0,.1);
 }
 
-/*
-.extension-dashboard-is-link::after{
-	content: url("/images/link-icon.svg");
-    position: absolute;
-    right: 0;
-    top: 0;
-	opacity: .7;
-}
-*/
 
-
-
-/*
-
-.btn{
-	display: inline-block;
-    padding: .375rem .75rem;
-    line-height: 1.5;
-    border-radius: .25rem;
-	cursor:pointer;
+.extension-dashboard-widget-transparent-text{
+	background:none!important;
+	box-shadow:none!important;
 }
 
-.btn-primary {
-    color: #fff;
-    background-color: #007bff;
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="4"] .extension-dashboard-widget-transparent-text,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="5"] .extension-dashboard-widget-transparent-text{
+	padding:0;
+	border-radius:0;
+	display:flex;
+	align-items:end;
+}
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="4"] .extension-dashboard-widget-transparent-text h2,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="5"] .extension-dashboard-widget-transparent-text h2{
+	font-size:4rem;
+	margin:0;
+}
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="6"] .extension-dashboard-widget-transparent-text{
+	padding:0;
+}
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="6"] .extension-dashboard-widget-transparent-text h2{
+	font-size:6rem;
+	padding:0;
+	margin:0;
 }
 
-*/
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="8"] .extension-dashboard-widget-transparent-text{
+	padding:0;
+	display:flex;
+	align-items:center;
+	justify-content:center;
+}
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="8"] .extension-dashboard-widget-transparent-text h2{
+	font-size:4rem;
+	padding:0;
+	margin:0;
+}
+
+
+
+/*   STICKY NOTE  */
+
+.extension-dashboard-widget-sticky-note{
+	border-radius:0!important;
+}
+.extension-dashboard-widget-sticky-note textarea{
+	width:100%;
+	height:100%;
+	padding:1.5rem;
+	outline:none;
+	line-height: 150%;
+	background-color:#fdfdca;
+	resize: none;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w] .extension-dashboard-widget-sticky-note textarea{
+	font-size:2rem;
+	padding:3rem;
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -3035,13 +3125,35 @@ input[type="range"].kawaii::-moz-range-thumb {
 }
 
 .extension-dashboard-widget-log-time-description{
-	padding:1.5rem;
+	padding:1rem 1.5rem;
+	margin:0;
 	font-size: 80%;
 	font-style:italic;
+	text-align:center;
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]) .extension-dashboard-widget-log-time-description{
 	display:none;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w="4"] .extension-dashboard-widget-log-time-description,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w="5"] .extension-dashboard-widget-log-time-description,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w="6"] .extension-dashboard-widget-log-time-description{
+	position:absolute;
+	top:0;
+	right:0;
+	padding:1.5rem 2rem;
+}
+
+.extension-dashboard-widget-log-viz{
+	height:100%;
+	flex-grow:1;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w] .extension-dashboard-widget-log-viz > svg{
+	height:100%;
+	flex-grow:1;
+	padding:1.5rem;
 }
 
 .tick{
@@ -3053,10 +3165,28 @@ input[type="range"].kawaii::-moz-range-thumb {
 	font-size:14px;
 }
 
+.extension-dashboard-widget-log-bar-bar{
+	fill:var(--extension-dashboard-background-color);
+}
+
+/*
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .tick:nth-child(even){
 	display:none;
 }
 
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .tick:nth-child(even){
+	display:none;
+}
+
+.extension-dashboard-bar-x-tick-text{
+	display:none;
+}
+*/
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]) .extension-dashboard-widget-checkbox-toggle-checked-content .tick:nth-child(even) .extension-dashboard-bar-x-tick-text{
+	display:none;
+}
 
 
 .extension-dashboard-log-tooltip-data{
@@ -3075,10 +3205,26 @@ input[type="range"].kawaii::-moz-range-thumb {
 	border-radius:5px;
 	font-size:80%;
 	opacity:0;
+	pointer-events:none;
 }
 
 
+.extension-dashboard-widget-log .extension-dashboard-widget-checkbox-toggle-unchecked-content,
+.extension-dashboard-widget-log .extension-dashboard-widget-checkbox-toggle-unchecked-content{
+	width:100%;
+	max-height:100%;
+}
+.extension-dashboard-widget-log svg{
+	width:100%;
+	height:100%;
+}
 
+.extension-dashboard-widget-log .extension-dashboard-style-invisible-overlay{
+	top:0; height:5rem;
+}
+.extension-dashboard-widget-log .extension-dashboard-style-invisible-overlay:hover{
+	background-color:rgba(0,0,0,.1);
+}
 
 
 
@@ -3089,7 +3235,7 @@ input[type="range"].kawaii::-moz-range-thumb {
 	background-color:transparent;
 	width:70px;
     /*color: #ff574e;*/
-	color: var(--widget-editable-text-color);
+	color: var(--extension-dashboard-widget-editable-text-color);
     font-weight: bold;
 	font-size:3rem;
 	padding:2rem 0 2rem .5rem;
@@ -3119,6 +3265,18 @@ input[type="range"].kawaii::-moz-range-thumb {
 	background-color:#cad3db;
 }
 */
+
+.extension-dashboard-widget-thermostat-setpoint-buttons > div{
+	display:flex;
+	align-items:center;
+	justift-content:center;
+}
+.extension-dashboard-widget-thermostat-setpoint-buttons{
+	font-size:150%;
+}
+.extension-dashboard-widget-thermostat-setpoint-buttons .extension-dashboard-widget-decrease-last-number-input > div{
+	padding-bottom:10%;
+}
 
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"][gs-w="2"] .extension-dashboard-widget-thermostat-setpoint-buttons .extension-dashboard-widget-decrease-last-number-input,
@@ -3326,16 +3484,17 @@ input[type="range"].kawaii::-moz-range-thumb {
 .extension-dashboard-widget-thermostat-setpoint-buttons > div > div{
 	width:45px;
 	height:45px;
-	color:white;
 	border-radius:20px;
 	/*background-color:rgba(255,255,255,.2);*/
-	background-color:var(--widget-background-color);
+	background-color:var(--extension-dashboard-widget-background-color);
 	box-shadow: 1px 0 10px 10px rgba(0, 0, 0, 0.04);
 	border: 1px solid transparent;
+	line-height: 0;
+	color:var(--extension-dashboard-widget-editable-text-color);
 }
 /*
 .extension-dashboard-widget-thermostat-setpoint-buttons > div:active{
-	border: 1px solid var(--widget-editable-text-color);
+	border: 1px solid var(--extension-dashboard-widget-editable-text-color);
 	transform: scale(1.1);
 	transition: scale .1s ease-out;
 }
@@ -3346,6 +3505,7 @@ input[type="range"].kawaii::-moz-range-thumb {
 	height:65px;
 	border-radius:35px;
 	user-select: none;
+	font-size:4rem;
 }
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="3"] .extension-dashboard-widget-thermostat-setpoint-buttons > div > div{
 	width:90px;
@@ -3354,7 +3514,7 @@ input[type="range"].kawaii::-moz-range-thumb {
 }
 
 .extension-dashboard-widget-thermostat-setpoint-buttons > div:hover > div{
-	background-color: var(--widget-editable-text-color)!important;
+	background-color: var(--extension-dashboard-widget-editable-text-color)!important;
 	color:white;
 	font-size:130%;
 }
@@ -3408,7 +3568,7 @@ input[type="range"].kawaii::-moz-range-thumb {
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-thermostat-setpoint-buttons > div > div,
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="4"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-thermostat-setpoint-buttons > div > div,
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-thermostat-setpoint-buttons > div > div{
-	/*background-color: var(--widget-background-color);*/
+	/*background-color: var(--extension-dashboard-widget-background-color);*/
 	box-shadow: 1px 0 10px 10px rgba(0, 0, 0, 0.07);
 }
 
@@ -3479,7 +3639,9 @@ input[type="range"].kawaii::-moz-range-thumb {
     transform: translate(-50%, -50%);
     background: transparent;
     z-index: 2;
+	pointer-events:none;
 }
+
 .extension-dashboard-widget-dial::after {
     content: "";
     position: absolute;
@@ -3520,12 +3682,12 @@ input[type="range"].kawaii::-moz-range-thumb {
     position: absolute;
     transform-origin: 0% 50%;
     /*background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 80%, rgba(255,87,78, 1) 81%, rgba(255,87,78, 1) 95%);    rgb(249 113 1) */
-	background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 80%, var(--widget-editable-text-color) 81%, var(--widget-editable-text-color) 100%);
+	background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 80%, var(--extension-dashboard-widget-editable-text-color) 81%, var(--extension-dashboard-widget-editable-text-color) 100%);
     width: 52%;
     height: 10px;
     left: 50%;
     top: 50%;
-    border-radius: 2px;
+    border-radius: 5px;
 	transition: transform 1s ease-out;
 }
 
@@ -3561,6 +3723,7 @@ input[type="range"].kawaii::-moz-range-thumb {
 	height: 20px;
 	font-size:1rem;
 	font-weight:bold;
+	pointer-events:auto;
 	/*clip-path: polygon(0% 0%, 100% 10%, 100% 90%, 0% 100%);*/
 	/*
 	clip-path: polygon(0% 0%, 100% 50%, 100% 50%, 0% 100%);
@@ -3590,7 +3753,7 @@ input[type="range"].kawaii::-moz-range-thumb {
 
 
 .extension-dashboard-widget-dial-ticks:not(.extension-dashboard-widget-dial-disabled) span:hover{
-	background: var(--widget-editable-text-color);
+	background: var(--extension-dashboard-widget-editable-text-color);
 	font-size:130%;
 	text-align:center;
 }
@@ -3666,8 +3829,11 @@ body:not(.developer) .extension-dashboard-widget-dial-name-container{
 #extension-dashboard-content .extension-dashboard-widget-round-dial input{
 	font-size:3rem;
 	text-align:center;
+	/*
 	width: calc(80% - 4rem);
 	max-width: calc(80% - 4rem);
+	*/
+	width: 100%;
 	padding: 1.2rem 1.5rem;
 	margin-bottom:1rem;
 	border-radius:1rem;
@@ -3678,7 +3844,7 @@ body:not(.developer) .extension-dashboard-widget-dial-name-container{
 
 #extension-dashboard-content .extension-dashboard-widget-round-dial input:not([disabled]){
 	/*background-color:#ebeff1;*/
-	color:var(--widget-editable-text-color);
+	color:var(--extension-dashboard-widget-editable-text-color);
 }
 
 
@@ -3775,6 +3941,11 @@ body:not(.developer) .extension-dashboard-widget-dial-name-container{
     height: 25%;
     margin-left: -5%;
 }
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"]:not([gs-w]) .extension-dashboard-widget-round-dial .extension-dashboard-widget-dial{
+	width: 140%;
+	height: 35%;
+	margin-left: 20%;
+}
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-round-dial .extension-dashboard-widget-dial-ticks{
 	border-radius:0;
 	overflow:visible;
@@ -3806,7 +3977,16 @@ body:not(.developer) .extension-dashboard-widget-dial-name-container{
 
 
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial{
-	top:35%;
+	top:65%;
+}
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"]:not([gs-w]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial{
+	top:60%;
+}
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="4"]:not([gs-w]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial{
+	top:57%;
+}
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-setpoint-arrow{
+	opacity:0;
 }
 
 
@@ -4612,6 +4792,14 @@ body.developer .extension-dashboard-widget-weather_description-needs-update:empt
 .extension-dashboard-widget-number{
 	width:100%;
 	height:100%;
+	display:flex;
+	justify-content: center;
+	flex-direction:column;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-number{
+	flex-direction:row;
+	align-items: center;
 }
 
 .extension-dashboard-widget-absolute-title-container{
@@ -4619,6 +4807,17 @@ body.developer .extension-dashboard-widget-weather_description-needs-update:empt
 	position:absolute;
 	font-weight:100;
 	pointer-events:none;
+	top:0;
+}
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-absolute-title-container{
+	font-size:80%;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-absolute-title-container:not(:empty) + img{
+	display:none;
+}
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-absolute-title-container:not(:empty) ~ .extension-dashboard-widget-number-display{
+	margin-top:3rem;
 }
 
 .extension-dashboard-widget-number-display{
@@ -4627,18 +4826,71 @@ body.developer .extension-dashboard-widget-weather_description-needs-update:empt
 }
 
 #extension-dashboard-content .extension-dashboard-widget-number input{
+	width:100%;
 	max-width:calc(100% - 3rem);
 	box-sizing:border-box;
 	text-align:center;
 	font-size:4rem;
-	height: calc(100% - 3rem);
+	/*height: calc(100% - 3rem);*/
 	color:inherit;
 	background-color:transparent;
 }
 
 #extension-dashboard-content .extension-dashboard-widget-number input:not([disabled]){
-	color:var(--widget-editable-text-color);
+	color:var(--extension-dashboard-widget-editable-text-color);
 }
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-number input{
+	font-size:6rem;
+}
+
+.extension-dashboard-widget-number .extension-dashboard-widget-icon-needs-icon:not(:empty) + .xtension-dashboard-widget-number-display{
+	
+}
+
+
+.extension-dashboard-widget-number img{
+	width: calc(100% - 3rem);
+	margin:1.5rem auto 0 auto;
+	max-height: 40%;
+	opacity:.65;
+}
+
+
+.extension-dashboard-widget-number img:not([src^="/extensions/dashboard/icons/"]){
+	display:none;
+}
+
+.extension-dashboard-widget-number img[src^="/extensions/dashboard/icons/"] + .extension-dashboard-widget-number-display{
+	height:auto;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-number img[src^="/extensions/dashboard/icons/"]{
+	margin:1.5rem;
+	max-height:50%;
+}
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h]) .extension-dashboard-widget-number img[src^="/extensions/dashboard/icons/"]{
+	max-height:60%;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-number img[src^="/extensions/dashboard/icons/"] + .extension-dashboard-widget-number-display,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-number img[src^="/extensions/dashboard/icons/"] + .extension-dashboard-widget-number-display input{
+    justify-items: left;
+}
+
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-number img[src^="/extensions/dashboard/icons/"] + .extension-dashboard-widget-number-display{
+	margin-bottom:3rem;
+}
+
+
+
+
+
+
+
+
+
 
 
 /*   IFRAME WIDGET   */
@@ -4693,6 +4945,7 @@ body.developer .extension-dashboard-widget-weather_description-needs-update:empt
 }
 
 .extension-dashboard-widget-weather-moon-container{
+	display:none;
 	position: absolute;
     left: calc(100% - 6rem);
     top: 7rem;
@@ -4707,6 +4960,7 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 }
 
 .extension-dashboard-night .extension-dashboard-widget-weather-moon-container{
+	display:block;
     left: calc(0% + 4rem);
     top: 7rem;
     font-size: 6rem;
@@ -4732,6 +4986,7 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"][gs-w="2"] .extension-dashboard-widget-clock 
 */
 
+/*
 .extension-dashboard-widget-clock-braun-date-container-wrapper{
 	position:relative;
 	height:100%;
@@ -4742,6 +4997,7 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 	bottom:20%;
 	width:100%;
 }
+
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"] .extension-dashboard-widget-clock-braun-date-container{
 	bottom:-20%;
 }
@@ -4755,6 +5011,7 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"][gs-h="2"] .extension-dashboard-widget-clock-braun-date-container .extension-dashboard-widget-clock-date-day{
 	font-size: 2rem;
 }
+*/
 
 
 
@@ -4805,6 +5062,11 @@ body.developer .extension-dashboard-widget-weather-moon-container{
     align-items: center;
     flex-direction: column;
 	pointer-events:none;
+}
+
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h]) .extension-dashboard-widget-clock{
+	justify-content:center;
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-clock-seiko-date-container{
@@ -4897,10 +5159,6 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 .extension-dashboard-widget-clock-seiko-minute-ticks > span:nth-child(9) {
 	transform: rotate(0deg);
 	box-shadow: 0 -0.6em 0 -0.05em #ffffff, 0 0.6em 0 -0.05em #ffffff;
-	/*
-	box-shadow: 0 -0.6em 0 -0.05em #009bff, 0 0.6em 0 -0.05em #009bff;
-	box-shadow: 0 -0.6em 0 -0.05em #0200a4, 0 0.6em 0 -0.05em #0200a4;
-	*/
 }
 .extension-dashboard-widget-clock-seiko-minute-ticks > span:nth-child(10) {
 	transform: rotate(30deg);
@@ -4916,53 +5174,6 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 }
 
 
-
-/*
-.extension-dashboard-widget-clock-seiko-minute-tick2{
-	transform: rotate(6deg);
-	background-color:rgba(255,255,0,.7);
-}
-
-.extension-dashboard-widget-clock-seiko-minute-tick2:before {
-	transform: rotate(120deg);
-	background-color:rgba(0,255,255,.7);
-}
-.extension-dashboard-widget-clock-seiko-minute-tick2:after {
-	transform: rotate(240deg);
-	background-color:rgba(255,0,255,.7);
-}
-
-.extension-dashboard-widget-clock-seiko-minute-ticks > span:nth-child(2) {
-	transform: rotate(12deg);
-}
-*/
-
-
-
-/*
-.extension-dashboard-widget-clock-seiko:before {
-	content: '';
-	width: 95%;
-	height: 95%;
-	border-radius: 50%;
-	display: block;
-	background: transparent;
-	border: 2% solid white;
-}
-
-.extension-dashboard-widget-clock-seiko:after {
-	content: '';
-	width: 105%;
-	height: 105%;
-	border-radius: 50%;
-	display: block;
-	background: transparent;
-	position: absolute;
-	top: -2.5%;
-	left: -2.5%;
-	box-shadow: -3px -3px 9px rgba(255,255,255,.8);
-}
-*/
 
 .extension-dashboard-widget-clock-seiko-label {
 	position: absolute;
@@ -4985,8 +5196,6 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 	z-index: 2;
 	transform: rotate(-139deg);
 	transform-origin: 16%;
-	/*-webkit-filter: drop-shadow(12px 12px 7px rgba(0,0,0,0.5));
-	drop-shadow: (12px 12px 7px rgba(0,0,0,0.5));*/
 }
 
 .extension-dashboard-widget-clock-seiko-hourhand:after,
@@ -5006,7 +5215,8 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 .extension-dashboard-widget-clock-seiko-hourhand {
 	border-top-right-radius: 20%;
 	border-bottom-right-radius: 20%;
-	background: #009bff;
+	/*background: #009bff;*/
+	background:var(--extension-dashboard-widget-text-color);
 }
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-clock-seiko-hourhand{
 	box-shadow: -10px 0px 10px rgba(0,0,0,.4);
@@ -5020,10 +5230,8 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 	transform-origin: 10%;
 	border-top-right-radius: 30%;
 	border-bottom-right-radius: 30%;
-	/*
-	box-shadow: -10px 10px 10px rgba(0,0,0,.4);
-	*/
-	background: #0200a4;
+	/*background: #0200a4;*/
+	background:var(--extension-dashboard-widget-editable-text-color);
 }
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-clock-seiko-minutehand {
 	box-shadow:-4px 4px 8px rgba(0, 0, 0, .3);
@@ -5067,35 +5275,6 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 .extension-dashboard-widget-clock-seiko-secondhand:after {
 	top: -2.25%;
 }
-
-/*
-.extension-dashboard-widget-clock-seiko-hour12,
-.extension-dashboard-widget-clock-seiko-hour1,
-.extension-dashboard-widget-clock-seiko-hour2,
-.extension-dashboard-widget-clock-seiko-hour3,
-.extension-dashboard-widget-clock-seiko-hour4,
-.extension-dashboard-widget-clock-seiko-hour5 {
-	height: 1%;
-	width: 55%;
-	background: transparent;
-	border-left: 7px solid #000;
-	border-right: 7px solid #000;
-	transform: translate(-50%, -50%);
-	top: 50%;
-	left: 50%;
-	position: absolute;
-}
-
-.extension-dashboard-widget-clock-seiko-hour3 { transform: rotate(90deg) translate(0, 34%); }
-
-.extension-dashboard-widget-clock-seiko-hour1 { transform: rotate(120deg) translate(17%, 30%); }
-
-.extension-dashboard-widget-clock-seiko-hour2 { transform: rotate(150deg) translate(29%, 18%); }
-
-.extension-dashboard-widget-clock-seiko-hour4 { transform: rotate(210deg) translate(30%, -17%); }
-
-.extension-dashboard-widget-clock-seiko-hour5 { transform: rotate(240deg) translate(17%, -30%); }
-*/
 
 
 .extension-dashboard-widget-clock-seiko ul{
@@ -5203,280 +5382,6 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 
 
 
-
-
-
-
-
-
-/*   BRAUN CLOCK   */
-
-
-
-.extension-dashboard-widget-clock-braun {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	margin: auto;
-    width: 100%;
-    height: 100%;
-	max-width:100%;
-	max-height: 100%;
-	border-radius: 50%;
-	
-	background: radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.1) 40%, rgba(0, 0, 0, 0.1) 42%, transparent 42%),
-	        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.1) 2%, transparent 2%, transparent 10%);
-	background-size: 150px 150px;
-	background-repeat: repeat;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-	opacity: 0.8;
-		
-	/*
-	background: #eee;
-	border: 0.2em solid #d0d0d0;
-	box-shadow: 0 1.2em 0 -1em white, 0 -0.1em 0.3em 0 #fff, 0 0 0 0.6em #e7e7e7, 0 0.6em 1.2em 0 rgba(0, 0, 0, 0.5), inset 0 0.5em 1em 0 rgba(0, 0, 0, 0.3), inset 0 0 8em 0 rgba(0, 0, 0, 0.2);
-	*/
-}
-/*
-.extension-dashboard-widget-clock-braun:before {
-	display: block;
-	content: "";
-	position: absolute;
-	background: #dedede;
-	left: -2em;
-	top: -2em;
-	width: 33vh;
-	height: 33vh;
-	border-radius: 4.6em;
-	z-index: -1;
-	box-shadow: inset 0 -0.2em 0.2em 0 rgba(0, 0, 0, 0.2), inset 0 0.2em 2em 0 #fff;
-}
-
-.extension-dashboard-widget-clock-braun:after {
-	display: block;
-	content: "";
-	position: absolute;
-	height: inherit;
-	width: inherit;
-	background: transparent;
-	top: 0;
-	left: 0;
-	border-radius: inherit;
-	box-shadow: inset 12em 14em 0 -10em rgba(255, 255, 255, 0.25);
-	z-index: 4;
-	pointer-events:none;
-}
-*/
-.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-uur {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	margin: auto;
-	width: 0.5em;
-	height: 16.4em;
-	background: transparent;
-	box-shadow: 0 -1em 0 -0.1em #383838, 0 1em 0 -0.1em #383838;
-	transform: rotate(30deg);
-}
-.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-uur:after, .extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-uur:before {
-	display: block;
-	content: "";
-	position: absolute;
-	height: inherit;
-	width: inherit;
-	background: inherit;
-	box-shadow: inherit;
-	backface-visibility: inherit;
-}
-.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-uur:before {
-	transform: rotate(30deg);
-}
-.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-uur:after {
-	transform: rotate(-30deg);
-}
-.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-uur:nth-of-type(1) {
-	transform: rotate(-60deg);
-}
-.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	margin: auto;
-	width: 0.3em;
-	height: 17em;
-	background: transparent;
-	box-shadow: 0 -0.6em 0 -0.1em #383838, 0 0.6em 0 -0.1em #383838;
-	z-index: -1;
-	transform: rotate(-54deg);
-}
-.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut:after, .extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut:before {
-	display: block;
-	content: "";
-	position: absolute;
-	height: inherit;
-	width: inherit;
-	background: inherit;
-	box-shadow: inherit;
-	backface-visibility: inherit;
-	z-index: 0;
-}
-.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut:before {
-	transform: rotate(6deg);
-}
-.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut:after {
-	transform: rotate(12deg);
-}
-.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut:nth-child(2) {
-	transform: rotate(-36deg);
-}
-.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut:nth-child(3) {
-	transform: rotate(-18deg);
-}
-.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut:nth-child(4) {
-	transform: rotate(6deg);
-}
-.extension-dashboard-widget-clock-braun .extension-dashboard-widget-clock-braun-minuut:nth-child(5) {
-	transform: rotate(24deg);
-}
-
-.extension-dashboard-widget-clock-braun-alarm {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	margin: auto;
-	background: #f8f8f8;
-	width: 2.6em;
-	height: 2.6em;
-	border-radius: 50%;
-	transform: rotate(-45deg);
-	box-shadow: 0 0.2em 0.4em 0 rgba(0, 0, 0, 0.1);
-}
-.extension-dashboard-widget-clock-braun-alarm:after {
-	display: block;
-	content: "";
-	position: absolute;
-	width: 0.4em;
-	height: 4.8em;
-	top: -4.6em;
-	background: linear-gradient(to bottom, #f6f6f6 0%, #f8f8f8 100%);
-	left: 0;
-	right: 0;
-	margin: 0 auto;
-	z-index: -3;
-	box-shadow: inset 0 1.2em 0 #4ca440, -0.2em -0.2em 0.3em 0 rgba(0, 0, 0, 0.1);
-}
-
-.extension-dashboard-widget-clock-braun-sec {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	margin: auto;
-	background: radial-gradient(ellipse at center, #ffd322 0%, #fbc900 100%);
-	width: 2em;
-	height: 2em;
-	border-radius: 50%;
-	border: 0.14em solid #fbc900;
-	z-index: 3;
-}
-
-
-
-.extension-dashboard-widget-clock-braun-sec:before, .extension-dashboard-widget-clock-braun-sec:after {
-	display: block;
-	content: "";
-	position: absolute;
-}
-.extension-dashboard-widget-clock-braun-sec:before {
-	background: #fbc900;
-	width: 0.8em;
-	height: 1.5em;
-	top: 1.8em;
-	left: 0;
-	right: 0;
-	margin: 0 auto;
-	border-radius: 0 0 2em 2em;
-}
-.extension-dashboard-widget-clock-braun-sec:after {
-	width: 0.18em;
-	height: 7.6em;
-	top: -7.6em;
-	background: #fbc900;
-	left: 0;
-	right: 0;
-	margin: 0 auto;
-}
-
-.extension-dashboard-widget-clock-braun-min,
-.extension-dashboard-widget-clock-braun-hour {
-	z-index: 2;
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	margin: auto;
-	background: #fbc900;
-	transform-origin: bottom center;
-}
-
-.extension-dashboard-widget-clock-braun-min {
-	width: 0.6em;
-	height: 8.6em;
-	top: -8.6em;
-	border-radius: 2em 2em 0 0;
-	box-shadow: inset 0 0 0 0.16em #303030, inset 0 -6em 0 0 #303030, -0.2em -0.2em 0.4em 0 rgba(0, 0, 0, 0.2);
-}
-
-.extension-dashboard-widget-clock-braun-hour {
-	width: 0.7em;
-	height: 7em;
-	top: -7em;
-	border-radius: 2em 2em 0 0;
-	box-shadow: inset 0 0 0 0.16em #303030, inset 0 -4.2em 0 0 #303030, -0.2em -0.2em 0.4em 0 rgba(0, 0, 0, 0.2);
-}
-
-
-
-
-
-/*
-.extension-dashboard-template *,
-*/
-/*
-.extension-dashboard-widget-thermostat-setpoint-buttons > div,
-.grid-stack > .grid-stack-item > .grid-stack-item-content{
-	box-shadow: inset 10px 10px 30px rgba(0, 0, 0, .2), inset 5px 5px 15px rgba(0, 0, 0, .4), 10px 10px 15px rgba(0, 0, 0, .3), 20px 20px 30px rgba(0, 0, 0, .3);
-}
-
-#extension-dashboard-content{
-	color: #bababa;
-	letter-spacing: .5px;
-}
-
-.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button){
-	background-color:transparent;
-}
-
-.extension-dashboard-widget-property-switch label,
-.extension-dashboard-widget-property-switch label::before,
-.extension-dashboard-widget-thermostat-setpoint-buttons > div{
-	background-color:transparent;
-}
-*/
-
-
-
-
 /*   DASHBOARD SETTINGS   */
 
 #extension-dashboard-open-settings-button{
@@ -5504,7 +5409,9 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 	color:#eee;
 	box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
 }
-
+#extension-dashboard-settings-modal:-internal-dialog-in-top-layer::backdrop {
+    background-color: rgba(0, 0, 0, 0);
+}
 #extension-dashboard-settings-modal h2{
 	margin-right:4rem;
 }
@@ -5522,3 +5429,6 @@ body.developer .extension-dashboard-widget-weather-moon-container{
     box-sizing: border-box;
 	min-height:8rem;
 }
+
+
+

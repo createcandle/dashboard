@@ -9,19 +9,19 @@
 			<div id="extension-dashboard-settings-container">
 				<div class="extension-dashboard-setting-container">
 					<h4>Background color</h4>
-					<input type="color" value="#0d3b5c" id="extension-dashboard-setting-dashboard-background-color"/>
+					<input type="color" value="#3089bf" id="extension-dashboard-setting-extension-dashboard-background-color">
 				</div>
 				<div class="extension-dashboard-setting-container">
 					<h4>Widget color</h4>
-					<input type="color" value="#bdc8d2" id="extension-dashboard-setting-widget-background-color"/>
+					<input type="color" value="#cfdde6" id="extension-dashboard-setting-extension-dashboard-widget-background-color">
 				</div>
 				<div class="extension-dashboard-setting-container">
 					<h4>Text color</h4>
-					<input type="color" value="#555555" id="extension-dashboard-setting-widget-text-color"/>
+					<input type="color" value="#555555" id="extension-dashboard-setting-extension-dashboard-widget-text-color">
 				</div>
 				<div class="extension-dashboard-setting-container">
 					<h4>Editable text color</h4>
-					<input type="color" value="#fa7204" id="extension-dashboard-setting-widget-editable-text-color"/>
+					<input type="color" value="#3089bf" id="extension-dashboard-setting-extension-dashboard-widget-editable-text-color">
 				</div>
 				<div class="extension-dashboard-setting-container extension-dashboard-flex-column" style="align-items: flex-start;">
 					<h4>Widget shadow</h4>
@@ -68,7 +68,11 @@
 							<div data-template-name="list-selector" class="extension-dashboard-template extension-dashboard-widget-list-selector">
 						        <div class="extension-dashboard-flex-compact">
 									<div class="extension-dashboard-widget-name-needs-rename extension-dashboard-widget-hide-if-empty extension-dashboard-widget-block-title-container">List selector</div>
-									<ul class="extension-dashboard-widget-options_list-needs-update extension-dashboard-flex-wrap extension-dashboard-flex-grow"></ul>
+									<ul class="extension-dashboard-widget-options_list-needs-update extension-dashboard-flex-wrap extension-dashboard-flex-grow">
+										<li class="extension-dashboard-list-selector-item extension-dashboard-widget-remove-me">Option 1</li>
+										<li class="extension-dashboard-list-selector-item extension-dashboard-widget-remove-me">Another option</li>
+										<li class="extension-dashboard-list-selector-item extension-dashboard-widget-remove-me">Option 3</li>
+									</ul>
 								</div>
 							</div>
 						</div>
@@ -87,7 +91,7 @@
 										</label>
 									</div>
 							
-									<div class="extension-dashboard-widget-slider-container extension-dashboard-flex-center extension-dashboard-flex-grow extension-dashboard-widget-allow-vertical-slider-if-thin">
+									<div class="extension-dashboard-widget-slider-container extension-dashboard-grid-center extension-dashboard-flex-grow extension-dashboard-widget-allow-vertical-slider-if-thin">
 										<input type="range" class="extension-dashboard-widget-percentage-needs-update" step="1" min="0" max="100">
 									</div>
 							
@@ -110,12 +114,12 @@
 										</label>
 									</div>
 								
-									<div class="extension-dashboard-widget-color-container extension-dashboard-flex-center">
+									<div class="extension-dashboard-widget-color-container extension-dashboard-grid-center">
 										<input type="color" class="extension-dashboard-widget-color-needs-update">
 										<img src="/extensions/dashboard/images/color_wheel.png" class="extension-dashboard-widget-remove-me" alt="color picker">
 									</div>
 								
-									<div class="extension-dashboard-widget-slider-container extension-dashboard-flex-center extension-dashboard-flex-grow extension-dashboard-widget-allow-vertical-slider-if-thin-above-h2">
+									<div class="extension-dashboard-widget-slider-container extension-dashboard-grid-center extension-dashboard-flex-grow extension-dashboard-widget-allow-vertical-slider-if-thin-above-h2">
 										<input type="range" class="extension-dashboard-widget-percentage-needs-update" step="1" min="0" max="100">
 									</div>
 							
@@ -130,12 +134,13 @@
 						<div style="width:150px;" class="extension-dashboard-template-container">
 							<div data-template-name="number" class="extension-dashboard-template extension-dashboard-widget-number">
 					          	
-								<div class="extension-dashboard-widget-absolute-title-container">
-									<strong class="extension-dashboard-widget-name-needs-rename extension-dashboard-widget-hide-if-empty">Number</strong>
+								<div class="extension-dashboard-widget-absolute-title-container extension-dashboard-widget-name-needs-rename extension-dashboard-widget-hide-if-empty">
+									Number
 								</div>
-								
-								<div class="extension-dashboard-widget-number-display extension-dashboard-flex-center">
-						        	<input type="number" step="0.01" value="00" class="extension-dashboard-widget-value-needs-update" />
+								<img src="" class="extension-dashboard-widget-icon-needs-icon" alt="Number icon">
+								<img src="http://localhost:8080/extensions/dashboard/icons/material_icons/thermostat-rounded.svg" class="extension-dashboard-widget-icon-needs-icon extension-dashboard-widget-remove-me" alt="Example icon">
+								<div class="extension-dashboard-widget-number-display extension-dashboard-grid-center">
+						        	<input type="number" step="0.01" value="00" class="extension-dashboard-widget-value-needs-update">
 								</div>
 								
 							</div>
@@ -151,8 +156,8 @@
 									<strong class="extension-dashboard-widget-name-needs-rename extension-dashboard-widget-hide-if-empty">Number dial</strong>
 								</div>
 								
-								<div class="extension-dashboard-widget-thermostat-setpoint-display extension-dashboard-flex-center">
-						        	<input type="number" step="0.01" value="00" class="extension-dashboard-widget-value-needs-update" />
+								<div class="extension-dashboard-widget-thermostat-setpoint-display extension-dashboard-grid-center">
+						        	<input type="number" step="0.01" value="00" class="extension-dashboard-widget-value-needs-update">
 									<input type="number" class="extension-dashboard-hidden extension-dashboard-widget-minimum-value extension-dashboard-widget-minimum_value-needs-rename">
 									<input type="number" class="extension-dashboard-hidden extension-dashboard-widget-maximum-value extension-dashboard-widget-maximum_value-needs-rename">
 								</div>
@@ -179,9 +184,21 @@
 						<div style="max-width:150px" class="extension-dashboard-template-container">
 							<div data-template-name="log" class="extension-dashboard-template extension-dashboard-widget-log extension-dashboard-flex-column">
 						        <strong class="extension-dashboard-widget-log_title-needs-rename extension-dashboard-widget-hide-if-empty">Log</strong>
+								
+						        
+								
+								
 								<div class="extension-dashboard-widget-log_source-needs-log extension-dashboard-flex-center extension-dashboard-flex-column extension-dashboard-flex-grow">
-									<img src="/extensions/dashboard/images/log_example.svg" class="extension-dashboard-widget-remove-me" alt="example log visualisation">
+							        <input type="checkbox" name="extension-dashboard-widget-changeme" id="extension-dashboard-widget-changeme" class="extension-dashboard-widget-save-value-locally extension-dashboard-hidden">
+							        <label for="extension-dashboard-widget-changeme" class="extension-dashboard-cursor-pointer extension-dashboard-hover-bg-button extension-dashboard-style-invisible-overlay extension-dashboard-style-cursor-pointer">
+									</label>
 								</div>
+								
+								<img src="/extensions/dashboard/images/log_example.svg" class="extension-dashboard-widget-remove-me" alt="example log visualisation">
+								
+								
+								
+								
 							</div>
 						</div>
 						
@@ -192,7 +209,7 @@
 								
 								<div class="extension-dashboard-widget-split">
 									<div>
-										<div class="extension-dashboard-widget-weather-description-container extension-dashboard-flex extension-dashboard-flex-end">
+										<div class="extension-dashboard-widget-weather-description-container extension-dashboard-flex-center">
 											
 											<div class="extension-dashboard-widget-heading">
 												<h2 class="extension-dashboard-widget-weather_description-needs-update">Weather</h2>
@@ -222,9 +239,9 @@
 									</div>
 								</div>
 								
-								<div class="extension-dashboard-widget-weather-moon-container extension-dashboard-widget-show-if-at-least-2x2"></div>
+								<div class="extension-dashboard-widget-weather-moon-container extension-dashboard-widget-show-if-at-least-2x2">🌒</div>
 								
-								<div class="extension-dashboard-widget-weather-rain extension-dashboard-widget-show-if-at-least-2x2">
+								<div class="extension-dashboard-widget-weather-rain extension-dashboard-widget-hide-if-short">
 
 									<div class="extension-dashboard-widget-weather-rain">
 										<div class="extension-dashboard-widget-weather-drop"></div>
@@ -288,7 +305,7 @@
 								
 								</div>
 								
-								<div class="extension-dashboard-widget-weather-clouds extension-dashboard-widget-show-if-at-least-2x2">
+								<div class="extension-dashboard-widget-weather-clouds extension-dashboard-widget-hide-if-short">
 
 									<div class="extension-dashboard-widget-weather-big-cloud extension-dashboard-widget-weather-cloud2">
   									  	<div class="extension-dashboard-widget-weather-large-circle extension-dashboard-widget-weather-circ1"></div>
@@ -365,8 +382,8 @@
 										
 										<div>
 											<input type="checkbox" name="extension-dashboard-widget-changeme" id="extension-dashboard-widget-changeme" class="extension-dashboard-widget-play_pause_button-needs-update extension-dashboard-hidden">
-											<label for="extension-dashboard-widget-changeme" class="extension-dashboard-flex-center">
-												<div class="extension-dashboard-widget-media-play-button-container extension-dashboard-flex-center">
+											<label for="extension-dashboard-widget-changeme" class="extension-dashboard-grid-center">
+												<div class="extension-dashboard-widget-media-play-button-container extension-dashboard-grid-center">
 													<div class="extension-dashboard-widget-media-play-button">
 														<span class="extension-dashboard-widget-media-play-button-icon">
 															<span class="extension-dashboard-widget-media-play-button extension-dashboard-widget-media-play-button-before"></span>
@@ -384,14 +401,14 @@
 									</div>
 									
 									
-									<div class="extension-dashboard-flex-center extension-dashboard-flex-grow extension-dashboard-widget-slider-container extension-dashboard-widget-allow-vertical-slider-if-thin">
+									<div class="extension-dashboard-grid-center extension-dashboard-flex-grow extension-dashboard-widget-slider-container extension-dashboard-widget-allow-vertical-slider-if-thin">
 										<input type="range" class="extension-dashboard-widget-volume-needs-update" step="1" min="0" max="100">
 									</div>
 									
-									<div class="extension-dashboard-widget-media-player-artist-container extension-dashboard-flex-grow-if-not-thin">
-										<div class="extension-dashboard-flex-center">
+									<div class="extension-dashboard-widget-media-player-info-container extension-dashboard-flex-grow-if-not-thin">
+										<div class="extension-dashboard-flex-row">
 											<div class="extension-dashboard-widget-icon-disc"></div>
-							          		<div class="extension-dashboard-widget-media-player-artist extension-dashboard-click-to-copy-to-clipboard">
+							          		<div class="extension-dashboard-widget-media-player-info extension-dashboard-click-to-copy-to-clipboard">
 												<p class="extension-dashboard-widget-source-needs-update"></p>
 							            		<p class="extension-dashboard-widget-song_title-needs-update"></p>
 							            		<small class="extension-dashboard-widget-artist-needs-update"></small>
@@ -412,15 +429,15 @@
 								
 								<div class="extension-dashboard-widget-split-compact">
 									
-									<div class="extension-dashboard-widget-thermostat-setpoint-display extension-dashboard-flex-center">
-							        	<strong><span class="extension-dashboard-widget-temperature-value"><span class="extension-dashboard-widget-temperature-needs-update" step="0.1">00,0</span><!--°--></span><span class="extension-dashboard-widget-setpoint-arrow extension-dashboard-widget-hide-if-1x1"> ➝ </span><span class="extension-dashboard-widget-setpoint-container"><input type="number" step="0.5" value="20.5" class="extension-dashboard-widget-setpoint-needs-update" /><span class="extension-dashboard-widget-setpoint-degrees">°</span></span></strong>
+									<div class="extension-dashboard-widget-thermostat-setpoint-display extension-dashboard-grid-center">
+							        	<strong><span class="extension-dashboard-widget-temperature-value"><span class="extension-dashboard-widget-temperature-needs-update" step="0.1">00,0</span><!--°--></span><span class="extension-dashboard-widget-setpoint-arrow extension-dashboard-widget-hide-if-1x1"> ➝ </span><span class="extension-dashboard-widget-setpoint-container"><input type="number" step="0.5" value="20.5" class="extension-dashboard-widget-setpoint-needs-update"><span class="extension-dashboard-widget-setpoint-degrees">°</span></span></strong>
 										<input type="number" class="extension-dashboard-hidden extension-dashboard-widget-minimum-value extension-dashboard-widget-minimum_temperature-needs-rename">
 										<input type="number" class="extension-dashboard-hidden extension-dashboard-widget-maximum-value extension-dashboard-widget-maximum_temperature-needs-rename">
 									</div>
 									
 									<div class="extension-dashboard-widget-thermostat-setpoint-buttons">
-										<div class="extension-dashboard-widget-decrease-last-number-input extension-dashboard-flex-center"><div class="extension-dashboard-flex-center"> &#10134; </div></div>
-										<div class="extension-dashboard-widget-increase-last-number-input extension-dashboard-flex-center"><div class="extension-dashboard-flex-center"> &#10133; </div></div>
+										<div class="extension-dashboard-widget-decrease-last-number-input extension-dashboard-grid-center"><div class="extension-dashboard-flex-center"> - </div></div><!-- &#10134; -->
+										<div class="extension-dashboard-widget-increase-last-number-input extension-dashboard-grid-center"><div class="extension-dashboard-flex-center"> + </div></div><!-- &#10133; -->
 									</div>
 									
 								</div>
@@ -450,8 +467,8 @@
 								
 								
 								<div class="extension-dashboard-widget-split extension-dashboard-widget-checkbox-toggle-checked-content">
-					                <div class="extension-dashboard-widget-clock-time extension-dashboard-flex-center extension-dashboard-widget-style-minheight50 extension-dashboard-flex-grow">00:00</div>
-									<div class="extension-dashboard-flex-center extension-dashboard-flex-grow">
+					                <div class="extension-dashboard-widget-clock-time extension-dashboard-grid-center extension-dashboard-widget-style-minheight50 extension-dashboard-flex-grow">00:00</div>
+									<div class="extension-dashboard-grid-center extension-dashboard-flex-grow">
 						                <div class="extension-dashboard-widget-clock-date">
 						                    <div class="extension-dashboard-widget-clock-date-day"></div>
 						                    <div class="extension-dashboard-widget-clock-date-container">
@@ -466,7 +483,7 @@
 								<div class="extension-dashboard-widget-checkbox-toggle-unchecked-content extension-dashboard-style-thick-padding">
 									
 									<div class="extension-dashboard-style-square-outer">
-										<div class="extension-dashboard-style-square-inner extension-dashboard-flex-center">
+										<div class="extension-dashboard-style-square-inner extension-dashboard-grid-center">
 											
 											<div class="extension-dashboard-widget-clock-seiko">
 											    <div class="extension-dashboard-widget-clock-seiko-label extension-dashboard-widget-hide-if-short">CANDLE</div>
@@ -559,7 +576,7 @@
 												
 									                    <div class="extension-dashboard-widget-clock-braun-date-container">
 															<div class="extension-dashboard-widget-clock-date-day"></div>
-															<div class="extension-dashboard-flex-center">
+															<div class="extension-dashboard-grid-center">
 									                        	<span class="extension-dashboard-widget-clock-date-date">0</span>
 									                        	<span class="extension-dashboard-widget-clock-date-spacer">&nbsp;</span>
 									                        	<span class="extension-dashboard-widget-clock-date-month">Jan</span>
@@ -590,7 +607,21 @@
 								<p class="extension-dashboard-widget-additional_text-needs-rename">Additional optional text</p>
 							</div>
 						</div>
+						
+						<div style="max-width:150px" class="extension-dashboard-template-container">
+							<div data-template-name="transparent-text" class="extension-dashboard-template extension-dashboard-widget-text extension-dashboard-widget-transparent-text">
+						        <h2 class="extension-dashboard-widget-large_title-needs-rename">Text on transparent background</h2>
+								<p class="extension-dashboard-widget-additional_text-needs-rename">Additional optional text</p>
+							</div>
+						</div>
 					
+					
+						<div style="max-width:150px" class="extension-dashboard-template-container">
+							<div data-template-name="sticky-note" class="extension-dashboard-template extension-dashboard-widget-sticky-note">
+						        <textarea class="extension-dashboard-widget-save-value-locally">Sticky note</textarea>
+							</div>
+						</div>
+						
 					
 						<div style="max-width:150px" class="extension-dashboard-template-container">
 							<div data-template-name="frame" class="extension-dashboard-template extension-dashboard-widget-frame">
@@ -618,15 +649,336 @@
 			</div>
 		</dialog>
 		
-        <div id="extension-dashboard-main-page">
+        <div id="extension-dashboard-main-page" class="extension-dashboard-has-swipe-listener">
 			
 			
 			
             <div id="extension-dashboard-main-container">
-				<div id="extension-dashboard-tab-menu"></div>
-				<div id="extension-dashboard-tabs"></div>
+				<div id="extension-dashboard-tab-menu"><div class="extension-dashboard-flex"><div id="extension-dashboard-trash" class="extension-dashboard-trash extension-dashboard-show-if-editing ui-droppable"></div><div id="extension-dashboard-add-widget-button" class="extension-dashboard-show-if-editing"></div><div id="extension-dashboard-add-dashboard-button" class="extension-dashboard-show-if-editing"></div><div id="extension-dashboard-open-settings-button" class="extension-dashboard-show-if-editing"></div></div><div id="extension-dashboard-tab-buttons-container" class="extension-dashboard-flex"><div id="extension-dashboard-show-grid0" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">Livingroom</div></div><div id="extension-dashboard-show-grid1" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">Bedroom</div></div><div id="extension-dashboard-show-grid2" class="extension-dashboard-tab-button-wrapper extension-dashboard-tab-button-selected"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">Media players</div></div><div id="extension-dashboard-show-grid3" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">4</div></div><div id="extension-dashboard-show-grid4" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">sliders</div></div><div id="extension-dashboard-show-grid5" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">more sliders</div></div><div id="extension-dashboard-show-grid6" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">Dials</div></div><div id="extension-dashboard-show-grid7" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">switches</div></div><div id="extension-dashboard-show-grid8" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">Thermostats</div></div><div id="extension-dashboard-show-grid10" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">Weather</div></div><div id="extension-dashboard-show-grid11" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">Clocks</div></div><div id="extension-dashboard-show-grid12" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">thingies</div></div><div id="extension-dashboard-show-grid9" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">Lists</div></div><div id="extension-dashboard-show-grid13" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">Numbers</div></div><div id="extension-dashboard-show-grid14" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">Logs</div></div><div id="extension-dashboard-show-grid15" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">Sticky notes</div></div><div id="extension-dashboard-show-grid16" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">Radio logs</div></div><div id="extension-dashboard-show-grid17" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">boolean logs</div></div><div id="extension-dashboard-show-grid18" class="extension-dashboard-tab-button-wrapper"><div class="extension-dashboard-tab-button-with-name extension-dashboard-tab-button">loggy</div></div></div></div>
+				<div id="extension-dashboard-tabs"><div id="extension-dashboard-tab-grid0" class="extension-dashboard-tab"><div id="extension-dashboard-grid0" class="container-fluid"></div></div><div id="extension-dashboard-tab-grid1" class="extension-dashboard-tab"><div id="extension-dashboard-grid1" class="container-fluid"></div></div><div id="extension-dashboard-tab-grid2" class="extension-dashboard-tab extension-dashboard-tab-selected"><div id="extension-dashboard-grid2" class="container-fluid"><div class="grid-stack gs-6 grid-stack-animate grid-stack-static" gs-current-row="7" gs-static="true" style="--gs-item-margin-top: 15px; --gs-item-margin-bottom: 15px; --gs-item-margin-right: 15px; --gs-item-margin-left: 15px; --gs-column-width: 16.666666666666668%; --gs-cell-height: 179.5px; height: 1256.5px;"><div class="grid-stack-item ui-draggable-disabled ui-resizable-disabled" gs-id="widget0" id="extension-dashboard-grid2-widget0"><div class="grid-stack-item-content"><div data-template-name="media_player" class="extension-dashboard-template extension-dashboard-widget-media-player">
+					          	<div class="extension-dashboard-widget-thrit">
+									
+									<div class="extension-dashboard-widget-name-needs-rename extension-dashboard-widget-hide-if-empty extension-dashboard-widget-hide-if-short extension-dashboard-widget-block-title-container">adf sffg sad f</div>
+									
+									<div class="extension-dashboard-widget-media-player-controls">
+											
+										<div class="extension-dashboard-widget-media-player-control-previous-button extension-dashboard-widget-previous-needs-action">
+											<div class="extension-dashboard-widget-media-player-control-previous-button-icon"><!--&laquo;--></div>
+										</div>
+										
+										<div>
+											<input type="checkbox" name="extension-dashboard-widget-grid2-widget0" id="extension-dashboard-widget-grid2-widget0" class="extension-dashboard-widget-play_pause_button-needs-update extension-dashboard-hidden" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="power" data-extension-dashboard-update-thing-combo="internet-radio--x--power">
+											<label for="extension-dashboard-widget-grid2-widget0" class="extension-dashboard-grid-center">
+												<div class="extension-dashboard-widget-media-play-button-container extension-dashboard-grid-center">
+													<div class="extension-dashboard-widget-media-play-button">
+														<span class="extension-dashboard-widget-media-play-button-icon">
+															<span class="extension-dashboard-widget-media-play-button extension-dashboard-widget-media-play-button-before"></span>
+															<span class="extension-dashboard-widget-media-play-button extension-dashboard-widget-media-play-button-after"></span>
+														</span>
+													</div>
+												</div>
+											</label>
+										</div>
+										
+										<div class="extension-dashboard-widget-media-player-control-next-button extension-dashboard-widget-next-needs-action">
+											<div class="extension-dashboard-widget-media-player-control-next-button-icon extension-dashboard-widget-next-needs-action"><!--&raquo;--></div>
+										</div>
+											
+									</div>
+									
+									
+									<div class="extension-dashboard-grid-center extension-dashboard-flex-grow extension-dashboard-widget-slider-container extension-dashboard-widget-allow-vertical-slider-if-thin">
+										<input type="range" class="extension-dashboard-widget-volume-needs-update" step="1" min="0" max="100" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="volume" data-extension-dashboard-update-thing-combo="internet-radio--x--volume">
+									</div>
+									
+									<div class="extension-dashboard-widget-media-player-info-container extension-dashboard-flex-grow-if-not-thin">
+										<div class="extension-dashboard-flex-row">
+											<div class="extension-dashboard-widget-icon-disc"></div>
+							          		<div class="extension-dashboard-widget-media-player-info extension-dashboard-click-to-copy-to-clipboard">
+												<p class="extension-dashboard-widget-source-needs-update"></p>
+							            		<p class="extension-dashboard-widget-song_title-needs-update" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="song" data-extension-dashboard-update-thing-combo="internet-radio--x--song">As Wild As You Wanna Be </p>
+							            		<small class="extension-dashboard-widget-artist-needs-update" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="artist" data-extension-dashboard-update-thing-combo="internet-radio--x--artist">Deborah de Luca</small>
+							          		</div>
+										</div>
+									</div>
+								</div>
+							</div><div class="extension-dashboard-show-if-editing extension-dashboard-configure-widget-button"> </div></div></div><div class="grid-stack-item ui-draggable-disabled ui-resizable-disabled" gs-x="1" gs-w="2" gs-id="widget2" id="extension-dashboard-grid2-widget2" style="left: var(--gs-column-width); width: calc(2 * var(--gs-column-width));"><div class="grid-stack-item-content"><div data-template-name="media_player" class="extension-dashboard-template extension-dashboard-widget-media-player">
+					          	<div class="extension-dashboard-widget-thrit">
+									
+									<div class="extension-dashboard-widget-name-needs-rename extension-dashboard-widget-hide-if-empty extension-dashboard-widget-hide-if-short extension-dashboard-widget-block-title-container">d sad sdg sdf agf</div>
+									
+									<div class="extension-dashboard-widget-media-player-controls">
+											
+										<div class="extension-dashboard-widget-media-player-control-previous-button extension-dashboard-widget-previous-needs-action">
+											<div class="extension-dashboard-widget-media-player-control-previous-button-icon"><!--&laquo;--></div>
+										</div>
+										
+										<div>
+											<input type="checkbox" name="extension-dashboard-widget-grid2-widget2" id="extension-dashboard-widget-grid2-widget2" class="extension-dashboard-widget-play_pause_button-needs-update extension-dashboard-hidden" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="power" data-extension-dashboard-update-thing-combo="internet-radio--x--power">
+											<label for="extension-dashboard-widget-grid2-widget2" class="extension-dashboard-grid-center">
+												<div class="extension-dashboard-widget-media-play-button-container extension-dashboard-grid-center">
+													<div class="extension-dashboard-widget-media-play-button">
+														<span class="extension-dashboard-widget-media-play-button-icon">
+															<span class="extension-dashboard-widget-media-play-button extension-dashboard-widget-media-play-button-before"></span>
+															<span class="extension-dashboard-widget-media-play-button extension-dashboard-widget-media-play-button-after"></span>
+														</span>
+													</div>
+												</div>
+											</label>
+										</div>
+										
+										<div class="extension-dashboard-widget-media-player-control-next-button extension-dashboard-widget-next-needs-action">
+											<div class="extension-dashboard-widget-media-player-control-next-button-icon extension-dashboard-widget-next-needs-action"><!--&raquo;--></div>
+										</div>
+											
+									</div>
+									
+									
+									<div class="extension-dashboard-grid-center extension-dashboard-flex-grow extension-dashboard-widget-slider-container extension-dashboard-widget-allow-vertical-slider-if-thin">
+										<input type="range" class="extension-dashboard-widget-volume-needs-update" step="1" min="0" max="100" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="volume" data-extension-dashboard-update-thing-combo="internet-radio--x--volume">
+									</div>
+									
+									<div class="extension-dashboard-widget-media-player-info-container extension-dashboard-flex-grow-if-not-thin">
+										<div class="extension-dashboard-flex-row">
+											<div class="extension-dashboard-widget-icon-disc"></div>
+							          		<div class="extension-dashboard-widget-media-player-info extension-dashboard-click-to-copy-to-clipboard">
+												<p class="extension-dashboard-widget-source-needs-update"></p>
+							            		<p class="extension-dashboard-widget-song_title-needs-update" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="song" data-extension-dashboard-update-thing-combo="internet-radio--x--song">As Wild As You Wanna Be </p>
+							            		<small class="extension-dashboard-widget-artist-needs-update" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="artist" data-extension-dashboard-update-thing-combo="internet-radio--x--artist">Deborah de Luca</small>
+							          		</div>
+										</div>
+									</div>
+								</div>
+							</div><div class="extension-dashboard-show-if-editing extension-dashboard-configure-widget-button"> </div></div></div><div class="grid-stack-item ui-draggable-disabled ui-resizable-disabled" gs-x="4" gs-h="4" gs-id="widget4" id="extension-dashboard-grid2-widget4" style="left: calc(4 * var(--gs-column-width)); height: calc(4 * var(--gs-cell-height));"><div class="grid-stack-item-content"><div data-template-name="thermostat" data-widget-has-dial="true" class="extension-dashboard-template extension-dashboard-widget-round extension-dashboard-widget-thermostat">
+								<div class="extension-dashboard-widget-dial-name-container">
+									<div class="extension-dashboard-widget-name-needs-rename extension-dashboard-widget-hide-if-empty">sd sfa f</div>
+								</div>
+								
+								<div class="extension-dashboard-widget-split-compact">
+									
+									<div class="extension-dashboard-widget-thermostat-setpoint-display extension-dashboard-grid-center">
+							        	<strong><span class="extension-dashboard-widget-temperature-value"><span class="extension-dashboard-widget-temperature-needs-update" step="0.1" data-extension-dashboard-update-thing="virtual-things-24" data-extension-dashboard-update-property="temperature" data-extension-dashboard-update-thing-combo="virtual-things-24--x--temperature">91.7</span><!--°--></span><span class="extension-dashboard-widget-setpoint-arrow extension-dashboard-widget-hide-if-1x1"> ➝ </span><span class="extension-dashboard-widget-setpoint-container"><input type="number" step="0.5" value="20.5" class="extension-dashboard-widget-setpoint-needs-update" data-extension-dashboard-update-thing="virtual-things-24" data-extension-dashboard-update-property="heatingTargetTemperature" data-extension-dashboard-update-thing-combo="virtual-things-24--x--heatingTargetTemperature"><span class="extension-dashboard-widget-setpoint-degrees">°</span></span></strong>
+										<input type="number" class="extension-dashboard-hidden extension-dashboard-widget-minimum-value extension-dashboard-widget-minimum_temperature-needs-rename">
+										<input type="number" class="extension-dashboard-hidden extension-dashboard-widget-maximum-value extension-dashboard-widget-maximum_temperature-needs-rename">
+									</div>
+									
+									<div class="extension-dashboard-widget-thermostat-setpoint-buttons">
+										<div class="extension-dashboard-widget-decrease-last-number-input extension-dashboard-grid-center"><div class="extension-dashboard-flex-center"> - </div></div><!-- &#10134; -->
+										<div class="extension-dashboard-widget-increase-last-number-input extension-dashboard-grid-center"><div class="extension-dashboard-flex-center"> + </div></div><!-- &#10133; -->
+									</div>
+									
+								</div>
+								
+								
+								<div class="extension-dashboard-widget-dial-container">
+									<div class="extension-dashboard-widget-dial">
+										<div class="extension-dashboard-widget-dial-ticks"><span style="transform: rotate(180deg) translate(480%)" class="extension-dashboard-widget-dial-tick-even">10</span><span style="transform: rotate(192.85714285714286deg) translate(480%)" class="extension-dashboard-widget-dial-tick-uneven"></span><span style="transform: rotate(205.71428571428572deg) translate(480%)" class="extension-dashboard-widget-dial-tick-even">11</span><span style="transform: rotate(218.57142857142856deg) translate(480%)" class="extension-dashboard-widget-dial-tick-uneven"></span><span style="transform: rotate(231.42857142857144deg) translate(480%)" class="extension-dashboard-widget-dial-tick-even">12</span><span style="transform: rotate(244.28571428571428deg) translate(480%)" class="extension-dashboard-widget-dial-tick-uneven"></span><span style="transform: rotate(257.1428571428571deg) translate(480%)" class="extension-dashboard-widget-dial-tick-even">13</span><span style="transform: rotate(270deg) translate(480%)" class="extension-dashboard-widget-dial-tick-uneven"></span><span style="transform: rotate(282.8571428571429deg) translate(480%)" class="extension-dashboard-widget-dial-tick-even">14</span><span style="transform: rotate(295.7142857142857deg) translate(480%)" class="extension-dashboard-widget-dial-tick-uneven"></span><span style="transform: rotate(308.57142857142856deg) translate(480%)" class="extension-dashboard-widget-dial-tick-even">15</span><span style="transform: rotate(321.42857142857144deg) translate(480%)" class="extension-dashboard-widget-dial-tick-uneven"></span><span style="transform: rotate(334.2857142857143deg) translate(480%)" class="extension-dashboard-widget-dial-tick-even">16</span><span style="transform: rotate(347.1428571428571deg) translate(480%)" class="extension-dashboard-widget-dial-tick-uneven"></span><span style="transform: rotate(360deg) translate(480%)" class="extension-dashboard-widget-dial-tick-even">17</span></div>
+										<div class="extension-dashboard-widget-dial-notches"></div>
+										<div class="extension-dashboard-widget-dial-needle" style="transform:rotateZ(259.7142857142857deg);"></div>
+									</div>
+									
+								</div>
+								
+							</div><div class="extension-dashboard-show-if-editing extension-dashboard-configure-widget-button"> </div></div></div><div class="grid-stack-item ui-draggable-disabled ui-resizable-disabled" gs-x="5" gs-h="3" gs-id="widget6" id="extension-dashboard-grid2-widget6" style="left: calc(5 * var(--gs-column-width)); height: calc(3 * var(--gs-cell-height));"><div class="grid-stack-item-content"><div data-template-name="media_player" class="extension-dashboard-template extension-dashboard-widget-media-player">
+					          	<div class="extension-dashboard-widget-thrit">
+									
+									<div class="extension-dashboard-widget-name-needs-rename extension-dashboard-widget-hide-if-empty extension-dashboard-widget-hide-if-short extension-dashboard-widget-block-title-container">sdf sdf ads aff</div>
+									
+									<div class="extension-dashboard-widget-media-player-controls">
+											
+										<div class="extension-dashboard-widget-media-player-control-previous-button extension-dashboard-widget-previous-needs-action">
+											<div class="extension-dashboard-widget-media-player-control-previous-button-icon"><!--&laquo;--></div>
+										</div>
+										
+										<div>
+											<input type="checkbox" name="extension-dashboard-widget-grid2-widget6" id="extension-dashboard-widget-grid2-widget6" class="extension-dashboard-widget-play_pause_button-needs-update extension-dashboard-hidden" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="power" data-extension-dashboard-update-thing-combo="internet-radio--x--power">
+											<label for="extension-dashboard-widget-grid2-widget6" class="extension-dashboard-grid-center">
+												<div class="extension-dashboard-widget-media-play-button-container extension-dashboard-grid-center">
+													<div class="extension-dashboard-widget-media-play-button">
+														<span class="extension-dashboard-widget-media-play-button-icon">
+															<span class="extension-dashboard-widget-media-play-button extension-dashboard-widget-media-play-button-before"></span>
+															<span class="extension-dashboard-widget-media-play-button extension-dashboard-widget-media-play-button-after"></span>
+														</span>
+													</div>
+												</div>
+											</label>
+										</div>
+										
+										<div class="extension-dashboard-widget-media-player-control-next-button extension-dashboard-widget-next-needs-action">
+											<div class="extension-dashboard-widget-media-player-control-next-button-icon extension-dashboard-widget-next-needs-action"><!--&raquo;--></div>
+										</div>
+											
+									</div>
+									
+									
+									<div class="extension-dashboard-grid-center extension-dashboard-flex-grow extension-dashboard-widget-slider-container extension-dashboard-widget-allow-vertical-slider-if-thin">
+										<input type="range" class="extension-dashboard-widget-volume-needs-update" step="1" min="0" max="100" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="volume" data-extension-dashboard-update-thing-combo="internet-radio--x--volume">
+									</div>
+									
+									<div class="extension-dashboard-widget-media-player-info-container extension-dashboard-flex-grow-if-not-thin">
+										<div class="extension-dashboard-flex-row">
+											<div class="extension-dashboard-widget-icon-disc"></div>
+							          		<div class="extension-dashboard-widget-media-player-info extension-dashboard-click-to-copy-to-clipboard">
+												<p class="extension-dashboard-widget-source-needs-update" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="station" data-extension-dashboard-update-thing-combo="internet-radio--x--station">* Meme dans les orties *</p>
+							            		<p class="extension-dashboard-widget-song_title-needs-update" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="song" data-extension-dashboard-update-thing-combo="internet-radio--x--song">As Wild As You Wanna Be </p>
+							            		<small class="extension-dashboard-widget-artist-needs-update" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="artist" data-extension-dashboard-update-thing-combo="internet-radio--x--artist">Deborah de Luca</small>
+							          		</div>
+										</div>
+									</div>
+								</div>
+							</div><div class="extension-dashboard-show-if-editing extension-dashboard-configure-widget-button"> </div></div></div><div class="grid-stack-item ui-draggable-disabled ui-resizable-disabled" gs-y="1" gs-h="2" gs-id="widget1" id="extension-dashboard-grid2-widget1" style="top: var(--gs-cell-height); height: calc(2 * var(--gs-cell-height));"><div class="grid-stack-item-content"><div data-template-name="media_player" class="extension-dashboard-template extension-dashboard-widget-media-player">
+					          	<div class="extension-dashboard-widget-thrit">
+									
+									<div class="extension-dashboard-widget-name-needs-rename extension-dashboard-widget-hide-if-empty extension-dashboard-widget-hide-if-short extension-dashboard-widget-block-title-container">s afas fasdfghstdrasfd sa</div>
+									
+									<div class="extension-dashboard-widget-media-player-controls">
+											
+										<div class="extension-dashboard-widget-media-player-control-previous-button extension-dashboard-widget-previous-needs-action">
+											<div class="extension-dashboard-widget-media-player-control-previous-button-icon"><!--&laquo;--></div>
+										</div>
+										
+										<div>
+											<input type="checkbox" name="extension-dashboard-widget-grid2-widget1" id="extension-dashboard-widget-grid2-widget1" class="extension-dashboard-widget-play_pause_button-needs-update extension-dashboard-hidden" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="power" data-extension-dashboard-update-thing-combo="internet-radio--x--power">
+											<label for="extension-dashboard-widget-grid2-widget1" class="extension-dashboard-grid-center">
+												<div class="extension-dashboard-widget-media-play-button-container extension-dashboard-grid-center">
+													<div class="extension-dashboard-widget-media-play-button">
+														<span class="extension-dashboard-widget-media-play-button-icon">
+															<span class="extension-dashboard-widget-media-play-button extension-dashboard-widget-media-play-button-before"></span>
+															<span class="extension-dashboard-widget-media-play-button extension-dashboard-widget-media-play-button-after"></span>
+														</span>
+													</div>
+												</div>
+											</label>
+										</div>
+										
+										<div class="extension-dashboard-widget-media-player-control-next-button extension-dashboard-widget-next-needs-action">
+											<div class="extension-dashboard-widget-media-player-control-next-button-icon extension-dashboard-widget-next-needs-action"><!--&raquo;--></div>
+										</div>
+											
+									</div>
+									
+									
+									<div class="extension-dashboard-grid-center extension-dashboard-flex-grow extension-dashboard-widget-slider-container extension-dashboard-widget-allow-vertical-slider-if-thin">
+										<input type="range" class="extension-dashboard-widget-volume-needs-update" step="1" min="0" max="100" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="volume" data-extension-dashboard-update-thing-combo="internet-radio--x--volume">
+									</div>
+									
+									<div class="extension-dashboard-widget-media-player-info-container extension-dashboard-flex-grow-if-not-thin">
+										<div class="extension-dashboard-flex-row">
+											<div class="extension-dashboard-widget-icon-disc"></div>
+							          		<div class="extension-dashboard-widget-media-player-info extension-dashboard-click-to-copy-to-clipboard">
+												<p class="extension-dashboard-widget-source-needs-update"></p>
+							            		<p class="extension-dashboard-widget-song_title-needs-update" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="song" data-extension-dashboard-update-thing-combo="internet-radio--x--song">As Wild As You Wanna Be </p>
+							            		<small class="extension-dashboard-widget-artist-needs-update" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="artist" data-extension-dashboard-update-thing-combo="internet-radio--x--artist">Deborah de Luca</small>
+							          		</div>
+										</div>
+									</div>
+								</div>
+							</div><div class="extension-dashboard-show-if-editing extension-dashboard-configure-widget-button"> </div></div></div><div class="grid-stack-item ui-draggable-disabled ui-resizable-disabled" gs-x="1" gs-y="1" gs-h="4" gs-id="widget7" id="extension-dashboard-grid2-widget7" style="top: var(--gs-cell-height); left: var(--gs-column-width); height: calc(4 * var(--gs-cell-height));"><div class="grid-stack-item-content"><div data-template-name="list-selector" class="extension-dashboard-template extension-dashboard-widget-list-selector">
+						        <div class="extension-dashboard-flex-compact">
+									<div class="extension-dashboard-widget-name-needs-rename extension-dashboard-widget-hide-if-empty extension-dashboard-widget-block-title-container"></div>
+									<ul class="extension-dashboard-widget-options_list-needs-update extension-dashboard-flex-wrap extension-dashboard-flex-grow" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="station" data-extension-dashboard-update-thing-combo="internet-radio--x--station">
+										
+										
+										
+									<li class="extension-dashboard-list-selector-item">FIP</li><li class="extension-dashboard-list-selector-item extension-dashboard-widget-list-selector-highlighted-item">* Meme dans les orties *</li><li class="extension-dashboard-list-selector-item">BBC Radio Ulster</li><li class="extension-dashboard-list-selector-item">CBS 음악FM</li><li class="extension-dashboard-list-selector-item">Rádió GaGa Udvarhelyszék</li><li class="extension-dashboard-list-selector-item">AbdulbasitAbdulsamad</li></ul>
+								</div>
+							</div><div class="extension-dashboard-show-if-editing extension-dashboard-configure-widget-button"> </div></div></div><div class="grid-stack-item ui-draggable-disabled ui-resizable-disabled" gs-x="2" gs-y="1" gs-w="2" gs-h="2" gs-id="widget3" id="extension-dashboard-grid2-widget3" style="top: var(--gs-cell-height); left: calc(2 * var(--gs-column-width)); width: calc(2 * var(--gs-column-width)); height: calc(2 * var(--gs-cell-height));"><div class="grid-stack-item-content"><div data-template-name="media_player" class="extension-dashboard-template extension-dashboard-widget-media-player">
+					          	<div class="extension-dashboard-widget-thrit">
+									
+									<div class="extension-dashboard-widget-name-needs-rename extension-dashboard-widget-hide-if-empty extension-dashboard-widget-hide-if-short extension-dashboard-widget-block-title-container">asd fdfg sdf sddfg aaf</div>
+									
+									<div class="extension-dashboard-widget-media-player-controls">
+											
+										<div class="extension-dashboard-widget-media-player-control-previous-button extension-dashboard-widget-previous-needs-action">
+											<div class="extension-dashboard-widget-media-player-control-previous-button-icon"><!--&laquo;--></div>
+										</div>
+										
+										<div>
+											<input type="checkbox" name="extension-dashboard-widget-grid2-widget3" id="extension-dashboard-widget-grid2-widget3" class="extension-dashboard-widget-play_pause_button-needs-update extension-dashboard-hidden" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="power" data-extension-dashboard-update-thing-combo="internet-radio--x--power">
+											<label for="extension-dashboard-widget-grid2-widget3" class="extension-dashboard-grid-center">
+												<div class="extension-dashboard-widget-media-play-button-container extension-dashboard-grid-center">
+													<div class="extension-dashboard-widget-media-play-button">
+														<span class="extension-dashboard-widget-media-play-button-icon">
+															<span class="extension-dashboard-widget-media-play-button extension-dashboard-widget-media-play-button-before"></span>
+															<span class="extension-dashboard-widget-media-play-button extension-dashboard-widget-media-play-button-after"></span>
+														</span>
+													</div>
+												</div>
+											</label>
+										</div>
+										
+										<div class="extension-dashboard-widget-media-player-control-next-button extension-dashboard-widget-next-needs-action">
+											<div class="extension-dashboard-widget-media-player-control-next-button-icon extension-dashboard-widget-next-needs-action"><!--&raquo;--></div>
+										</div>
+											
+									</div>
+									
+									
+									<div class="extension-dashboard-grid-center extension-dashboard-flex-grow extension-dashboard-widget-slider-container extension-dashboard-widget-allow-vertical-slider-if-thin">
+										<input type="range" class="extension-dashboard-widget-volume-needs-update" step="1" min="0" max="100" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="volume" data-extension-dashboard-update-thing-combo="internet-radio--x--volume">
+									</div>
+									
+									<div class="extension-dashboard-widget-media-player-info-container extension-dashboard-flex-grow-if-not-thin">
+										<div class="extension-dashboard-flex-row">
+											<div class="extension-dashboard-widget-icon-disc"></div>
+							          		<div class="extension-dashboard-widget-media-player-info extension-dashboard-click-to-copy-to-clipboard">
+												<p class="extension-dashboard-widget-source-needs-update" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="station" data-extension-dashboard-update-thing-combo="internet-radio--x--station">* Meme dans les orties *</p>
+							            		<p class="extension-dashboard-widget-song_title-needs-update" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="song" data-extension-dashboard-update-thing-combo="internet-radio--x--song">As Wild As You Wanna Be </p>
+							            		<small class="extension-dashboard-widget-artist-needs-update" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="artist" data-extension-dashboard-update-thing-combo="internet-radio--x--artist">Deborah de Luca</small>
+							          		</div>
+										</div>
+									</div>
+								</div>
+							</div><div class="extension-dashboard-show-if-editing extension-dashboard-configure-widget-button"> </div></div></div><div class="grid-stack-item ui-draggable-disabled ui-resizable-disabled" gs-x="2" gs-y="4" gs-w="3" gs-h="3" gs-id="widget5" id="extension-dashboard-grid2-widget5" style="top: calc(4 * var(--gs-cell-height)); left: calc(2 * var(--gs-column-width)); width: calc(3 * var(--gs-column-width)); height: calc(3 * var(--gs-cell-height));"><div class="grid-stack-item-content"><div data-template-name="media_player" class="extension-dashboard-template extension-dashboard-widget-media-player">
+					          	<div class="extension-dashboard-widget-thrit">
+									
+									<div class="extension-dashboard-widget-name-needs-rename extension-dashboard-widget-hide-if-empty extension-dashboard-widget-hide-if-short extension-dashboard-widget-block-title-container">z dfzsdf  dfg sdf</div>
+									
+									<div class="extension-dashboard-widget-media-player-controls">
+											
+										<div class="extension-dashboard-widget-media-player-control-previous-button extension-dashboard-widget-previous-needs-action">
+											<div class="extension-dashboard-widget-media-player-control-previous-button-icon"><!--&laquo;--></div>
+										</div>
+										
+										<div>
+											<input type="checkbox" name="extension-dashboard-widget-grid2-widget5" id="extension-dashboard-widget-grid2-widget5" class="extension-dashboard-widget-play_pause_button-needs-update extension-dashboard-hidden" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="power" data-extension-dashboard-update-thing-combo="internet-radio--x--power">
+											<label for="extension-dashboard-widget-grid2-widget5" class="extension-dashboard-grid-center">
+												<div class="extension-dashboard-widget-media-play-button-container extension-dashboard-grid-center">
+													<div class="extension-dashboard-widget-media-play-button">
+														<span class="extension-dashboard-widget-media-play-button-icon">
+															<span class="extension-dashboard-widget-media-play-button extension-dashboard-widget-media-play-button-before"></span>
+															<span class="extension-dashboard-widget-media-play-button extension-dashboard-widget-media-play-button-after"></span>
+														</span>
+													</div>
+												</div>
+											</label>
+										</div>
+										
+										<div class="extension-dashboard-widget-media-player-control-next-button extension-dashboard-widget-next-needs-action">
+											<div class="extension-dashboard-widget-media-player-control-next-button-icon extension-dashboard-widget-next-needs-action"><!--&raquo;--></div>
+										</div>
+											
+									</div>
+									
+									
+									<div class="extension-dashboard-grid-center extension-dashboard-flex-grow extension-dashboard-widget-slider-container extension-dashboard-widget-allow-vertical-slider-if-thin">
+										<input type="range" class="extension-dashboard-widget-volume-needs-update" step="1" min="0" max="100" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="volume" data-extension-dashboard-update-thing-combo="internet-radio--x--volume">
+									</div>
+									
+									<div class="extension-dashboard-widget-media-player-info-container extension-dashboard-flex-grow-if-not-thin">
+										<div class="extension-dashboard-flex-row">
+											<div class="extension-dashboard-widget-icon-disc"></div>
+							          		<div class="extension-dashboard-widget-media-player-info extension-dashboard-click-to-copy-to-clipboard">
+												<p class="extension-dashboard-widget-source-needs-update" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="station" data-extension-dashboard-update-thing-combo="internet-radio--x--station">* Meme dans les orties *</p>
+							            		<p class="extension-dashboard-widget-song_title-needs-update" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="song" data-extension-dashboard-update-thing-combo="internet-radio--x--song">As Wild As You Wanna Be </p>
+							            		<small class="extension-dashboard-widget-artist-needs-update" data-extension-dashboard-update-thing="internet-radio" data-extension-dashboard-update-property="artist" data-extension-dashboard-update-thing-combo="internet-radio--x--artist">Deborah de Luca</small>
+							          		</div>
+										</div>
+									</div>
+								</div>
+							</div><div class="extension-dashboard-show-if-editing extension-dashboard-configure-widget-button"> </div></div></div></div></div></div><div id="extension-dashboard-tab-grid3" class="extension-dashboard-tab"><div id="extension-dashboard-grid3" class="container-fluid"></div></div><div id="extension-dashboard-tab-grid4" class="extension-dashboard-tab"><div id="extension-dashboard-grid4" class="container-fluid"></div></div><div id="extension-dashboard-tab-grid5" class="extension-dashboard-tab"><div id="extension-dashboard-grid5" class="container-fluid"></div></div><div id="extension-dashboard-tab-grid6" class="extension-dashboard-tab"><div id="extension-dashboard-grid6" class="container-fluid"></div></div><div id="extension-dashboard-tab-grid7" class="extension-dashboard-tab"><div id="extension-dashboard-grid7" class="container-fluid"></div></div><div id="extension-dashboard-tab-grid8" class="extension-dashboard-tab"><div id="extension-dashboard-grid8" class="container-fluid"></div></div><div id="extension-dashboard-tab-grid10" class="extension-dashboard-tab"><div id="extension-dashboard-grid10" class="container-fluid"></div></div><div id="extension-dashboard-tab-grid11" class="extension-dashboard-tab"><div id="extension-dashboard-grid11" class="container-fluid"></div></div><div id="extension-dashboard-tab-grid12" class="extension-dashboard-tab"><div id="extension-dashboard-grid12" class="container-fluid"></div></div><div id="extension-dashboard-tab-grid9" class="extension-dashboard-tab"><div id="extension-dashboard-grid9" class="container-fluid"></div></div><div id="extension-dashboard-tab-grid13" class="extension-dashboard-tab"><div id="extension-dashboard-grid13" class="container-fluid"></div></div><div id="extension-dashboard-tab-grid14" class="extension-dashboard-tab"><div id="extension-dashboard-grid14" class="container-fluid"></div></div><div id="extension-dashboard-tab-grid15" class="extension-dashboard-tab"><div id="extension-dashboard-grid15" class="container-fluid"></div></div><div id="extension-dashboard-tab-grid16" class="extension-dashboard-tab"><div id="extension-dashboard-grid16" class="container-fluid"></div></div><div id="extension-dashboard-tab-grid17" class="extension-dashboard-tab"><div id="extension-dashboard-grid17" class="container-fluid"></div></div><div id="extension-dashboard-tab-grid18" class="extension-dashboard-tab"><div id="extension-dashboard-grid18" class="container-fluid"></div></div></div>
 				
-				<div id="extension-dashboard-log-tooltip"></div>
+				<div id="extension-dashboard-log-tooltip" left="-1000" opacity="0"></div>
 				
             </div>
             
@@ -682,7 +1034,7 @@
 					</div>
 	        	</div>
 
-	            <input id="extension-dashboard-dashboards-file-selector" accept=".gif,.png,.jpg,.jpeg,.webp,image/gif,image/png,image/jpeg,image/webp" type="file" multiple="multiple"/>
+	            <input id="extension-dashboard-dashboards-file-selector" accept=".gif,.png,.jpg,.jpeg,.webp,image/gif,image/png,image/jpeg,image/webp" type="file" multiple="multiple">
 	            <div id="extension-dashboard-dashboards-file-selector-overlay">&nbsp;</div>
 	            <!--
 	            <button id="extension-dashboard-back-button" class="back-button icon-button" data-l10n-id="back-button" aria-label="Back"></button>
@@ -696,8 +1048,3 @@
         
     </div>
 </div>
-
-
-
-
-
