@@ -47,7 +47,7 @@
             this.dashboards = {}; //{"grid0":{"gridstack":{"cellHeight":50,"margin":5,"minRow":2,"acceptWidgets":true,"subGridOpts":{"cellHeight":50,"column":"auto","acceptWidgets":true,"margin":5,"subGridDynamic":true},"subGridDynamic":true,"children":[{"x":0,"y":0,"content":"0","id":"0"},{"x":0,"y":1,"content":"1","id":"1"},{"x":1,"y":0,"content":"2","id":"2"},{"x":2,"y":0,"w":2,"h":3,"id":"sub0","subGridOpts":{"children":[{"x":0,"y":0,"content":"3","id":"3"},{"x":1,"y":0,"content":"4","id":"4"}],"cellHeight":50,"column":"auto","acceptWidgets":true,"margin":5,"subGridDynamic":true}},{"x":4,"y":0,"h":2,"id":"sub1","subGridOpts":{"children":[{"x":0,"y":0,"content":"5","id":"5"}],"cellHeight":50,"column":"auto","acceptWidgets":true,"margin":5,"subGridDynamic":true}}]}} };
             this.interval = 30;
 			
-            this.interval_counter = 58; // used to run some functions every 30 seconds
+            this.interval_counter = 28; // used to run some functions every 30 seconds
 
 			this.hide_selected_dashboard_indicator_time = 0;
 			//this.dashboard_key_listener_added = false;
@@ -301,7 +301,7 @@
 					this.parse_icons();
 				}
 				
-                if(typeof body.start_with_background == 'boolean' && body.start_with_background == true){
+                if(typeof body.start_with_background == 'boolean' && body.start_with_background == true && !document.location.href.endsWith("dashboard")){
 					const dashboard_menu_item = document.getElementById('extension-dashboard-menu-item');
 					if(dashboard_menu_item){
 						this.delay_show_until_after_hide = true;
@@ -332,15 +332,23 @@
 		//
 
         show() {
-            if(this.debug){
-				console.warn("\n\ndashboard debug: in dashboard show()\n\n");
+			if (this.content == '') {
+				return
 			}
-			
 			if(this.delay_show_until_after_hide && document.getElementById('extension-dashboard-content')){
 	            if(this.debug){
 					console.warn("\n\ndashboard debug: show(): aborting, as dashboard seems to already be rendered\n\n");
 				}
 				return
+			}
+			setTimeout(() => {
+				this.really_show();
+			},100);
+		}
+			
+		really_show() {
+            if(this.debug){
+				console.warn("\n\ndashboard debug: in dashboard show()\n\n");
 			}
 			
             if (this.content == '') {
@@ -549,8 +557,7 @@
 							
 							}
 							
-							// every second adjust the second counters of voco timers
-							this.update_voco_actions();
+							
 							
 		                }
 				
@@ -565,8 +572,12 @@
 					
 							let now = new Date();
 							let hours = now.getHours();
-							//console.log("hours: ", hours);
-							if(hours < 7 || hours > 21){
+							
+							if(this.debug){
+								console.log("dashboard debug: slow interval:  hours,this.content_el: ", hours, this.content_el);
+							}
+							
+							if(hours < 7 || hours > 20){
 								this.content_el.classList.add('extension-dashboard-night');
 							}
 							else{
@@ -575,7 +586,9 @@
 							//this.get_init();
 						}
 				
-				
+						
+						// every second adjust the second counters of voco timers
+						this.update_voco_actions();
 						
 					
 				
@@ -2357,7 +2370,7 @@
 														if(this.debug){
 															console.warn("dashboard debug:  > > > and the value matches too: ", property_value);
 														}
-														this.recent_events[thing_id][property_id]['timestamp'] = Date.now();
+														//this.recent_events[thing_id][property_id]['timestamp'] = Date.now();
 														//continue
 													}
 												}
@@ -2799,7 +2812,10 @@
 																}
 															}
 														
-														
+															if(el_to_update.classList.contains('extension-dashboard-widget-adjust-width-to-input-length')){
+																el_to_update.style.width = (el_to_update.value.length) + "ch";
+															}
+															
 															//const change_event = new Event('change');
 															//el_to_update.dispatchEvent(change_event);
 														
@@ -3951,12 +3967,13 @@
 										if(class_name == 'extension-dashboard-widget-adjust-width-to-input-length'){
 											child_els[ix].addEventListener('change', () => {
 												console.log("setpoint input changed")
-												child_els[ix].style.width = child_els[ix].value.length + "ch";
+												child_els[ix].style.width = (child_els[ix].value.length) + "ch";
 											});
 											child_els[ix].addEventListener('input', () => {
 												console.log("setpoint input changed")
-												child_els[ix].style.width = child_els[ix].value.length + "ch";
+												child_els[ix].style.width = (child_els[ix].value.length) + "ch";
 											});
+											
 										}
 											
 										
@@ -4169,11 +4186,25 @@
 									icon_wrapper_el.classList.add('extension-dashboard-widget-ui-icon-has-been-selected');
 								}
 								
+								let remove_icon_el = document.createElement('button');
+								remove_icon_el.classList.add('text-button');
+								remove_icon_el.textContent = 'Remove icon';
+								remove_icon_el.addEventListener('click',() => {
+									selected_icon_image_el.removeAttribute('src');
+									icon_wrapper_el.classList.remove('extension-dashboard-widget-ui-icon-has-been-selected');
+									this.dashboards[grid_id]['widgets'][widget_id]['needs']['icon'][what_icon_is_needed] = null;
+									setTimeout(() => {
+										icon_picker_container_el.scrollIntoView({ behavior: "smooth", block: "center" });
+									},300);
+								})
+								
 								
 								icon_output_el.appendChild(selected_icon_image_el);
+								icon_output_el.appendChild(remove_icon_el);
 								
 								//icon_output_el.textContent = what_icon_is_needed;
 								icon_wrapper_el.appendChild(icon_output_el);
+								
 								
 								// ICON PICKER
 								// TODO: add cancel button to icon picker
@@ -4397,7 +4428,7 @@
 								
 								list_icons();
 								
-								icon_wrapper_el.appendChild(icon_picker_container_el);
+								icon_output_el.appendChild(icon_picker_container_el);
 						
 								icon_container_el.appendChild(icon_wrapper_el);
 							}
@@ -5072,6 +5103,37 @@
 								}
 								thing_select_property_container_el.innerHTML = '?';
 							}
+							
+							
+							
+							
+							// Try to pre-select this thing for the other thing-property selectors if they don't have a selection yet
+							console.error("switched to value: ", thing_select_el.value);
+							const update_root_el = thing_select_el.closest('.extension-dashboard-widget-ui-update-container');
+							if(update_root_el){
+								let all_thing_selectors = update_root_el.querySelectorAll('.extension-dashboard-modal-thing-select');
+								console.log("all_thing_selectors: ", all_thing_selectors);
+								for(let ts = 0; ts < all_thing_selectors.length; ts++){
+									console.log("ts, typeof .value, .value: ", ts, typeof all_thing_selectors[ts].value, all_thing_selectors[ts].value);
+									if(all_thing_selectors[ts].value == ''){
+										console.log("spotted a thing selector with an empty value");
+										const check_if_it_has_the_same_option_el = all_thing_selectors[ts].querySelector('option[value="' + thing_select_el.value + '"]');
+										console.log("check_if_it_has_the_same_option_el: ", check_if_it_has_the_same_option_el);
+										if(check_if_it_has_the_same_option_el){
+											console.log("setting other thing select to same value: ", thing_select_el.value);
+											all_thing_selectors[ts].value = thing_select_el.value;
+											var event = new Event('change');
+											all_thing_selectors[ts].dispatchEvent(event);
+										}
+									
+									}
+								}
+							}
+							
+							
+							
+							
+							
 						}
 						
 						
@@ -7073,8 +7135,6 @@ ticks.attr("class", function(d,i){
 		
 		// Update the HTML of Voco timers
 		update_voco_actions(){
-			
-			
 			const d = new Date();
 			let time = Math.floor(d.getTime() / 1000);
 			
@@ -7118,15 +7178,19 @@ ticks.attr("class", function(d,i){
 									}
 								}
 								
-								let seconds = Math.floor(delta % 60);
-								
-								let minutes = Math.floor(delta / 60);
-								
 								let hours = '';
+								let minutes = Math.floor(delta / 60);
 								if(minutes > 60){
 									hours = Math.floor(minutes/60);
 									action_el.querySelector('.extension-dashboard-voco-item-hours').innerText = hours;
 								}
+								
+								let seconds = Math.floor(delta % 60);
+								
+								
+								
+								
+								
 								
 								minutes = minutes % 60;
 								if(minutes == 0){

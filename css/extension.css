@@ -157,6 +157,10 @@
 	list-style: none;
 }
 
+#extension-dashboard-content ul:empty{
+	display:none;
+}
+
 #extension-dashboard-content.extension-dashboard-editing #extension-dashboard-tabs .extension-dashboard-template input{
 	pointer-events:none!important;
 }
@@ -675,10 +679,15 @@ body.kiosk #extension-dashboard-widget-modal-ui-container:not(:empty){
 	padding:1rem;
 	border-radius:1rem;
 	margin:.5rem 0 3rem 0;
-	background-color:rgba(255,255,255,.5);
+	background-color: var(--extension-dashboard-widget-background-color);
 }
 .extension-dashboard-widget-ui-icon-has-been-selected .extension-dashboard-widget-ui-icon-picker-container{
 	display:none;
+}
+
+.extension-dashboard-widget-ui-icon-output{
+	display:flex;
+	flex-direction:column;
 }
 
 .extension-dashboard-widget-ui-icon-output-image{
@@ -686,9 +695,25 @@ body.kiosk #extension-dashboard-widget-modal-ui-container:not(:empty){
 	cursor:pointer;
 }
 
-.extension-dashboard-widget-ui-icon-output-image:not([src]){
+#extension-dashboard-content .extension-dashboard-widget-ui-icon-output-image + button{
+	margin-right: auto;
+	margin-left:0;
+}
+
+
+.extension-dashboard-widget-ui-icon-output-image:not([src]),
+.extension-dashboard-widget-ui-icon-output-image:not([src]) + button{
 	display:none;
 }
+
+.extension-dashboard-widget-ui-icon-output-image:not([src]) + button + .extension-dashboard-widget-ui-icon-picker-container .extension-dashboard-widget-ui-icon-picker-close-button{
+	display:none;
+}
+/*
+.extension-dashboard-widget-ui-icon-picker-header:not(.extension-dashboard-widget-ui-icon-picker-show-close-button) .extension-dashboard-widget-ui-icon-picker-close-button{
+	display:none;
+}
+*/
 
 .extension-dashboard-widget-ui-icon-picker-tags-button{
 	margin-left:1rem;
@@ -698,9 +723,7 @@ body.kiosk #extension-dashboard-widget-modal-ui-container:not(:empty){
 	margin-left:auto;
 }
 
-.extension-dashboard-widget-ui-icon-picker-container:not(.extension-dashboard-widget-ui-icon-picker-show-close-button) .extension-dashboard-widget-ui-icon-picker-close-button{
-	display:none;
-}
+
 
 
 .extension-dashboard-widget-ui-icon-picker-search{
@@ -952,7 +975,7 @@ input[type="checkbox"]:not(:checked) ~ .extension-dashboard-widget-checkbox-togg
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"] .extension-dashboard-widget-clock-date-day{
-	font-size:2rem;
+	font-size:1.6rem;
 
 }
 
@@ -1160,6 +1183,22 @@ body.cups-printing:not(.screensaver) #extension-dashboard-print-button-container
 	overflow:hidden;
 }
 
+/*#extension-dashboard-content .grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button)*/
+
+.extension-dashboard-widget-voco:empty:after{
+	content:' ';
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	height:100%;
+	opacity:.1;
+	pointer-events:none;
+	background-image: url('/extensions/dashboard/icons/material_light_icons/voice-selection-rounded.svg');
+	background-size:contain;
+	background-repeat:no-repeat;
+}
+
 .extension-dashboard-widget-voco > div{
 	width:100%;
 	margin-bottom:.1rem;
@@ -1177,6 +1216,7 @@ body.cups-printing:not(.screensaver) #extension-dashboard-print-button-container
 	max-width:3rem;
 	box-sizing:border-box;
 	margin:0;
+	margin-right:.5rem;
 }
 
 .extension-dashboard-voco-item-info,
@@ -1185,7 +1225,7 @@ body.cups-printing:not(.screensaver) #extension-dashboard-print-button-container
 }
 .extension-dashboard-voco-item-time{
 	align-items:center;
-	margin:0 .5rem;
+	margin:0 .5rem 0 0;
 	padding:.5rem;
 }
 
@@ -1204,25 +1244,31 @@ body.cups-printing:not(.screensaver) #extension-dashboard-print-button-container
 }
 .extension-dashboard-voco-item-hours:not(:empty):after{
 	content:'h';
+	font-weight:100;
+	margin-right:.3rem;
 	opacity:.5;
 }
 .extension-dashboard-voco-item-minutes:not(:empty):after{
 	content:'m';
+	font-weight:100;
 	opacity:.5;
+	margin-right:.3rem;
 }
 .extension-dashboard-voco-item-seconds:not(:empty):after{
 	content:'s';
+	font-weight:100;
 	opacity:.5;
 }
 
 .extension-dashboard-voco-item-hours:not(:empty) + .extension-dashboard-voco-item-minutes:not(:empty) + .extension-dashboard-voco-item-seconds{
-	display:none;
+	opacity:.8;
 }
 
 .extension-dashboard-voco-item h4{
 	font-size:1.6rem;
 	font-weight:100;
 	margin:0;
+	font-style:italic;
 }
 
 .extension-dashboard-widget-voco .extension-dashboard-voco-item-countdown{
@@ -1609,10 +1655,13 @@ body:not(.screensaver) .extension-dashboard-effect{
 .extension-dashboard-widget-split,
 .extension-dashboard-widget-thrit{
 	display:flex;
-	flex-wrap:wrap;
 	min-height:100%;
 	box-sizing:border-box;
 }
+.extension-dashboard-widget-split{
+	flex-wrap:wrap;
+}
+
 .extension-dashboard-widget-split > div,
 .extension-dashboard-widget-thrit > div{
 	min-width:100px;
@@ -1669,7 +1718,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-thrit > div{
 	width:100%;
-	flex-basis:20%;
+	flex-basis:15%;
 }
 
 
@@ -2030,8 +2079,9 @@ body:not(.screensaver) .extension-dashboard-effect{
     color: white;
 }
 */
-
-.extension-dashboard-widget-property-slider input[type="checkbox"].extension-dashboard-widget-switch_state-needs-update:not([data-extension-dashboard-update-property]) + label small{
+.extension-dashboard-widget-property-switch input[type="checkbox"].extension-dashboard-widget-switch_state-needs-update:not([data-extension-dashboard-update-property]) + label small,
+.extension-dashboard-widget-property-slider input[type="checkbox"].extension-dashboard-widget-switch_state-needs-update:not([data-extension-dashboard-update-property]) + label small,
+.extension-dashboard-widget-property-color input[type="checkbox"].extension-dashboard-widget-switch_state-needs-update:not([data-extension-dashboard-update-property]) + label small{
 	display:none;
 }
 
@@ -2072,6 +2122,15 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 
+
+/*  second icon  */
+
+.extension-dashboard-widget-property-switch input:checked + label span.extension-dashboard-widget-checkbox-toggle-checked-content[style]{
+	
+}
+#extension-dashboard-content .extension-dashboard-widget-property-switch input:checked + label span.extension-dashboard-widget-checkbox-toggle-checked-content[style] + span{
+	display:none;
+}
 
 
 
@@ -2153,8 +2212,11 @@ body:not(.screensaver) .extension-dashboard-effect{
 /*   LIST SELECTOR WIDGET   */
 
 ul.extension-dashboard-widget-enum-list{
-	padding-left: 0;
+	padding: 1.5rem;
 	margin: 0;
+	max-width:100%;
+	display:flex;flex-wrap:wrap;
+	overflow:hidden;
 }
 
 .extension-dashboard-widget-list-selector .extension-dashboard-widget-block-title-container{
@@ -2164,7 +2226,6 @@ ul.extension-dashboard-widget-enum-list{
 ul > .extension-dashboard-list-selector-item{
 	margin:0;
 	padding:.5rem 1.5rem;
-	overflow:auto;
 }
 
 li.extension-dashboard-list-selector-item{
@@ -2182,10 +2243,18 @@ li.extension-dashboard-list-selector-item:hover{
 
 li.extension-dashboard-list-selector-item:hover,
 li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-selector-highlighted-item{
-	color:var(--extension-dashboard-widget-editable-text-color);
-	background-color:rgba(255,255,255,.4);
+	background-color:var(--extension-dashboard-widget-editable-text-color);
+	/*background-color:rgba(255,255,255,.4);
+	box-shadow: inset 0 0 0 1px var(--extension-dashboard-widget-editable-text-color);*/
+	color:white;
+	
 }
-
+/*
+li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-selector-highlighted-item){
+	 box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.1);
+}
+*/
+   
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"]:not([gs-w]) .extension-dashboard-widget-list-selector ul,
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"]:not([gs-w]) .extension-dashboard-widget-list-selector ul,
@@ -2327,6 +2396,10 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
 	flex-grow:0!important;
 }
 
+.extension-dashboard-widget-media-player-info-container{
+	margin-top:1.5rem;
+}
+
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"]:not([gs-h="3"]):not([gs-w]) .extension-dashboard-widget-media-player-info-container,
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h]) .extension-dashboard-widget-media-player-info-container,
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w="3"]) .extension-dashboard-widget-media-player-info-container{
@@ -2334,7 +2407,7 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-media-player-info-container{
-	padding-bottom:0 1.5rem;
+	padding:0 1.5rem;
 }
 
 
@@ -2360,6 +2433,10 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
 .extension-dashboard-widget-media-player-info{
 	position:relative;
 	border-radius:.5rem;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-media-player-info{
@@ -2368,7 +2445,8 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-icon-disc{
-	margin-left: 2.5rem;
+	margin-left: 1.5rem;
+	margin-bottom:1.5rem;
 }
 
 
@@ -2433,7 +2511,8 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
 	display:flex;
 	align-items:center;
 	justify-content:space-around;
-	margin-top:1rem;
+	margin-top:2rem;
+	margin-bottom:1rem;
 }
 
 
@@ -2453,6 +2532,7 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
 .extension-dashboard-widget-media-play-button-container{
     width: 50px;
     height: 50px;
+	cursor:pointer;
 }
 
 .extension-dashboard-widget-media-play-button{
@@ -2527,12 +2607,6 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
     clip-path: polygon(70% 0, 100% 0, 100% 100%, 70% 100%)
 }
 
-
-
-
-
-
-
 .extension-dashboard-widget-media-player-control-previous-button,
 .extension-dashboard-widget-media-player-control-next-button{
     height: 45px;
@@ -2585,18 +2659,8 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
 }
 
 /*
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"] .extension-dashboard-widget-media-player-control-previous-button-icon,
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"] .extension-dashboard-widget-media-player-control-next-button-icon{
-	width: 50px;
-	display: inline-block;
-	text-align: center;
-}
-
-.extension-dashboard-widget-media-player-control-previous-button-icon:hover,
-.extension-dashboard-widget-media-player-control-next-button-icon:hover{
-    background-color: rgba(0, 0, 0, .1);
-	box-shadow: 20px 20px 60px #88949e, -20px -20px 60px #b8c8d6;
-	transition: all .3s ease-out;
+.extension-dashboard-widget-media-player li.extension-dashboard-list-selector-item{
+	margin-bottom:0;
 }
 */
 
@@ -2804,7 +2868,47 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
       33em 0 0 0.25em var(--widget-lighter),
       34em 0 0 0.25em var(--widget-lighter),
       35em 0 0 0.25em var(--widget-lighter),
-      36em 0 0 0.25em var(--widget-lighter);
+      36em 0 0 0.25em var(--widget-lighter),
+      37em 0 0 0.25em var(--widget-lighter),
+      38em 0 0 0.25em var(--widget-lighter),
+      39em 0 0 0.25em var(--widget-lighter),
+      40em 0 0 0.25em var(--widget-lighter),
+      41em 0 0 0.25em var(--widget-lighter),
+      42em 0 0 0.25em var(--widget-lighter),
+      43em 0 0 0.25em var(--widget-lighter),
+      44em 0 0 0.25em var(--widget-lighter),
+      45em 0 0 0.25em var(--widget-lighter),
+      46em 0 0 0.25em var(--widget-lighter),
+      47em 0 0 0.25em var(--widget-lighter),
+      48em 0 0 0.25em var(--widget-lighter),
+      49em 0 0 0.25em var(--widget-lighter),
+      50em 0 0 0.25em var(--widget-lighter),
+      51em 0 0 0.25em var(--widget-lighter),
+      52em 0 0 0.25em var(--widget-lighter),
+      53em 0 0 0.25em var(--widget-lighter),
+      54em 0 0 0.25em var(--widget-lighter),
+      55em 0 0 0.25em var(--widget-lighter),
+      56em 0 0 0.25em var(--widget-lighter),
+      57em 0 0 0.25em var(--widget-lighter),
+      58em 0 0 0.25em var(--widget-lighter),
+      59em 0 0 0.25em var(--widget-lighter),
+      60em 0 0 0.25em var(--widget-lighter),
+      61em 0 0 0.25em var(--widget-lighter),
+      62em 0 0 0.25em var(--widget-lighter),
+      63em 0 0 0.25em var(--widget-lighter),
+      64em 0 0 0.25em var(--widget-lighter),
+      65em 0 0 0.25em var(--widget-lighter),
+      66em 0 0 0.25em var(--widget-lighter),
+      67em 0 0 0.25em var(--widget-lighter),
+      68em 0 0 0.25em var(--widget-lighter),
+      69em 0 0 0.25em var(--widget-lighter),
+      70em 0 0 0.25em var(--widget-lighter),
+      71em 0 0 0.25em var(--widget-lighter),
+      72em 0 0 0.25em var(--widget-lighter),
+      73em 0 0 0.25em var(--widget-lighter),
+      74em 0 0 0.25em var(--widget-lighter),
+      75em 0 0 0.25em var(--widget-lighter),
+      76em 0 0 0.25em var(--widget-lighter);
 }
 
 
@@ -2863,7 +2967,27 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
       33em 0 0 0.25em var(--widget-lighter),
       34em 0 0 0.25em var(--widget-lighter),
       35em 0 0 0.25em var(--widget-lighter),
-      36em 0 0 0.25em var(--widget-lighter);
+      36em 0 0 0.25em var(--widget-lighter),
+      37em 0 0 0.25em var(--widget-lighter),
+      38em 0 0 0.25em var(--widget-lighter),
+      39em 0 0 0.25em var(--widget-lighter),
+      40em 0 0 0.25em var(--widget-lighter),
+      41em 0 0 0.25em var(--widget-lighter),
+      42em 0 0 0.25em var(--widget-lighter),
+      43em 0 0 0.25em var(--widget-lighter),
+      44em 0 0 0.25em var(--widget-lighter),
+      45em 0 0 0.25em var(--widget-lighter),
+      46em 0 0 0.25em var(--widget-lighter),
+      47em 0 0 0.25em var(--widget-lighter),
+      48em 0 0 0.25em var(--widget-lighter),
+      49em 0 0 0.25em var(--widget-lighter),
+      50em 0 0 0.25em var(--widget-lighter),
+      51em 0 0 0.25em var(--widget-lighter),
+      52em 0 0 0.25em var(--widget-lighter),
+      53em 0 0 0.25em var(--widget-lighter),
+      54em 0 0 0.25em var(--widget-lighter),
+      55em 0 0 0.25em var(--widget-lighter),
+      56em 0 0 0.25em var(--widget-lighter);
 }
 
 
@@ -2926,7 +3050,47 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
       0 -33em 0 0.25em var(--widget-lighter),
       0 -34em 0 0.25em var(--widget-lighter),
       0 -35em 0 0.25em var(--widget-lighter),
-      0 -36em 0 0.25em var(--widget-lighter);
+      0 -36em 0 0.25em var(--widget-lighter),
+      0 -37em 0 0.25em var(--widget-lighter),
+      0 -38em 0 0.25em var(--widget-lighter),
+      0 -39em 0 0.25em var(--widget-lighter),
+      0 -40em 0 0.25em var(--widget-lighter),
+      0 -41em 0 0.25em var(--widget-lighter),
+      0 -42em 0 0.25em var(--widget-lighter),
+      0 -43em 0 0.25em var(--widget-lighter),
+      0 -44em 0 0.25em var(--widget-lighter),
+      0 -45em 0 0.25em var(--widget-lighter),
+      0 -46em 0 0.25em var(--widget-lighter),
+      0 -47em 0 0.25em var(--widget-lighter),
+      0 -48em 0 0.25em var(--widget-lighter),
+      0 -49em 0 0.25em var(--widget-lighter),
+      0 -50em 0 0.25em var(--widget-lighter),
+      0 -51em 0 0.25em var(--widget-lighter),
+      0 -52em 0 0.25em var(--widget-lighter),
+      0 -53em 0 0.25em var(--widget-lighter),
+      0 -54em 0 0.25em var(--widget-lighter),
+      0 -55em 0 0.25em var(--widget-lighter),
+      0 -56em 0 0.25em var(--widget-lighter),
+      0 -57em 0 0.25em var(--widget-lighter),
+      0 -58em 0 0.25em var(--widget-lighter),
+      0 -59em 0 0.25em var(--widget-lighter),
+      0 -60em 0 0.25em var(--widget-lighter),
+      0 -61em 0 0.25em var(--widget-lighter),
+      0 -62em 0 0.25em var(--widget-lighter),
+      0 -63em 0 0.25em var(--widget-lighter),
+      0 -64em 0 0.25em var(--widget-lighter),
+      0 -65em 0 0.25em var(--widget-lighter),
+      0 -66em 0 0.25em var(--widget-lighter),
+      0 -67em 0 0.25em var(--widget-lighter),
+      0 -68em 0 0.25em var(--widget-lighter),
+      0 -69em 0 0.25em var(--widget-lighter),
+      0 -70em 0 0.25em var(--widget-lighter),
+      0 -71em 0 0.25em var(--widget-lighter),
+      0 -72em 0 0.25em var(--widget-lighter),
+      0 -73em 0 0.25em var(--widget-lighter),
+      0 -74em 0 0.25em var(--widget-lighter),
+      0 -75em 0 0.25em var(--widget-lighter),
+      0 -76em 0 0.25em var(--widget-lighter);
 }
 
 
@@ -3157,11 +3321,11 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .tick:nth-child(even){
 	display:none;
 }
-
-.extension-dashboard-bar-x-tick-text{
-	display:none;
-}
 */
+.extension-dashboard-bar-x-tick-text{
+	font-weight:100;
+}
+
 
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]) .extension-dashboard-widget-checkbox-toggle-checked-content .tick:nth-child(even) .extension-dashboard-bar-x-tick-text{
 	display:none;
@@ -3217,7 +3381,7 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
 	color: var(--extension-dashboard-widget-editable-text-color);
     font-weight: bold;
 	font-size:3rem;
-	padding:2rem 0 2rem .5rem;
+	padding:1rem 0 .5rem .5rem;
 }
 
 
@@ -3227,7 +3391,7 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"][gs-h="2"] .extension-dashboard-widget-thermostat-mode:not(:empty){
-	flex-wrap:none;
+	flex-wrap:nowrap;
 	position:relative;
 	top:-0.5rem;
 }
@@ -3303,7 +3467,7 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
 
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-setpoint-needs-update{
 	text-align:center;
-	margin-left:1rem;
+	margin-left:0;
 	padding:.5rem;
 	font-size:3rem;
 	width:75px;
@@ -3528,6 +3692,11 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
 }
 
 
+.extension-dashboard-widget-thermostat ul.extension-dashboard-widget-enum-list{
+	padding:0 1.5rem;
+}
+
+
 /*  horizontal 'short' thermostat widgets  */
 
 
@@ -3560,7 +3729,7 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-ticks span.extension-dashboard-widget-dial-tick-even{
     border-top:0;
 	border-left: 4px solid rgba(255, 255, 255, .9);
-    color: inherit;
+    /*color: inherit;*/
     padding-left: 7px;
 	font-size:1.2rem;
 }
@@ -3728,6 +3897,8 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
 	font-size:1rem;
 	font-weight:bold;
 	pointer-events:auto;
+	border-top-right-radius:10px;
+	border-bottom-right-radius:10px;
 	/*clip-path: polygon(0% 0%, 100% 10%, 100% 90%, 0% 100%);*/
 	/*
 	clip-path: polygon(0% 0%, 100% 50%, 100% 50%, 0% 100%);
@@ -3758,9 +3929,17 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
 
 .extension-dashboard-widget-dial-ticks:not(.extension-dashboard-widget-dial-disabled) span:hover{
 	background: var(--extension-dashboard-widget-editable-text-color);
+	align-items:center;
+	justify-content:center;
+}
+
+.extension-dashboard-widget-dial-ticks:not(.extension-dashboard-widget-dial-disabled) span.extension-dashboard-widget-dial-tick-even:hover{
 	font-size:130%;
 	text-align:center;
+	color:white;
+	height:25px;
 }
+
 
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-dial-ticks span{
 	font-size:50%;
@@ -3795,10 +3974,13 @@ li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-select
     max-height: 40%;
     overflow: hidden;
     box-sizing: border-box;
-	
 }
 body:not(.developer) .extension-dashboard-widget-dial-name-container{
 	pointer-events:none;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-dial-name-container{
+	padding-top:0;
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-round,
@@ -3846,7 +4028,7 @@ body:not(.developer) .extension-dashboard-widget-dial-name-container{
 	max-width: calc(80% - 4rem);
 	*/
 	width: 100%;
-	padding: 1.2rem 1.5rem;
+	padding: 1.2rem 1.2rem;
 	border-radius:1rem;
 	color:inherit;
 	z-index:4;
@@ -3856,14 +4038,22 @@ body:not(.developer) .extension-dashboard-widget-dial-name-container{
 #extension-dashboard-content .extension-dashboard-widget-round-dial input:not([disabled]){
 	/*background-color:#ebeff1;*/
 	color:var(--extension-dashboard-widget-editable-text-color);
+}
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-round-dial input:not([disabled]){
 	margin-bottom:1rem;
+}
+
+
+#extension-dashboard-content .extension-dashboard-widget-adjust-width-to-input-length{
+	box-sizing:content-box;
 }
 
 
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-round-dial input,
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w] .extension-dashboard-widget-round-dial input{
 	font-size:6rem;
-	padding:2.5rem 1.5rem;
+	padding:2.5rem .5rem;
 }
 
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-round-dial input{
@@ -3906,6 +4096,9 @@ body:not(.developer) .extension-dashboard-widget-dial-name-container{
 	max-width:300px;
 	top:1.5rem;
 }
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-round-dial .extension-dashboard-widget-thermostat-setpoint-display .extension-dashboard-widget-dial-name-container{
+	padding-top:0;
+}
 
 
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-round-dial .extension-dashboard-widget-dial{
@@ -3933,7 +4126,9 @@ body:not(.developer) .extension-dashboard-widget-dial-name-container{
 	width:100%;
 	height:150px;
 	max-height:150px;
+	/*
 	align-items:flex-end;
+	*/
 }
 
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"]:not([gs-w]) .extension-dashboard-widget-round-dial .extension-dashboard-widget-thermostat-setpoint-display{
@@ -4957,19 +5152,22 @@ body.developer .extension-dashboard-widget-weather_description-needs-update:empt
 }
 
 .extension-dashboard-widget-weather-moon-container{
-	display:none;
+	opacity:0;
 	position: absolute;
     left: calc(100% - 6rem);
     top: 7rem;
     font-size: 4rem;
     opacity: 0;
-	filter: saturate(50%);
+	/*filter: saturate(50%);*/
 	transition: all 60s ease-in-out;
+	pointer-events: none;
 }
 
+/*
 body.developer .extension-dashboard-widget-weather-moon-container{
 	opacity: .4;
 }
+*/
 
 .extension-dashboard-night .extension-dashboard-widget-weather-moon-container{
 	display:block;
@@ -5093,10 +5291,11 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 }
 
 
-
+/*
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-clock-seiko-date-container .extension-dashboard-widget-clock-date-day{
-	opacity:.7;
+	opacity:.9;
 }
+*/
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-clock-seiko-minute-ticks{
 	opacity:.6;
@@ -5405,8 +5604,8 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 	border-top-right-radius: 30%;
 	border-bottom-right-radius: 30%;
 	background-color:green;
-	background: linear-gradient(90deg, rgba(255, 255, 255, .1) 0%, rgba(255, 255, 255, .4) 70%, yellow 71%, yellow 100%);
-	box-shadow: -1px -2px 5px rgba(0,0,0,.2);
+	background: linear-gradient(90deg, rgba(255, 255, 255, .1) 0%, rgba(255, 255, 255, .4) 70%, green 71%, green 100%);
+	box-shadow: -1px -2px 5px rgba(0,0,0,.2), inset 0px 0px 0px 1px rgba(255,255,255,.2);
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-clock-seiko-alarmhand,
