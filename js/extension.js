@@ -45,7 +45,7 @@
 
             // Dashboard
             this.dashboards = {}; //{"grid0":{"gridstack":{"cellHeight":50,"margin":5,"minRow":2,"acceptWidgets":true,"subGridOpts":{"cellHeight":50,"column":"auto","acceptWidgets":true,"margin":5,"subGridDynamic":true},"subGridDynamic":true,"children":[{"x":0,"y":0,"content":"0","id":"0"},{"x":0,"y":1,"content":"1","id":"1"},{"x":1,"y":0,"content":"2","id":"2"},{"x":2,"y":0,"w":2,"h":3,"id":"sub0","subGridOpts":{"children":[{"x":0,"y":0,"content":"3","id":"3"},{"x":1,"y":0,"content":"4","id":"4"}],"cellHeight":50,"column":"auto","acceptWidgets":true,"margin":5,"subGridDynamic":true}},{"x":4,"y":0,"h":2,"id":"sub1","subGridOpts":{"children":[{"x":0,"y":0,"content":"5","id":"5"}],"cellHeight":50,"column":"auto","acceptWidgets":true,"margin":5,"subGridDynamic":true}}]}} };
-            this.interval = 30;
+            this.interval = 10; // in practice: how often to poll for voco changes // TODO: only do this poll if voco is installed
 			
             this.interval_counter = 28; // used to run some functions every 30 seconds
 
@@ -572,10 +572,6 @@
 					
 							let now = new Date();
 							let hours = now.getHours();
-							
-							if(this.debug){
-								console.log("dashboard debug: slow interval:  hours,this.content_el: ", hours, this.content_el);
-							}
 							
 							if(hours < 7 || hours > 20){
 								this.content_el.classList.add('extension-dashboard-night');
@@ -2393,7 +2389,7 @@
 												
 												
 												if(this.debug){
-													console.warn("dashboard debug: elements_to_update: ", elements_to_update);
+													console.warn("dashboard debug: incoming websocket message -> elements_to_update: ", elements_to_update);
 													//console.warn("dashboard debug: incoming websocket message -> elements_to_update count for thing_id,property_id: ", elements_to_update.length, thing_id, property_id);
 												}
 												
@@ -2452,7 +2448,7 @@
 																	//new_value = (new_value - (new_value % 0.001));
 																	new_value = Math.round(new_value*1000)/1000;
 																	if(this.debug){
-																		console.log("dashboard debug: initial new_value after quick adjustment to maximum of three decimals: ", new_value);
+																		//console.log("dashboard debug: initial new_value after quick adjustment to maximum of three decimals: ", new_value);
 																	}
 																}
 													
@@ -3501,8 +3497,6 @@
 																				*/
 																		
 																		
-																		
-																		
 																
 																			}
 																			catch(err){
@@ -3525,7 +3519,7 @@
 																const property_id = needs['update'][what_property_is_needed]['property_id'];
 																const prop = this.get_property_by_ids(thing_id,property_id);
 																if(prop){
-																	console.log("list-selector ENUM!: ", prop);
+																	//console.log("list-selector ENUM!: ", prop);
 																	if(typeof prop['enum'] != 'undefined' && Array.isArray(prop['enum'])){
 																		
 																		let list_buttons_container_el = child_els[ix];
@@ -3535,19 +3529,19 @@
 																			
 																			const list_item_name = prop['enum'][e];
 																			
-																			console.error("list_item_name: ", list_item_name);
+																			//console.error("list_item_name: ", list_item_name);
 																			
 																			let enum_option_el = document.createElement('li');
 																			enum_option_el.classList.add('extension-dashboard-list-selector-item');
 																			enum_option_el.textContent = list_item_name;
 																			
-																			console.log("appending: ", enum_option_el, " to: ", list_buttons_container_el);
+																			//console.log("appending: ", enum_option_el, " to: ", list_buttons_container_el);
 																			//setTimeout(() => {
 																				list_buttons_container_el.appendChild(enum_option_el);
-																				console.log("child_els[ix].children.length: ", list_buttons_container_el.children.length);
+																				//console.log("child_els[ix].children.length: ", list_buttons_container_el.children.length);
 																				
 																				enum_option_el.addEventListener('click', (event) => {
-																					console.log("Clicked on list selector item: ", list_item_name);
+																					//console.log("Clicked on list selector item: ", list_item_name);
 																				
 																					if(typeof this.websockets[thing_id] != 'undefined'){
 																						try{
@@ -3567,11 +3561,11 @@
 																							if(typeof this.recent_events[thing_id][property_id] != 'undefined'){
 																								if(this.recent_events[thing_id][property_id]['timestamp'] > Date.now() - 1000){
 																									if(this.debug){
-																										console.warn("dashboard: ABORT SENDING, as something was already sent/received for this property in the last 1 seconds: \nproperty_id: " + property_id + "\n" + JSON.stringify(this.recent_events[thing_id][property_id],null,4));
+																										console.warn("dashboard debug: ABORT SENDING, as something was already sent/received for this property in the last 1 seconds: \nproperty_id: " + property_id + "\n" + JSON.stringify(this.recent_events[thing_id][property_id],null,4));
 																									}
 																									if(this.recent_events[thing_id][property_id]['value'] == event.target.value){
 																										if(this.debug){
-																											console.warn("... ABORT SENDING as it was the same value too!: ", this.recent_events[thing_id][property_id]['value']);
+																											console.warn("dashboard debug: ... ABORT SENDING as it was the same value too!: ", this.recent_events[thing_id][property_id]['value']);
 																										}
 																										return
 																									}
@@ -3580,7 +3574,7 @@
 																						
 																							// SENDING VALUE CHANGE VIA WEBSOCKET
 																						
-																							console.log("sending update to backend via websockets.  outgoing_message: ", outgoing_message);
+																							//console.log("sending update to backend via websockets.  outgoing_message: ", outgoing_message);
 																							this.recent_events[thing_id][property_id] = {"timestamp":Date.now(), "value":event.target.value, "type":"sent"}; // remember what and when was sent
 																							this.websockets[thing_id].send(outgoing_message);
 																						
@@ -3603,7 +3597,7 @@
 																	}
 																}
 																else{
-																	console.log("ENUM?? ", prop);
+																	//console.log("ENUM?? ", prop);
 																}
 															}
 														}
@@ -5091,7 +5085,7 @@
 							//thing_select_property_container_el.innerHTML = '';
 						}
 						else{
-							console.log("calling generate_property_select with new thing_id: ", change_to_thing_id);
+							//console.log("calling generate_property_select with new thing_id: ", change_to_thing_id);
 							property_select_el = this.generate_property_select(grid_id,widget_id,change_to_thing_id,null,what_property_is_needed);
 							if(property_select_el){
 								thing_select_property_container_el.innerHTML = '';
@@ -5105,16 +5099,11 @@
 							}
 							
 							
-							
-							
 							// Try to pre-select this thing for the other thing-property selectors if they don't have a selection yet
-							console.error("switched to value: ", thing_select_el.value);
 							const update_root_el = thing_select_el.closest('.extension-dashboard-widget-ui-update-container');
 							if(update_root_el){
 								let all_thing_selectors = update_root_el.querySelectorAll('.extension-dashboard-modal-thing-select');
-								console.log("all_thing_selectors: ", all_thing_selectors);
 								for(let ts = 0; ts < all_thing_selectors.length; ts++){
-									console.log("ts, typeof .value, .value: ", ts, typeof all_thing_selectors[ts].value, all_thing_selectors[ts].value);
 									if(all_thing_selectors[ts].value == ''){
 										console.log("spotted a thing selector with an empty value");
 										const check_if_it_has_the_same_option_el = all_thing_selectors[ts].querySelector('option[value="' + thing_select_el.value + '"]');
@@ -5129,9 +5118,6 @@
 									}
 								}
 							}
-							
-							
-							
 							
 							
 						}
@@ -6958,7 +6944,7 @@ ticks.attr("class", function(d,i){
 
         update_clocks() {
 			if(this.debug){
-				console.log("dashboard debug: in update_clocks.  update_clock: ", this.update_clock);
+				//console.log("dashboard debug: in update_clocks.  update_clock: ", this.update_clock);
 			}
             if (this.update_clock) {
 				
@@ -7038,7 +7024,7 @@ ticks.attr("class", function(d,i){
 							const hour_rotation_degrees =  body.hours * 30 + body.minutes * (360/720);
 						
 							let seconds = new Date().getSeconds();
-							console.log("dashboard debug: update_clocks: seconds: ", seconds);
+							//console.log("dashboard debug: update_clocks: seconds: ", seconds);
 							//seconds = seconds + 45;
 							//seconds = seconds % 60;
 							//console.log("local seconds: ", seconds);
@@ -7057,17 +7043,13 @@ ticks.attr("class", function(d,i){
 							}
 							
 							if(seconds != 0){
-								console.log("(60 - seconds): ", (60 - seconds), (60 - (60 - seconds)), seconds);
-								const animation_delay = seconds; //(60 - seconds);
-								
 								let analog_second_els = this.view.querySelectorAll('.extension-dashboard-widget-clock-analog-second');
 								//console.log("analog_second_els: ", analog_second_els);
 								if(analog_second_els.length){
 									for(let bs = 0; bs < analog_second_els.length; bs++){
-										console.log("animation_delay: ", animation_delay, typeof analog_second_els[bs].style.animationDelay, analog_second_els[bs].style.animationDelay);
 										if(analog_second_els[bs].style.animationDelay == ''){
-											console.log("adding animation_delay: -" + animation_delay + "s");
-											analog_second_els[bs].style.animationDelay = "-" + animation_delay + "s";
+											//console.log("adding animation_delay: -" + animation_delay + "s");
+											analog_second_els[bs].style.animationDelay = "-" + seconds + "s";
 										}
 										
 									}
@@ -7101,7 +7083,7 @@ ticks.attr("class", function(d,i){
 		// Get list of Voco timers from api every 5 seconds
         get_poll() {
 			if (this.debug) {
-				console.log("dashboard debug: in get_poll, polling for voco actions");
+				//console.log("dashboard debug: in get_poll, polling for voco actions");
 			}
             
 			window.API.postJson(
@@ -7118,7 +7100,7 @@ ticks.attr("class", function(d,i){
 					if(this.action_times.length != previous_action_times_length){
 						this.update_voco_actions();
 						if(this.debug){
-							console.log("dashboard debug: get_poll: new Voco action_times: ", this.action_times);
+							//console.log("dashboard debug: get_poll: new Voco action_times: ", this.action_times);
 						}
 					}
 				}
