@@ -1064,7 +1064,7 @@ input[type="checkbox"]:not(:checked) ~ .extension-dashboard-widget-checkbox-togg
 /*  CUPS PRINTING BUTTON */
 
 
-
+/*
 #extension-dashboard-print-button-container{
 	display:none;
     position: fixed;
@@ -1107,6 +1107,8 @@ body.cups-printing:not(.screensaver) #extension-dashboard-print-button-container
 	background-color:#888;
 	background: rgba(128,128,128,.9) no-repeat center/50% url(/images/remove.svg);
 }
+*/
+
 
 .extension-dashboard-icon-button{
     width:5.6rem;
@@ -1129,7 +1131,7 @@ body.cups-printing:not(.screensaver) #extension-dashboard-print-button-container
 
 
 /*   VOCO TIMERS LIST   */
-
+/*
 #extension-dashboard-voco-container{
 	position:fixed;
 	top:9.6rem;
@@ -1152,36 +1154,42 @@ body.cups-printing:not(.screensaver) #extension-dashboard-print-button-container
 #extension-dashboard-voco-container:empty{
 	display:none;
 }
+*/
 
-#extension-dashboard-voco-container > div{
+.extension-dashboard-widget-voco{
+	overflow:hidden;
+}
+
+.extension-dashboard-widget-voco > div{
 	width:100%;
-	max-width:60rem;
-	margin:.5rem auto;
-	background-color:rgba(0,0,0,.9);
-	border-radius:1rem;
+	margin-bottom:.1rem;
 	overflow:hidden;
 	display:flex;
-	padding: 1rem 1rem 1rem 2rem;
+	padding: .5rem 1rem .5rem 1.5rem;
 	box-sizing: border-box;
-	font-size:5rem;
+	flex-wrap:wrap;
+	flex-shrink:0;
 }
 
 
 .extension-dashboard-voco-item img{
-	width:7rem;
-	max-width:7rem;
+	width:3rem;
+	max-width:3rem;
 	box-sizing:border-box;
 	margin:0;
 }
 
 .extension-dashboard-voco-item-info,
 .extension-dashboard-voco-item-time{
-	padding:1rem;
 	display:flex;
+}
+.extension-dashboard-voco-item-time{
 	align-items:center;
-	margin:0 1rem;
+	margin:0 .5rem;
+	padding:.5rem;
 }
 
+.extension-dashboard-voco-item-hours,
 .extension-dashboard-voco-item-minutes{
 	font-weight:bold;
 }
@@ -1194,36 +1202,43 @@ body.cups-printing:not(.screensaver) #extension-dashboard-print-button-container
 .extension-dashboard-voco-item-seconds:empty{
 	display:none;
 }
-.extension-dashboard-voco-item-minutes:after{
-	content:':';
-	margin:0 .5rem;
+.extension-dashboard-voco-item-hours:not(:empty):after{
+	content:'h';
+	opacity:.5;
+}
+.extension-dashboard-voco-item-minutes:not(:empty):after{
+	content:'m';
+	opacity:.5;
+}
+.extension-dashboard-voco-item-seconds:not(:empty):after{
+	content:'s';
 	opacity:.5;
 }
 
+.extension-dashboard-voco-item-hours:not(:empty) + .extension-dashboard-voco-item-minutes:not(:empty) + .extension-dashboard-voco-item-seconds{
+	display:none;
+}
+
 .extension-dashboard-voco-item h4{
-	font-size:2.5rem;
-	padding:0 2rem;
+	font-size:1.6rem;
+	font-weight:100;
 	margin:0;
 }
 
-#extension-dashboard-voco-container .extension-dashboard-voco-item-countdown{
-	background-color:rgba(128,0,0,.9);
-	border:.2rem solid red;
+.extension-dashboard-widget-voco .extension-dashboard-voco-item-countdown{
+	border-left:.5rem solid red;
 }
 
-#extension-dashboard-voco-container .extension-dashboard-voco-item-reminder{
-	background-color:rgba(0,0,128,.9);
-	border:.2rem solid blue;
+.extension-dashboard-widget-voco .extension-dashboard-voco-item-reminder{
+	border-left:.5rem solid blue;
 }
 
-#extension-dashboard-voco-container .extension-dashboard-voco-item-alarm{
-	background-color:rgba(255,64,0,.9);
-	border:.2rem solid orange;
+.extension-dashboard-widget-voco .extension-dashboard-voco-item-alarm{
+	border-left:.5rem solid orange;
 }
 
-#extension-dashboard-voco-container .extension-dashboard-voco-item-wake{
-	background-color:rgba(128,128,0,.9);
-	border:.2rem solid yellow;
+.extension-dashboard-widget-voco .extension-dashboard-voco-item-wake{
+	border-left:.5rem solid green;
 }
 
 
@@ -1320,7 +1335,7 @@ body.screensaver #extension-dashboard-selected-dashboard-indicator-container{
 }
 */
 
-
+/*
 .extension-dashboard-greyscale .extension-dashboard-main-page{
 	filter: gray;
 	-webkit-filter: grayscale(1);
@@ -1349,55 +1364,10 @@ body:not(.screensaver) .extension-dashboard-effect{
     transform: scale3d(1, 1, 1);
   }
 }
+*/
 
 
 
-
-
-
-
-
-
-
-
-
-.extension-dashboard-screensaver-indicator{
-	animation: extension-dashboard-bg-sweep-to-right 60s linear;
-    background:transparent;
-    background-size: 200% 200%;
-    background-image: linear-gradient(
-          -90deg, 
-          rgba(0,0,0,0) 0%, 
-          rgba(0,0,0,0) 50%, 
-          rgba(0,0,0,.3) 50%, 
-          rgba(0,0,0,.3) 100%
-    );  
-}
-
-#extension-dashboard-screensaver-indicator{
-    position:fixed;
-    top:0;
-    left:0;
-    height:5px;
-    z-index:100000;
-    width:100%;
-    background:transparent;
-    background-size: 200% 200%;
-    background-image: linear-gradient(
-          -90deg, 
-          rgba(0,0,0,0) 0%, 
-          rgba(0,0,0,0) 50%, 
-          rgba(0,0,0,.3) 50%, 
-          rgba(0,0,0,.3) 100%
-    );  
-    animation: extension-dashboard-bg-sweep-to-right 60s linear;
-	pointer-events:none;
-}
-
-@keyframes extension-dashboard-bg-sweep-to-right { 
-  0%{background-position:100% 50%}
-  100%{background-position:0% 50%}
-}
 
 
 
@@ -2182,17 +2152,22 @@ body:not(.screensaver) .extension-dashboard-effect{
 
 /*   LIST SELECTOR WIDGET   */
 
+ul.extension-dashboard-widget-enum-list{
+	padding-left: 0;
+	margin: 0;
+}
+
 .extension-dashboard-widget-list-selector .extension-dashboard-widget-block-title-container{
 	padding-bottom:0;
 }
 
-.extension-dashboard-widget-list-selector ul{
+ul > .extension-dashboard-list-selector-item{
 	margin:0;
 	padding:.5rem 1.5rem;
 	overflow:auto;
 }
 
-.extension-dashboard-widget-list-selector ul li{
+li.extension-dashboard-list-selector-item{
 	background-color:rgba(255,255,255,.3);
 	margin:0 1rem 1rem 0;
 	padding:0.9rem 1.5rem;
@@ -2200,13 +2175,13 @@ body:not(.screensaver) .extension-dashboard-effect{
 	cursor:pointer;
 }
 
-.extension-dashboard-widget-list-selector ul li:hover{
+li.extension-dashboard-list-selector-item:hover{
 	box-shadow: 1px 1px 3px 2px rgba(0, 0, 0, 0.1);
 }
 
 
-.extension-dashboard-widget-list-selector ul li:hover,
-.extension-dashboard-widget-list-selector ul li.extension-dashboard-widget-list-selector-highlighted-item{
+li.extension-dashboard-list-selector-item:hover,
+li.extension-dashboard-list-selector-item.extension-dashboard-widget-list-selector-highlighted-item{
 	color:var(--extension-dashboard-widget-editable-text-color);
 	background-color:rgba(255,255,255,.4);
 }
@@ -3068,6 +3043,10 @@ body:not(.screensaver) .extension-dashboard-effect{
 	resize: none;
 }
 
+.extension-dashboard-editing .extension-dashboard-widget-sticky-note textarea{
+	pointer-events:none;
+}
+
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w] .extension-dashboard-widget-sticky-note textarea{
 	font-size:2rem;
 	padding:3rem;
@@ -3247,6 +3226,26 @@ body:not(.screensaver) .extension-dashboard-effect{
 	width: 94px;
 }
 
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"][gs-h="2"] .extension-dashboard-widget-thermostat-mode:not(:empty){
+	flex-wrap:none;
+	position:relative;
+	top:-0.5rem;
+}
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"] .extension-dashboard-widget-thermostat-mode:not(:empty) > li,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]) .extension-dashboard-widget-thermostat-mode:not(:empty) > li{
+	margin:0 .5rem 0 0;
+	padding:0.5rem 1rem;
+	font-size:80%;
+	
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"][gs-h="2"] .extension-dashboard-widget-thermostat-mode:not(:empty) + .extension-dashboard-widget-dial-name-container{
+	font-size:80%;
+	padding-top:.5rem;
+}
+
+
+
 /*
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h]) .extension-dashboard-widget-thermostat{
 	padding-bottom:2rem;
@@ -3403,9 +3402,14 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-temperature-value,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-setpoint-needs-update{
+	font-size:3rem;
+	font-weight:100;
+	padding: 1rem 0 1rem .5rem;
+}
 
-
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-temperature-value,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-temperature-value,
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"]:not([gs-w]) .extension-dashboard-widget-thermostat-setpoint-display > strong *,
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-setpoint-needs-update,
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-setpoint-container,
@@ -3527,13 +3531,13 @@ body:not(.screensaver) .extension-dashboard-effect{
 /*  horizontal 'short' thermostat widgets  */
 
 
-/* 1x2 */
+/* 2x1 */
 
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial{
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial{
 	top: 115%;
 }
 
-#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h]) .extension-dashboard-widget-setpoint-needs-update,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-setpoint-needs-update,
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-temperature-value{
 	font-size:3rem;
 }
@@ -3545,7 +3549,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 
-/* 1x3 */
+/* 3x1 */
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"]:not([gs-h]) .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial{
 	top: 170%;
@@ -3573,7 +3577,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 
-/* 2x3 */
+/* 3x2 */
 
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial{
@@ -3586,7 +3590,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 
-/* 2x4 */
+/* 4x2 */
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="4"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial{
 	top: 120%;
@@ -3598,8 +3602,8 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 
-/* 2x5 */
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="4"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial{
+/* 5x2 */
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w="5"][gs-h="2"] .extension-dashboard-widget-thermostat .extension-dashboard-widget-dial{
 	top: 120%;
 }
 
@@ -3783,6 +3787,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 
 .extension-dashboard-widget-dial-name-container{
 	position: absolute;
+	top:0;
 	padding: 1.5rem 1rem 0 1.5rem;
 	font-weight:100;
 	width:100%;
@@ -3806,17 +3811,24 @@ body:not(.developer) .extension-dashboard-widget-dial-name-container{
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-round .extension-dashboard-widget-dial-name-container,
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"][gs-w="2"] .extension-dashboard-widget-round .extension-dashboard-widget-dial-name-container,
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"][gs-w="3"] .extension-dashboard-widget-round .extension-dashboard-widget-dial-name-container{
+	/*
 	padding:.5rem 1.5rem 1rem 1.5rem;
 	bottom:0;
 	text-align: center;
 	height: 40%;
+	*/
+	text-align: center;
+	position:initial;
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-round.extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-name-container,
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="2"][gs-w="2"] .extension-dashboard-widget-round.extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-name-container,
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"][gs-w="3"] .extension-dashboard-widget-round.extension-dashboard-widget-thermostat .extension-dashboard-widget-dial-name-container{
-	height: 43%;
+	/*height: 43%;
 	max-height: 43%;
+	*/
+	text-align: center;
+	position:initial;
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-round .extension-dashboard-widget-dial-name-container{
@@ -3835,7 +3847,6 @@ body:not(.developer) .extension-dashboard-widget-dial-name-container{
 	*/
 	width: 100%;
 	padding: 1.2rem 1.5rem;
-	margin-bottom:1rem;
 	border-radius:1rem;
 	color:inherit;
 	z-index:4;
@@ -3845,6 +3856,7 @@ body:not(.developer) .extension-dashboard-widget-dial-name-container{
 #extension-dashboard-content .extension-dashboard-widget-round-dial input:not([disabled]){
 	/*background-color:#ebeff1;*/
 	color:var(--extension-dashboard-widget-editable-text-color);
+	margin-bottom:1rem;
 }
 
 
@@ -5049,7 +5061,7 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 .extension-dashboard-widget-clock-seiko-fix{
 	width:100%;
 	height:100%;
-	transform: rotate(-90deg);
+	transform: rotate(-91deg);
 }
 
 .extension-dashboard-widget-clock-seiko-date-container{
@@ -5186,7 +5198,8 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 
 .extension-dashboard-widget-clock-seiko-hourhand,
 .extension-dashboard-widget-clock-seiko-secondhand,
-.extension-dashboard-widget-clock-seiko-minutehand {
+.extension-dashboard-widget-clock-seiko-minutehand,
+.extension-dashboard-widget-clock-seiko-alarmhand{
 	width: 25%;
 	height: 2%;
 	background: #000;
@@ -5194,13 +5207,14 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 	top: 50%;
 	left: calc(50% - 3.5%);
 	z-index: 2;
-	transform: rotate(-139deg);
+	transform: rotate(0deg); /* -139*/
 	transform-origin: 16%;
 }
 
 .extension-dashboard-widget-clock-seiko-hourhand:after,
 .extension-dashboard-widget-clock-seiko-secondhand:after,
-.extension-dashboard-widget-clock-seiko-minutehand:after {
+.extension-dashboard-widget-clock-seiko-minutehand:after,
+.extension-dashboard-widget-clock-seiko-alarmhand:after {
 	content: '';
 	background: #000;
 	width: 5%;
@@ -5219,7 +5233,7 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 	background:var(--extension-dashboard-widget-text-color);
 }
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-clock-seiko-hourhand{
-	box-shadow: -10px 0px 10px rgba(0,0,0,.4);
+	box-shadow: -6px 0px 6px rgba(0,0,0,.3);
 }
 
 .extension-dashboard-widget-clock-seiko-minutehand {
@@ -5268,7 +5282,7 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 	height: .5%;
 	top: 50%;
 	background: #fff;
-	transform: rotate(160deg);
+	transform: rotate(0);
 	transform-origin: 11.5%;
 	/*box-shadow: -10px -10px 10px rgba(0,0,0,.4);*/
 }
@@ -5378,6 +5392,44 @@ body.developer .extension-dashboard-widget-weather-moon-container{
 
 .extension-dashboard-widget-clock-seiko ul li:last-child i {transform: translateX(-50%) rotate(300deg)}
 
+
+/*   CLOCK ALARM TIME INDICATOR   */
+
+
+.extension-dashboard-widget-clock-seiko-alarmhand{
+	display:block;
+	width: 25%;
+	height: 1.5%;
+	top: 50%;
+	transform: rotate(0deg);
+	border-top-right-radius: 30%;
+	border-bottom-right-radius: 30%;
+	background-color:green;
+	background: linear-gradient(90deg, rgba(255, 255, 255, .1) 0%, rgba(255, 255, 255, .4) 70%, yellow 71%, yellow 100%);
+	box-shadow: -1px -2px 5px rgba(0,0,0,.2);
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]):not([gs-h]) .extension-dashboard-widget-clock-seiko-alarmhand,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w]:not([gs-h]) .extension-dashboard-widget-clock-seiko-alarmhand,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-clock-seiko-alarmhand{
+	height: 2.5%;
+}
+
+.extension-dashboard-widget-clock-seiko-alarmhand:before {
+	content: '';
+	width: 4.5%;
+	height: 4.5%;
+	border-radius: 50%;
+	z-index: 99;
+	position: absolute;
+	top: -1.7%;
+	left: 1.7%;
+	/*box-shadow: -2px -2px 7px rgba(255,255,255,.6);*/
+}
+
+.extension-dashboard-widget-clock-seiko-alarmhand:after {
+	top: -2%;
+}
 
 
 

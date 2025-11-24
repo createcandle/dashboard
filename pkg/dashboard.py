@@ -294,6 +294,7 @@ class DashboardAPIHandler(APIHandler):
                                                       'dashboards': self.persistent_data['dashboards'],
                                                       'icons': self.icons_data,
                                                       'animations': self.animations,
+                                                      'show_voco_timers': self.show_voco_timers,
                                                       'start_with_background':self.start_with_dashboard,
                                                       'debug': self.DEBUG
                                                     }),

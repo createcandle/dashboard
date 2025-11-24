@@ -304,6 +304,7 @@
                 if(typeof body.start_with_background == 'boolean' && body.start_with_background == true){
 					const dashboard_menu_item = document.getElementById('extension-dashboard-menu-item');
 					if(dashboard_menu_item){
+						this.delay_show_until_after_hide = true;
 						dashboard_menu_item.click(); 
 					}
                 }
@@ -447,6 +448,9 @@
 					
 					this.update_sidebar();
 					
+					this.update_clocks();
+					this.update_voco_actions();
+					
 					/*
 					if(this.grids[this.current_grid_id]){
 						this.grids[this.current_grid_id].setStatic(true);
@@ -523,6 +527,31 @@
 							this.interval_counter = 0;
 		                    
 							//this.render_logs(); // every 30 seconds update any visible log widgets
+							
+							
+							// every X seconds run the Voco timers poll interval
+							if(this.show_voco_timers){
+						
+								this.voco_interval_counter++;
+					
+								if(this.voco_interval_counter > 5){
+									this.voco_interval_counter = 0;
+									if(this.poll_fail_count > 0){
+										if(this.debug){
+											console.warn("dashboard: delaying voco polling after a failed poll. this.poll_fail_count: ", this.poll_fail_count);
+										}
+										this.poll_fail_count--;
+									}
+									else{
+										this.get_poll();
+									}
+								}
+							
+							}
+							
+							// every second adjust the second counters of voco timers
+							this.update_voco_actions();
+							
 		                }
 				
 						// Every X seconds run the slow update of settings
@@ -547,33 +576,16 @@
 						}
 				
 				
-						// every X seconds run the Voco timers poll interval
-						if(this.show_voco_timers){
 						
-							this.voco_interval_counter++;
-					
-							if(this.voco_interval_counter > 5){
-								this.voco_interval_counter = 0;
-								if(this.poll_fail_count > 0){
-									if(this.debug){
-										console.warn("dashboard: delaying voco polling after a failed poll. this.poll_fail_count: ", this.poll_fail_count);
-									}
-									this.poll_fail_count--;
-								}
-								else{
-									this.get_poll();
-								}
-							}
-							
-							// every second adjust the second counters of voco timers
-							this.update_voco_actions();
-						}
 					
 				
 						//console.log("this.update_clock: ", this.update_clock);
 						// At the start of each new minute update the clock
 						if (this.update_clock) {
 							if ( new Date().getSeconds() === 0 ){
+								this.update_clocks();
+							}
+							else if(new Date().getSeconds() % 5 == 0){
 								this.update_clocks();
 							}
 						};
@@ -633,6 +645,13 @@
 					
 					if(this.animations == false){
 						this.content_el.classList.add('extension-dashboard-hide-animations');
+					}
+                }
+				
+                if(typeof body.show_voco_timers == 'boolean'){
+					this.show_voco_timers = body.show_voco_timers;
+					if(this.debug){
+						console.log("dashboard debug: show_voco_timers: ", this.show_voco_timers);
 					}
                 }
 				
@@ -808,7 +827,9 @@
 						color_setting_input_el.value = this.locally_saved_values[this.color_settings[c]];
 					}
 					else{
-						console.error("dashboard: did not find color input element to update from localstorage: ", this.color_settings[c]);
+						if(this.debug){
+							console.error("dashboard: did not find color input element to update from localstorage: ", this.color_settings[c]);
+						}
 					}
 				}
 			}
@@ -830,7 +851,6 @@
 			}
 			
 			document.getElementById('extension-dashboard-setting-widget-shadow').addEventListener('change', () => {
-				console.log("user changed shadow");
 				let fresh_shadow = document.getElementById('extension-dashboard-setting-widget-shadow').value;
 				if(fresh_shadow == ''){
 					fresh_shadow = 'none';
@@ -854,14 +874,18 @@
 			}
 			
 			if(this.delay_show_until_after_hide == false){
-				console.warn("DASHBOARD: HIDE: CLEANING UP");
+				if(this.debug){
+					console.warn("DASHBOARD: HIDE: CLEANING UP");
+				}
 	            try {
 					if(this.dashboard_interval){
 						window.clearInterval(this.dashboard_interval);
 					}
 					this.dashboard_interval = null;
 	            } catch (err) {
-	                console.warn("dashboard: error, could not clear dashboard_interval: ", err);
+					if(this.debug){
+	                	console.warn("dashboard: error, could not clear dashboard_interval: ", err);
+					}
 	            }
 			
 				
@@ -886,7 +910,9 @@
 				}
 			}
 			else{
-				console.warn("DASHBOARD: HIDE: SEEMS TO BE STAYING ON THE PAGE, SO NOT ACTUALLY HIDING");
+				if(this.debug){
+					console.warn("dashboard debug: hide(): not cleaning up");
+				}
 			}
 			
 			this.delay_show_until_after_hide = false;
@@ -1006,7 +1032,7 @@
 			//let random_index = Math.floor(Math.random() * shadows.length);
 			let random_shadow = shadows[  Math.floor(Math.random() * shadows.length) ];
 			if(this.debug){
-				console.log("random_shadow: ", random_shadow);
+				console.log("dashboard debug: random_shadow: ", random_shadow);
 			}
 			document.getElementById('extension-dashboard-setting-widget-shadow').value = random_shadow;
 			this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button)','box-shadow',random_shadow);
@@ -3476,9 +3502,9 @@
 															});
 														}
 														
-														else if(widget_type == 'list-selector' && child_els[ix].tagName == 'UL'){
+														else if(child_els[ix].tagName == 'UL'){ // widget_type == 'list-selector' && 
 															
-															if(widget_type == 'list-selector' && typeof needs['update'][what_property_is_needed]['thing_id'] == 'string' && typeof needs['update'][what_property_is_needed]['property_id'] == 'string'){
+															if(typeof needs['update'][what_property_is_needed]['thing_id'] == 'string' && typeof needs['update'][what_property_is_needed]['property_id'] == 'string'){ // widget_type == 'list-selector' && 
 																const thing_id = needs['update'][what_property_is_needed]['thing_id'];
 																const property_id = needs['update'][what_property_is_needed]['property_id'];
 																const prop = this.get_property_by_ids(thing_id,property_id);
@@ -3921,6 +3947,18 @@
 											
 										}
 										
+										
+										if(class_name == 'extension-dashboard-widget-adjust-width-to-input-length'){
+											child_els[ix].addEventListener('change', () => {
+												console.log("setpoint input changed")
+												child_els[ix].style.width = child_els[ix].value.length + "ch";
+											});
+											child_els[ix].addEventListener('input', () => {
+												console.log("setpoint input changed")
+												child_els[ix].style.width = child_els[ix].value.length + "ch";
+											});
+										}
+											
 										
 									}
 								}
@@ -6938,6 +6976,9 @@ ticks.attr("class", function(d,i){
 							const hour_rotation_degrees =  body.hours * 30 + body.minutes * (360/720);
 						
 							let seconds = new Date().getSeconds();
+							console.log("dashboard debug: update_clocks: seconds: ", seconds);
+							//seconds = seconds + 45;
+							//seconds = seconds % 60;
 							//console.log("local seconds: ", seconds);
 							let minute_rotation_degrees = body.minutes * 6 + seconds * (360/3600);
 							
@@ -6953,12 +6994,23 @@ ticks.attr("class", function(d,i){
 								}
 							}
 							
-							let analog_second_els = this.view.querySelectorAll('.extension-dashboard-widget-clock-analog-second');
-							//console.log("analog_second_els: ", analog_second_els);
-							if(analog_second_els.length){
-								for(let bs = 0; bs < analog_second_els.length; bs++){
-									analog_second_els[bs].style.animationDelay = "-" + seconds + "s";
+							if(seconds != 0){
+								console.log("(60 - seconds): ", (60 - seconds), (60 - (60 - seconds)), seconds);
+								const animation_delay = seconds; //(60 - seconds);
+								
+								let analog_second_els = this.view.querySelectorAll('.extension-dashboard-widget-clock-analog-second');
+								//console.log("analog_second_els: ", analog_second_els);
+								if(analog_second_els.length){
+									for(let bs = 0; bs < analog_second_els.length; bs++){
+										console.log("animation_delay: ", animation_delay, typeof analog_second_els[bs].style.animationDelay, analog_second_els[bs].style.animationDelay);
+										if(analog_second_els[bs].style.animationDelay == ''){
+											console.log("adding animation_delay: -" + animation_delay + "s");
+											analog_second_els[bs].style.animationDelay = "-" + animation_delay + "s";
+										}
+										
+									}
 								}
+							
 							}
 							
 						}
@@ -7021,77 +7073,150 @@ ticks.attr("class", function(d,i){
 		
 		// Update the HTML of Voco timers
 		update_voco_actions(){
-			let voco_overlay_el = document.getElementById('extension-dashboard-voco-container');
+			
 			
 			const d = new Date();
 			let time = Math.floor(d.getTime() / 1000);
 			
-			for (let i = 0; i < this.action_times.length; i++) {
-				const action = this.action_times[i];
-				//console.log("voco action: ", action);
+			let voco_els = this.view.querySelectorAll('.extension-dashboard-widget-voco');
+			for(let vw = 0; vw < voco_els.length; vw++){
+				const voco_overlay_el = voco_els[vw];
 				
-				try{
-					if(action.slots.timer_type){
-						const delta = action.moment - time;
-						const item_id = "extension-dashboard-voco-" + action.intent_message.sessionId;
-						
-						let action_el = document.getElementById(item_id);
-						
-						if(delta >= 0 && delta < 3600){
+				for (let i = 0; i < this.action_times.length; i++) {
+					const action = this.action_times[i];
+					
+				
+					try{
+						if(typeof action.slots.timer_type == 'string'){
+							const delta = action.moment - time;
+							const item_id = "extension-dashboard-voco-" + action.intent_message.sessionId;
+							//console.log("voco action item ID: ", item_id);
 							
-							if(this.debug){
-								//console.log("dashboard:  item_id, delta: ", item_id, delta);
-							}
+							let action_el = voco_overlay_el.querySelector("." + item_id);
 							
-							if(action_el == null){
+							if(delta >= 0 && delta < 3600 * 24){ // && delta < 3600
+							
 								if(this.debug){
-									//console.log("dashboard: creating new voco timer DOM element");
+									//console.log("dashboard debug: Voco item_id, delta: ", item_id, delta);
 								}
-								action_el = document.createElement('div');
-								action_el.classList.add('extension-dashboard-voco-item');
-								action_el.classList.add('extension-dashboard-voco-item-' + action.slots.timer_type);
-								action_el.id = item_id;
-								action_el.innerHTML =  '<img src="/extensions/dashboard/images/' + action.slots.timer_type + '.svg"/><div class="extension-dashboard-voco-item-time"><span class="extension-dashboard-voco-item-minutes"></span><span class="extension-dashboard-voco-item-seconds"></span></div>';
-								action_el.innerHTML += '<div class="extension-dashboard-voco-item-info"><h4 class="extension-dashboard-voco-item-title">' + action.slots.sentence + '</h4></div>';
-								voco_overlay_el.appendChild(action_el);
+							
+								if(action_el == null){
+									if(this.debug){
+										//console.log("dashboard: creating new voco timer DOM element");
+									}
+									action_el = document.createElement('div');
+									action_el.classList.add('extension-dashboard-voco-item');
+									action_el.classList.add(item_id);
+									action_el.classList.add('extension-dashboard-voco-item-' + action.slots.timer_type);
+									action_el.innerHTML =  '<img src="/extensions/dashboard/images/' + action.slots.timer_type + '.svg"/><div class="extension-dashboard-voco-item-time"><span class="extension-dashboard-widget=hide-if-thin">in&nbsp;</span><span class="extension-dashboard-voco-item-hours"></span><span class="extension-dashboard-voco-item-minutes"></span><span class="extension-dashboard-voco-item-seconds"></span></div>';
+									action_el.innerHTML += '<div class="extension-dashboard-voco-item-info"><h4 class="extension-dashboard-voco-item-title">' + action.slots.sentence + '</h4></div>';
+									voco_overlay_el.appendChild(action_el);
+								}
+								else{
+									if(this.debug){
+										//console.log("dashboard: voco action_el already existed");
+									}
+								}
+								
+								let seconds = Math.floor(delta % 60);
+								
+								let minutes = Math.floor(delta / 60);
+								
+								let hours = '';
+								if(minutes > 60){
+									hours = Math.floor(minutes/60);
+									action_el.querySelector('.extension-dashboard-voco-item-hours').innerText = hours;
+								}
+								
+								minutes = minutes % 60;
+								if(minutes == 0){
+									if(hours == 0){
+										minutes = ''
+									}
+									else{
+										minutes = '00';
+									}
+								}
+								else if(minutes < 10){minutes = '0' + minutes}
+								
+								
+					
+								if(minutes == '' && seconds == 0){seconds = ''}
+								else if(seconds < 10){seconds = '0' + seconds}
+								
+								action_el.querySelector('.extension-dashboard-voco-item-hours').innerText = hours;
+								action_el.querySelector('.extension-dashboard-voco-item-minutes').innerText = minutes;
+								action_el.querySelector('.extension-dashboard-voco-item-seconds').innerText = seconds;
+								
+								
 							}
 							else{
-								if(this.debug){
-									//console.log("dashboard: voco action_el already existed");
+								if(action_el){
+									if(this.debug){
+										//console.log("removing outdated Voco action item from DOM");
+									}
+									action_el.remove();
 								}
 							}
-							let minutes = Math.floor(delta / 60);
-							if(minutes == 0){minutes = ''}
-							else if(minutes < 10){minutes = '0' + minutes}
-					
-							let seconds = Math.floor(delta % 60);
-					
-							if(minutes == '' && seconds == 0){seconds = ''}
-							else if(seconds < 10){seconds = '0' + seconds}
-					
-							action_el.querySelector('.extension-dashboard-voco-item-minutes').innerText = minutes;
-							action_el.querySelector('.extension-dashboard-voco-item-seconds').innerText = seconds; 
 						}
 						else{
-							if(action_el){
-								if(this.debug){
-									//console.log("removing outdated Voco action item from DOM");
-								}
-								action_el.remove();
+							if(this.debug){
+								//console.log("dashboard: voco timer had no timer type (likely a delayed switching of a device): ", action);
 							}
 						}
 					}
-					else{
+					catch(e){
 						if(this.debug){
-							//console.log("dashboard: voco timer had no timer type (likely a delayed switching of a device): ", action);
+							console.error("dashboard: error parsing Voco timer: ", e);
 						}
 					}
-				}
-				catch(e){
-					console.error("dashboard: error parsing Voco timer: ", e);
+				
+					if(i > 9){
+						break;
+					}
+				
 				}
 				
 			}
+			
+			
+			
+			// Update the alarm hands on clock widgets
+			let clock_alarm_els = this.view.querySelectorAll('.extension-dashboard-widget-clock-analog-alarm');
+			if(clock_alarm_els.length){
+				
+				let alarm_time = null;
+				for (let it = 0; it < this.action_times.length; it++) {
+					if(typeof this.action_times[it].slots.timer_type == 'string' && typeof this.action_times[it].moment == 'number'){
+						//console.log("checking voco item or type: ", this.action_times[it].slots.timer_type);
+						// Remember the best time for the alarm hand on any visible clock
+						if(this.action_times[it].slots.timer_type == 'wake' || (this.action_times[it].slots.timer_type == 'alarm' && alarm_time == null)){
+							alarm_time = this.action_times[it].moment;
+						}
+					}
+				}
+				
+				for (let ca = 0; ca < clock_alarm_els.length; ca++) {
+					if(alarm_time != null){
+					
+						const alarm_date = new Date(alarm_time * 1000);
+						if(alarm_date){
+						
+							const hours = alarm_date.getHours() % 12; // || 12;
+							const minutes = alarm_date.getMinutes(); // || 12;
+							const alarm_rotation_degrees = hours * 30 + minutes * (360/720);
+				
+							clock_alarm_els[ca].style.transform = "rotate(" + alarm_rotation_degrees + "deg)"; // (body.hours * 30 + (body.hours / 2))
+							clock_alarm_els[ca].classList.remove('extension-dashboard-hidden');
+						}
+					
+					}
+					else{
+						clock_alarm_els[ca].classList.add('extension-dashboard-hidden');
+					}
+				}
+			}
+			
 			
 		}
 
