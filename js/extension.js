@@ -3343,6 +3343,120 @@
 											last_spotted_needle_el = child_els[ix];
 										}
 							
+										
+										
+										//
+										//   NEEDS ACTION
+										//
+										
+										if(class_name.indexOf('-needs-action') != -1){
+								
+											let what_action_is_needed = class_name.replaceAll('-needs-action','');
+											what_action_is_needed = what_action_is_needed.replaceAll('extension-dashboard-widget-','');
+											//console.log("generate_widget_content: what_action_is_needed: ", what_action_is_needed);
+								
+											if(typeof needs['action'] == 'undefined'){
+												needs['action'] = {};
+											}
+											
+											// No thing-action set for this widget value yet
+											if(typeof needs['action'][what_action_is_needed] == 'undefined'){
+							
+												needs['action'][what_action_is_needed] = {};
+												
+												
+											}
+											else{
+												//console.log("action needs exists");
+												
+												if(typeof needs['action'][what_action_is_needed]['thing_id'] == 'string' && typeof needs['action'][what_action_is_needed]['action_id'] == 'string'){
+													//console.log("nice, this part of the template it already connected to a thing-action combo");
+													child_els[ix].setAttribute('data-extension-dashboard-action-thing', needs['action'][what_action_is_needed]['thing_id']);
+													child_els[ix].setAttribute('data-extension-dashboard-action-id', needs['action'][what_action_is_needed]['action_id']);
+													//child_els[ix].setAttribute('data-extension-dashboard-update-thing-combo', needs['update'][what_property_is_needed]['thing_id'] + '--x--' + needs['update'][what_property_is_needed]['property_id'] );
+													
+													const action_thing_id = needs['action'][what_action_is_needed]['thing_id'];
+													const action_id = needs['action'][what_action_is_needed]['action_id'];
+													
+													//console.log("ACTION!  action_thing_id, action_id", action_thing_id, action_id);
+													
+													child_els[ix].addEventListener('click', () => {
+														//console.log("clicked on action button. websocket client?", typeof this.websockets[action_thing_id]);
+														
+														
+														if(typeof this.websockets[action_thing_id] != 'undefined'){
+															try{
+																
+																let outgoing_message = {
+																  "messageType": "requestAction",
+																  "data": {}
+																}
+        														
+																outgoing_message['data'][action_id] = {}
+																
+																/*
+																// Example
+																{
+																  "messageType": "requestAction",
+																  "data": {
+																    "goForward": {},
+																  }
+																}
+																*/
+																//console.log("outgoing_message: ", outgoing_message);
+																//console.log("client connecting: ", this.websockets[action_thing_id].connecting);
+																//console.log("client isConnected: ", this.websockets[action_thing_id].isConnected);
+																
+																// SENDING ACTION REQUEST VIA WEBSOCKET
+														
+																if(this.websockets[action_thing_id].isConnected == false && this.websockets[action_thing_id].connecting == false){
+																	if(this.debug){
+																		console.warn("dashboard debug: unexpectedly had to re-connect the websocket client on action button click for thing_id: ", thing_id);
+																	}
+																	this.websockets[action_thing_id].connect();
+																}
+																
+																if(this.debug){
+																	console.log("sending action request via websocket client: ", outgoing_message);	
+																}
+																this.websockets[action_thing_id].send(outgoing_message);
+																
+															}
+															catch(err){
+																if(this.debug){
+																	console.error("dashboard debug: caught error trying to send message via websocket: ", err);
+																}
+															}
+														}
+														else{
+															if(this.debug){
+																console.error("dashboard debug: no websocket for thing_id (yet)");
+															}
+														}
+														
+														
+														
+														
+														
+													});
+													
+													
+												}
+												
+												
+											}
+							
+										
+										
+										}
+										
+										
+										//
+										//  NEEDS UPDATE
+										//
+										
+										
+										
 										if(class_name.indexOf('-needs-update') != -1){
 								
 											let what_property_is_needed = class_name.replaceAll('-needs-update','');
@@ -4601,6 +4715,10 @@
 						}
 						
 						
+						
+						
+						
+						
 				
 						if(typeof needs['update'] != 'undefined'){
 					
@@ -4623,13 +4741,16 @@
 							
 							if(widget_type && no_thing_has_been_linked_yet && this.all_things){
 								if(this.debug){
-									console.log("dashboard: show_modal: could try to pre-link.  widget_type,this.all_things: ", widget_type, this.all_things);
+									console.log("dashboard debug: show_modal: could try to pre-link.  widget_type,this.all_things: ", widget_type, this.all_things);
 								}
 								
 								
 								if(widget_type == 'media_player'){
 									const pre_thing = this.get_thing_by_thing_id('internet-radio');
-									//console.log("media_player pre_thing: ", pre_thing);
+									if(this.debug){
+										
+									}
+									console.log("dashboard debug: media_player pre_thing: ", pre_thing);
 									if(pre_thing){
 										
 										const pre_made = {
@@ -4726,10 +4847,10 @@
 								let thing_id = null;
 								if(typeof needs['update'][what_property_is_needed]['thing_id'] == 'string'){
 									thing_id = needs['update'][what_property_is_needed]['thing_id'];
-									console.log("show_modal: a thing is already linked: ", thing_id);
+									//console.log("show_modal: a thing is already linked: ", thing_id);
 								}
 								else{
-									console.log("show_modal: no pre-linked thing spotted");
+									//console.log("show_modal: no pre-linked thing spotted");
 								}
 								let property_id = null;
 								if(typeof needs['update'][what_property_is_needed]['property_id'] == 'string'){
@@ -4753,6 +4874,67 @@
 							}
 						
 						}
+						
+						
+						//
+						//  ACTION
+						//
+						
+						if(typeof needs['action'] != 'undefined'){
+							
+							let action_container_el = document.createElement('div');
+							action_container_el.classList.add('extension-dashboard-widget-ui-action-container');
+					
+							widget_ui_el.appendChild(action_container_el);
+							
+							
+							for (const [what_action_is_needed, value] of Object.entries(needs['action'])) {
+								//console.log(`${what_action_is_needed}: ${value}`);
+						
+								let thing_id = null;
+								if(typeof needs['action'][what_action_is_needed]['thing_id'] == 'string'){
+									thing_id = needs['action'][what_action_is_needed]['thing_id'];
+									if(this.debug){
+										console.log("dashboard debug: show_modal: an action thing is already linked: ", thing_id);
+									}
+								}
+								else{
+									//console.log("show_modal: no pre-linked thing spotted");
+								}
+								let action_id = null;
+								if(typeof needs['action'][what_action_is_needed]['action_id'] == 'string'){
+									action_id = needs['action'][what_action_is_needed]['action_id'];
+									if(this.debug){
+										console.log("dashboard debug:show_modal: an action_id is already linked: ", action_id);
+									}
+								}
+								// needs['action'][what_action_is_needed]['action_id']
+						
+								let new_thing_selector_el = await this.generate_thing_selector(grid_id,widget_id,thing_id,action_id, what_action_is_needed,'action');
+								if(new_thing_selector_el){
+									//console.log("OK, NICE. Seems to have gotten a customized thing-action selector for the template");
+									
+									let what_action_is_needed_title_el = document.createElement('h4');
+									what_action_is_needed_title_el.textContent = what_action_is_needed.replaceAll('_',' ');
+									action_container_el.appendChild(what_action_is_needed_title_el);
+						
+									action_container_el.appendChild(new_thing_selector_el);
+								}
+								else{
+									if(this.debug){
+										console.error("dashboard: show_modal: generate_thing_selector did not return a thing selector element");
+									}
+								}
+							}
+							
+							
+						}
+						
+						
+						
+						//
+						//  LOG
+						//
 						
 						if(typeof needs['log'] != 'undefined'){
 							//console.log("generating log template ui. needs['log']: ", needs['log']);
@@ -4906,12 +5088,12 @@
 			
 				if(widget_id == null){
 					if(this.debug){
-						console.error("dashboard: generate_thing_selector: no widget_id provided! aborting");
+						console.error("dashboard: generate_log_selector: no widget_id provided! aborting");
 					}
 					reject(null);
 				}
 			
-				//console.log("in generate_thing_selector.  grid_id,widget_id,provided_thing_id,provided_property_id,what_property_is_needed: ", grid_id,widget_id,provided_thing_id,provided_property_id,what_property_is_needed);
+				//console.log("in generate_log_selector.  grid_id,widget_id,provided_thing_id,provided_property_id,what_property_is_needed: ", grid_id,widget_id,provided_thing_id,provided_property_id,what_property_is_needed);
 			
 	    		// Pre populating the original item that will be clones to create new ones
 	    	    this.update_logs_data()
@@ -5055,9 +5237,10 @@
 		
 		
 		
-		generate_thing_selector(grid_id=null,widget_id=null,provided_thing_id=null,provided_property_id=null,what_property_is_needed=null){
-	        console.log("generate_thing_selector: provided_thing_id, provided_property_id, what_property_is_needed: ", provided_thing_id, provided_property_id, what_property_is_needed);
-			
+		generate_thing_selector(grid_id=null,widget_id=null,provided_thing_id=null,provided_property_id=null,what_property_is_needed=null,need_type='update'){
+	        if(this.debug){
+	        	console.log("dashboard debug: generate_thing_selector: provided_thing_id, provided_property_id, what_property_is_needed, need_type: ", provided_thing_id, provided_property_id, what_property_is_needed, need_type);
+	        }
 			
 			
 			return new Promise((resolve, reject) => {
@@ -5073,7 +5256,7 @@
 					reject(null);
 				}
 				
-				console.log("generate_thing_selector: available dashboard data: ", this.dashboards[grid_id]['widgets'][widget_id]);
+				//console.log("generate_thing_selector: available dashboard data: ", this.dashboards[grid_id]['widgets'][widget_id]);
 			
 				//console.log("in generate_thing_selector.  grid_id,widget_id,provided_thing_id,provided_property_id,what_property_is_needed: ", grid_id,widget_id,provided_thing_id,provided_property_id,what_property_is_needed);
 			
@@ -5155,13 +5338,13 @@
 				
 							if(typeof provided_thing_id == 'string' && thing_id == provided_thing_id){
 								found_already_selected_thing = true;
-								console.warn("thing selector creation FOUND already selected_thing. provided_thing_id: ", provided_thing_id);
+								//console.warn("thing selector creation FOUND already selected_thing. provided_thing_id: ", provided_thing_id);
 								//console.log('setting thing to selected: ', thing_id, thing_title)
 								thing_option_el.setAttribute('selected','selected');
 						
 								// if this is the selected thing, generate the initial properties select too
 						
-								const property_select_el = this.generate_property_select(grid_id, widget_id,provided_thing_id,provided_property_id,what_property_is_needed);
+								const property_select_el = this.generate_property_select(grid_id, widget_id,provided_thing_id,provided_property_id,what_property_is_needed,need_type);
 								if(property_select_el){
 									thing_select_property_container_el.innerHTML = '';
 									thing_select_property_container_el.appendChild(property_select_el);
@@ -5186,13 +5369,13 @@
 	    			}
 		
 					if(found_already_selected_thing == false){
-						console.log("thing selector creation did not find already selected_thing");
+						//console.log("thing selector creation did not find already selected_thing");
 						empty_thing_option_el.setAttribute('selected','selected');
 					}
 		
 					
 		
-		
+					//let action_select_el = null;
 					let property_select_el = null;
 					
                 	thing_select_el.addEventListener("change", () => {
@@ -5201,55 +5384,44 @@
 							console.log("dashboard debug: change_to_thing_id: ", change_to_thing_id);
 						}
 						if(change_to_thing_id == ''){
-							console.log("user deselected a thing.  But which property should be removed? property_select_el: ", property_select_el);
+							
+							/*
+							console.log("user deselected a thing.  But which property/action should be removed? property_select_el: ", property_select_el);
 							console.log("- what_property_is_needed: ", what_property_is_needed);
 							if(property_select_el && typeof property_select_el.value == 'string'){
 								console.log("- dangling property: ", property_select_el.value);
 							}
-							if(typeof what_property_is_needed == 'string'){
-								if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id'] == 'string'){
-									if(this.debug){
-										console.log("removed connection to previously linked thing: " + this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id']);
-									}
-									delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id'];
-								}
-								if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_title'] == 'string'){
-									delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_title'];
-								}
-								if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_id'] == 'string'){
-									delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_id'];
-								}
-								if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_title'] == 'string'){
-									delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_title'];
-								}
-								if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_details'] != 'undefined'){
-									delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_details'];
-								}
-								
-								console.warn("dashboard data is now: ", this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed])
-							}
-							
-							// delete any existing data from settings
-							//if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id'] == 'string'){
-							
-							
-							/*
-							if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id'] == 'string'){
-								delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id'];
-							}
 							*/
+							if(typeof what_property_is_needed == 'string'){
+								if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_id'] == 'string'){
+									if(this.debug){
+										console.log("removed connection to previously linked thing: " + this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_id']);
+									}
+									delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_id'];
+								}
+								if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_title'] == 'string'){
+									delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_title'];
+								}
+								if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_id'] == 'string'){
+									delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_id'];
+								}
+								if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_title'] == 'string'){
+									delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_title'];
+								}
+								if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_details'] != 'undefined'){
+									delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_details'];
+								}
+								if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['action_id'] == 'string'){
+									delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['action_id'];
+								}
 							
+								console.warn("dashboard data for need_type is now: ", need_type, this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed])
+							}
 							
-							
-							
-							
-							
-							
-							//thing_select_property_container_el.innerHTML = '';
 						}
 						else{
-							//console.log("calling generate_property_select with new thing_id: ", change_to_thing_id);
-							property_select_el = this.generate_property_select(grid_id,widget_id,change_to_thing_id,null,what_property_is_needed);
+							
+							property_select_el = this.generate_property_select(grid_id,widget_id,change_to_thing_id,null,what_property_is_needed,need_type);
 							if(property_select_el){
 								thing_select_property_container_el.innerHTML = '';
 								thing_select_property_container_el.appendChild(property_select_el);
@@ -5268,11 +5440,11 @@
 								let all_thing_selectors = update_root_el.querySelectorAll('.extension-dashboard-modal-thing-select');
 								for(let ts = 0; ts < all_thing_selectors.length; ts++){
 									if(all_thing_selectors[ts].value == ''){
-										console.log("spotted a thing selector with an empty value");
+										//console.log("spotted a thing selector with an empty value");
 										const check_if_it_has_the_same_option_el = all_thing_selectors[ts].querySelector('option[value="' + thing_select_el.value + '"]');
-										console.log("check_if_it_has_the_same_option_el: ", check_if_it_has_the_same_option_el);
+										//console.log("check_if_it_has_the_same_option_el: ", check_if_it_has_the_same_option_el);
 										if(check_if_it_has_the_same_option_el){
-											console.log("setting other thing select to same value: ", thing_select_el.value);
+											//console.log("setting other thing select to same value: ", thing_select_el.value);
 											all_thing_selectors[ts].value = thing_select_el.value;
 											var event = new Event('change');
 											all_thing_selectors[ts].dispatchEvent(event);
@@ -5308,7 +5480,7 @@
 		
 		
 		
-		generate_property_select(grid_id=null, widget_id=null, provided_thing_id=null, provided_property_id=null, what_property_is_needed=null){
+		generate_property_select(grid_id=null, widget_id=null, provided_thing_id=null, provided_property_id=null, what_property_is_needed=null, need_type='update'){
 			if(this.debug){
 				if(typeof grid_id != 'string'){
 					console.error("dashboard: generate_property_select: no grid_id provided");
@@ -5319,7 +5491,7 @@
 			}
 			
 			if(this.debug){
-				console.log("in generate_property_select:  provided_thing_id, provided_property_id, what_property_is_needed: ", provided_thing_id, provided_property_id, what_property_is_needed);
+				console.log("in generate_property_select:  provided_thing_id, provided_property_id, what_property_is_needed, need_type: ", provided_thing_id, provided_property_id, what_property_is_needed, need_type);
 			}
 			
 			try{
@@ -5356,24 +5528,29 @@
 			    				else if( things[key].hasOwnProperty('name') ){
 			    					thing_title = things[key]['name'];
 			    				}
-						
-								if(typeof things[key]['properties'] != 'undefined' && Object.keys(things[key]['properties']).length){
+								
+								let attribute = 'properties';
+								if(need_type == 'action'){
+									attribute = 'actions';
+								}
+								
+								if(typeof things[key][attribute] != 'undefined' && Object.keys(things[key][attribute]).length){
 									
 									let property_select_el = document.createElement('select');
-									let properties = things[key]['properties'];
-									
+									let properties = things[key][attribute];
 									
 									let empty_property_option_el = document.createElement('option');
 									empty_property_option_el.value = "";
 									empty_property_option_el.textContent = "-";
 									property_select_el.appendChild(empty_property_option_el);
-									
+									/*
 									if(provided_property_id == null && Object.keys(properties).indexOf('brightness') != -1){
 										provided_property_id = 'brightness';
 									}
 									else if(provided_property_id == null && Object.keys(properties).indexOf('state') != -1){
 										provided_property_id = 'state';
 									}
+									*/
 									
 									let found_selected = false;
 									for (let prop in properties){
@@ -5386,6 +5563,9 @@
 										}
 										else if( properties[prop].hasOwnProperty('label') ){
 											property_title = properties[prop]['label'];
+										}
+										else{
+											property_title = property_id;
 										}
 										
 										if(typeof property_title == 'string'){
@@ -5414,9 +5594,9 @@
 					
 										const property_id = property_select_el.value;
 										if(this.debug){
-											console.log("dashboard debug: switched to property: ", property_select_el.value);
+											console.log("dashboard debug: switched to property/action with ID: ", property_id);
 										}
-					
+										
 										if(typeof property_id == 'string' && typeof properties[property_id] != 'undefined'){
 											
 											if(typeof this.dashboards[grid_id]['widgets'] == 'undefined'){
@@ -5426,16 +5606,15 @@
 												this.dashboards[grid_id]['widgets'][widget_id] = {};
 											}
 											
-											
 											if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'] == 'undefined'){
 												this.dashboards[grid_id]['widgets'][widget_id]['needs'] = {};
 											}
-											if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'] == 'undefined'){
-												this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'] = {};
+											if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type] == 'undefined'){
+												this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type] = {};
 											}
 											if(typeof what_property_is_needed == 'string'){
-												if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed] == 'undefined'){
-													this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed] = {};
+												if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed] == 'undefined'){
+													this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed] = {};
 												}
 											}
 											
@@ -5448,23 +5627,26 @@
 												
 												// switched to unselected
 												if(typeof what_property_is_needed == 'string'){
-													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id'] == 'string'){
+													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_id'] == 'string'){
 														if(this.debug){
-															console.log("removed connection to previously linked thing: " + this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id']);
+															console.log("removed connection to previously linked thing: " + this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_id']);
 														}
-														delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id'];
+														delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_id'];
 													}
-													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_title'] == 'string'){
-														delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_title'];
+													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_title'] == 'string'){
+														delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_title'];
 													}
-													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_id'] == 'string'){
-														delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_id'];
+													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_id'] == 'string'){
+														delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_id'];
 													}
-													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_title'] == 'string'){
-														delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_title'];
+													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_title'] == 'string'){
+														delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_title'];
 													}
-													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_details'] != 'undefined'){
-														delete this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_details'];
+													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_details'] != 'undefined'){
+														delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_details'];
+													}
+													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['action_id'] != 'undefined'){
+														delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['action_id'];
 													}
 												}
 											}
@@ -5476,20 +5658,32 @@
 												else if( properties[property_id].hasOwnProperty('label') ){
 													property_title = properties[property_id]['label'];
 												}
+												else {
+													property_title = property_id;
+												}
 												
 												if(this.debug){
 													console.log("dashboard debug: selected the property: ", property_title, ", for what_property_is_needed: ", what_property_is_needed);
 												}
 											
 												if(typeof what_property_is_needed == 'string'){
-													this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_id'] = thing_id;
-													this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['thing_title'] = thing_title;
-													this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_id'] = property_id;
-													this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_title'] = property_title;
-													this.dashboards[grid_id]['widgets'][widget_id]['needs']['update'][what_property_is_needed]['property_details'] = properties[property_id];
+													this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_id'] = thing_id;
+													this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_title'] = thing_title;
+													this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_id'] = property_id;
+													this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['action_id'] = property_id;
+													this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_title'] = property_title;
+													if(typeof properties[property_id] != 'undefined'){
+														this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_details'] = properties[property_id];
+													}
+													
 												}
 												else{
-													console.error("dashboard: property_select changed, but what_property_is_needed is not a string?");
+													if(this.debug){
+														console.error("dashboard debug: property_select changed, but what_property_is_needed is not a string?");
+													}
+												}
+												if(this.debug){
+													console.log("dashboard debug: after select change, needs details is now: ", this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]);
 												}
 											}
 											
@@ -6976,7 +7170,7 @@ ticks.attr("class", function(d,i){
 
 									
 										function onBarMouseOver(d){
-											console.log("in onBarMouseOver. d: ", d);
+											//console.log("in onBarMouseOver. d: ", d);
 											
 									    	tooltip
 												.transition()        
@@ -6988,7 +7182,8 @@ ticks.attr("class", function(d,i){
 											const tooltip_y = d.pageY + 25;
 											
 								    		tooltip
-											.text(d.target['__data__']['h'] + ". " + d.target['__data__']['v'])
+											//.text(d.target['__data__']['h'] + ". " + d.target['__data__']['v'])
+											.text(d.target['__data__']['v'])
 											.style("cursor", "pointer")
 											.style("left",tooltip_x + "px") 
 											.style("top", tooltip_y + "px")
