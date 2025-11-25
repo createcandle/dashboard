@@ -107,7 +107,7 @@
 					let decoded_locally_saved_values = localStorage.getItem('extension_dashboard_locally_saved_values');
 					decoded_locally_saved_values = JSON.parse(decoded_locally_saved_values);
 					this.locally_saved_values = decoded_locally_saved_values;
-					console.log("dashboard: this.locally_saved_values is now: ", this.locally_saved_values);
+					//console.log("dashboard: this.locally_saved_values is now: ", this.locally_saved_values);
 					
 					for(let c = 0; c < this.color_settings.length; c++){
 						if(typeof this.locally_saved_values[this.color_settings[c]] == 'string' && this.locally_saved_values[this.color_settings[c]].startsWith('#')){
@@ -156,6 +156,7 @@
 		
 			this.websockets = {};
 			this.websockets_lookup = {}; // quick lookup which properties of which things are represented in the dashboard
+			this.currently_relevant_thing_ids = [];
 			
 			this.recent_events = {};
 			
@@ -285,6 +286,8 @@
                 if (this.debug) {
                     console.log("dashboard debug: early init response: ");
                     console.log(body);
+					
+					console.log("dashboard debug: initial this.locally_saved_values: ", this.locally_saved_values);
                 }
 				
 				if(typeof body['dashboards'] != 'undefined'){
@@ -907,11 +910,13 @@
 				this.grids = {};
 			
 				this.view.innerHTML = '<h1>Loading the dashboard failed</h1>';
-				
+				console.log("hide(): closing all websockets");
 				for (const [websocket_thing_id, websocket_client] of Object.entries( this.websockets )) {
 					if(websocket_client){
-						websocket_client.close();
+						console.log("closing websock for: ", websocket_thing_id)
+						websocket_client.close(websocket_thing_id);
 						setTimeout(() => {
+							console.log("deleting websock for: ", websocket_thing_id)
 							delete this.websockets[websocket_thing_id];
 							if(this.debug){
 								console.log("dashboard debug: hide(): closed and deleted websocket client for ", websocket_thing_id);
@@ -1115,13 +1120,6 @@
 					this.show_voco_timers = body.show_voco_timers;
 				}
 
-				// TODO could be fun to allow a greyscale filter on the dashboard
-				if(this.greyscale){
-					document.getElementById('extension-dashboard-content').classList.add('extension-dashboard-greyscale');
-				}
-				else{
-					document.getElementById('extension-dashboard-content').classList.remove('extension-dashboard-greyscale');
-				}
 				
 			}
             catch(e){
@@ -1721,24 +1719,24 @@
 		
 		// TODO allow sub-grids as a form of grouping?
 		show_dashboard(grid_id=null,update_sidebar=true){
-			if(grid_id == null){
+			
+			if(this.debug){
+				console.log("dashboard debug: in show_dashboard.  grid_id, this.current_grid_id: ", grid_id, this.current_grid_id);
+			}
+			
+			if(grid_id == null && this.current_grid_id != null){
 				grid_id = this.current_grid_id;
 			}
-			
-			if(this.debug){
-				console.log("dashboard debug: in show_dashboard.  grid_id: ", grid_id);
-			}
-			
-			if(typeof this.dashboards[grid_id] == 'undefined'){
-				if(this.debug){
-					console.error("dashboard debug: show_dashboard: that dashboard does not exist. Creating it now: ", grid_id);
+			else if(grid_id == null && this.current_grid_id == null){
+				grid_id = this.current_grid_id = 'grid0';
+				if(Object.keys(this.dashboards).length){
+					grid_id = this.current_grid_id = Object.keys(this.dashboards)[0];
 				}
-				this.dashboards[grid_id] = {};
-				//return
 			}
-			if(this.debug){
-				console.log("dashboard debug: show_dashboard: data to render: ", this.dashboards[grid_id]);
-			}
+			
+			
+			
+			
 			
 			
 			if(this.tooltip_el == null){
@@ -1757,13 +1755,31 @@
 			//this.websockets_lookup = {} // keep track of which websockets are needed, and for which properties they are currently used. i.e. this.websockets_lookup[thing_id] = [property, property2, etc]
 			
 			let switched_to_other_dashboard = null;
-			if(this.current_grid_id != grid_id){
+			if(this.current_grid_id != grid_id || this.current_grid_id == null){
 				switched_to_other_dashboard = true;
+				if(this.debug){
+					console.log("switching to different dashboard");
+				}
+				
+				//this.current_grid_id = grid_id;
 			}
 				
 			this.current_grid_id = grid_id;
 			localStorage.setItem("candle_dashboard_grid_id", grid_id);
 			
+			if(typeof this.dashboards[grid_id] == 'undefined'){
+				if(this.debug){
+					console.error("dashboard debug: show_dashboard: that dashboard does not exist. Creating it now: ", grid_id);
+				}
+				this.dashboards[grid_id] = {"widgets":{}};
+				//return
+			}
+			if(this.debug){
+				console.log("dashboard debug: show_dashboard: data to render: ", this.dashboards[grid_id]);
+			}
+			
+			
+			// This generates the dashboards tab menu, but it also generates the tab HTML itself. So this must be run before it's filled with a gristack element below.
 			
 			if(update_sidebar){
 				this.update_sidebar();
@@ -1774,6 +1790,7 @@
 					show_dashboard_button_el.scrollIntoView({ behavior: "smooth", block: "start", inline: "start"});
 				}
 			}
+			
 			
 			
 			
@@ -1908,6 +1925,62 @@
 			    });
 				
 				this.update_clocks();
+				
+				
+				
+				
+				// SHOW DASHBOARD: MANAGE WEBSOCKETS
+				
+				// Find out which websockets need to be opened
+				this.currently_relevant_thing_ids = [];
+				if(typeof this.dashboards[this.current_grid_id] == 'undefined'){
+					this.dashboards[this.current_grid_id] = {'widgets':{}}
+				}
+				for (const [widget_id, details] of Object.entries( this.dashboards[this.current_grid_id]['widgets'] )) {
+					if(details && typeof details['needs'] != 'undefined' && typeof details['needs']['update'] != 'undefined'){
+						const needs_update = details['needs']['update'];
+						for (const [what_property_is_needed, needs_update_details] of Object.entries( needs_update )) {
+							if(typeof needs_update_details['thing_id'] == 'string' && typeof needs_update_details['property_id'] == 'string'){
+								if(this.currently_relevant_thing_ids.indexOf(needs_update_details['thing_id']) == -1){
+									this.currently_relevant_thing_ids.push(needs_update_details['thing_id']);
+								}
+							}
+						}
+					}
+				}
+				if(this.debug){
+					console.log("dashboard debug: show_dashboard:  this.currently_relevant_thing_ids is now: ", this.currently_relevant_thing_ids);
+				}
+				
+				
+				
+				
+				// Disconnect all the existing websockets, so that when the relevant ones are reconnected or opened, we'll get fresh data about their property values
+				for (const [websocket_thing_id, websocket_client] of Object.entries( this.websockets )) {
+					if(this.debug){
+						console.log("dashboard debug: closing websocket for websocket_thing_id: ", websocket_thing_id);
+					}
+					if(websocket_client){
+						websocket_client.close(); // the onclose event handler might re-open the websocket immediately.
+						//delete this.websockets[websocket_thing_id];
+						/*
+						setTimeout(() => {
+							delete this.websockets[websocket_thing_id];
+							console.log("closed and deleted websocket client for ", websocket_thing_id);
+						},950);
+						*/
+						
+					}
+					else{
+						console.error("dashboard debug: websocket_client was invalid? ", typeof websocket_client, websocket_client);
+					}
+				}
+				
+				
+				
+				
+				
+				// Create websocket clients for any things that don't have them yet
 				this.connect_websockets();
 				
 				this.render_logs(switched_to_other_dashboard);
@@ -1915,7 +1988,6 @@
 				setTimeout(() => {
 					this.update_moon();
 				},1000);
-				
 				
 			}
 			else{
@@ -2098,11 +2170,11 @@
 			if(typeof this.dashboards[this.current_grid_id] != 'undefined' && typeof this.dashboards[this.current_grid_id]['widgets'] != 'undefined'){
 				//console.log("widgets data for this grid_id: ", this.dashboards[this.current_grid_id]['widgets']);
 				
-				let currently_relevant_thing_ids = [];
+				//let currently_relevant_thing_ids = [];
 				this.websockets_lookup = {};
 				
 				class WebSocketClient {
-				  constructor(url, options = {}) {
+				  constructor(url, thing_id, options = {}) {
 				    this.url = url;
 				    this.options = {
 				      reconnectInterval: 1000,
@@ -2114,13 +2186,13 @@
 				    this.messageQueue = [];
 				    this.eventHandlers = {};
 				    this.isConnected = false;
+					this.thing_id = thing_id;
 
 				    this.connect();
 				  }
 
 				  connect() {
 				    //console.log(`Connecting to ${this.url}...`);
-
 				    try {
 				      this.ws = new WebSocket(this.url);
 				      this.setupEventHandlers();
@@ -2181,15 +2253,17 @@
 				    };
 
 				    this.ws.onclose = (event) => {
-				      //console.log(`dashboard: WebSocket closed: ${event.code} - ${event.reason}`);
+				      //console.log(`dashboard: WebSocket closed: ${event.code} - ${event.reason}`, event);
 				      this.isConnected = false;
 				      this.stopHeartbeat();
 
+					  event['thing_id'] = this.thing_id;
 				      // Trigger custom close handlers
 				      this.trigger('close', event);
 
 				      // Attempt to reconnect if not a normal closure
 				      if (event.code !== 1000 && event.code !== 1001) {
+						//console.warn("websocket client: unexpected connection closure");
 				        this.scheduleReconnect();
 				      }
 				    };
@@ -2217,7 +2291,7 @@
 				        setTimeout(() => {
 				          const timeSinceLastPong = Date.now() - (this.lastPong || 0);
 				          if (timeSinceLastPong > this.options.heartbeatInterval * 2) {
-				            //console.log('Dashboard: Heartbeat timeout, reconnecting...');
+				            console.log('Dashboard: websocket client: heartbeat timeout, reconnecting...');
 				            this.ws.close();
 				          }
 				        }, 5000);
@@ -2304,9 +2378,11 @@
 								const thing_id = needs_update_details['thing_id'];
 								const property_id = needs_update_details['property_id'];
 								
+								/*
 								if(currently_relevant_thing_ids.indexOf(thing_id) == -1){
 									currently_relevant_thing_ids.push(thing_id); // TODO: this.websockets_lookup does basically the same..
 								}
+								*/
 								
 								
 								if(typeof this.websockets_lookup[thing_id] == 'undefined'){
@@ -2316,7 +2392,17 @@
 									this.websockets_lookup[thing_id].push(property_id);
 								}
 								
-								if(typeof this.websockets[thing_id] == 'undefined'){
+								
+								if(typeof this.websockets[thing_id] != 'undefined'){
+								
+									//this.websockets[thing_id].connect();
+								
+								
+								
+								}
+								//if(typeof this.websockets[thing_id] == 'undefined'){
+								else{
+								
 									
 									let port = 8080;
 									if (location.protocol == 'https:') {
@@ -2326,7 +2412,7 @@
 									const thing_websocket_url = 'ws://' + window.location.hostname + ':' + port + '/things/' + thing_id + '?jwt=' + window.API.jwt; // /properties/temperature
 									//console.log("generate_widget_content: new thing_websocket_url: ", thing_websocket_url);
 					
-									this.websockets[ thing_id ] = new WebSocketClient(thing_websocket_url);
+									this.websockets[ thing_id ] = new WebSocketClient(thing_websocket_url, thing_id);
 					
 									const client = this.websockets[ thing_id ];
 									//console.log("new client: ", client);
@@ -2336,6 +2422,50 @@
 											console.log('dashboard debug: a new websocket is connected and ready');
 										}
 									});
+
+
+									client.on('error', (error) => {
+										if(this.debug){
+											console.error('dashboard debug: websocket connection error:', error);
+										}
+										setTimeout(() => {
+											client.scheduleReconnect();
+										},2000);
+									});
+
+									client.on('close', (event) => {
+									  if(this.debug){
+										  console.warn('dashboard debug: WEBSOCKET CLOSED:', event.code, event.reason);
+									  }
+									  if(event.code != 1000){
+										  if(this.debug){
+											  console.error("dashboard debug: websocket client close seems unexpected. Will attempt to re-open it in a few seconds");
+										  }
+										  setTimeout(() => {
+											  client.scheduleReconnect();
+										  },5000 + (Math.floor(Math.random() * 1000)));
+									  }
+									  else if(typeof event.thing_id == 'string'){
+										  if(typeof this.websockets[event.thing_id] != 'undefined'){
+											  if(this.debug){
+												  console.log("dashboard debug: websocket was closed. thing_id: ", event.thing_id);
+											  }
+											  
+											  setTimeout(() => {
+												  if(this.currently_relevant_thing_ids.indexOf(event.thing_id) != -1){
+													  if(this.debug){
+														  console.log("Telling existing websocket client to immediately reconnect for still_relevant thing_id: ", event.thing_id);
+													  }
+													  this.websockets[event.thing_id].connect();
+												  }
+												  
+											  },10);
+											  //delete this.websockets[event.thing_id]
+										  }
+										  //console.warn("HURRAY, received thing_id from websocket client that finished closing: ", event.thing_id);
+									  }
+									});
+									
 
 									client.on('message', (data) => {
 										if(this.debug){
@@ -2996,30 +3126,7 @@
 										
 									});
 
-									client.on('error', (error) => {
-										if(this.debug){
-											console.error('dashboard debug: websocket connection error:', error);
-										}
-										setTimeout(() => {
-											client.scheduleReconnect();
-										},2000);
-									});
-
-									client.on('close', (event) => {
-									  if(this.debug){
-										  console.warn('dashboard debug: WEBSOCKET CLOSED:', event.code, event.reason);
-									  }
-									  if(event.code != 1000){
-										  if(this.debug){
-											  console.error("dashboard debug: websocket client close seems unexpected. Will attempt to re-open it in a few seconds");
-										  }
-										  setTimeout(() => {
-											  client.scheduleReconnect();
-										  },5000 + (Math.floor(Math.random() * 1000)));
-									  }
-									  
-		  
-									});
+									
 								}
 							}
 							
@@ -3030,25 +3137,26 @@
 					
 				}
 				
+				
 				// Disconnect all the websockets that are no longer relevant (every thing_id from the lookup table that is not in the current grid_id)
 				for (const [websocket_thing_id, websocket_client] of Object.entries( this.websockets )) {
 					if(this.debug){
-						console.log("dashboard debug: checking if websocket is still needed for: ", websocket_thing_id, " in currently_relevant_thing_ids?: ", currently_relevant_thing_ids);
+						console.log("dashboard debug: checking if websocket is still needed for: ", websocket_thing_id, " in this.currently_relevant_thing_ids?: ", this.currently_relevant_thing_ids);
 					}
+					
+					if(websocket_client){
+						//websocket_client.close();
+						//delete this.websockets[websocket_thing_id];
+						
+					}
+					else{
+						console.error("dashboard debug: websocket_client was invalid? ", typeof websocket_client, websocket_client);
+					}
+					
+					/*
 					if(currently_relevant_thing_ids.indexOf(websocket_thing_id) == -1){
 						if(this.debug){
 							console.log("dashboard debug: open websockets is no longer needed for this thing_id: ", websocket_thing_id);
-						}
-						
-						if(websocket_client){
-							websocket_client.close();
-							setTimeout(() => {
-								delete this.websockets[websocket_thing_id];
-								//console.log("closed and deleted websocket client for ", websocket_thing_id);
-							},100);
-						}
-						else{
-							console.error("dashboard debug: websocket_client was invalid? ", typeof websocket_client, websocket_client);
 						}
 					}
 					else{
@@ -3056,6 +3164,7 @@
 							console.log("dashboard debug: OK, websocket is still useful for thing_id: ", websocket_thing_id);
 						}
 					}
+					*/
 				}
 				
 				//console.log("connect_websockets: this.websockets is now: ", this.websockets);
@@ -4208,7 +4317,6 @@
 								
 								
 								// ICON PICKER
-								// TODO: add cancel button to icon picker
 								
 								let icon_picker_info_el = document.createElement('span');
 								icon_picker_info_el.classList.add('extension-dashboard-widget-ui-icon-picker-info');
@@ -4984,14 +5092,6 @@
 								}
 		                    }
 					
-		    				//thing_ids.push( thing_id );
-			
-							//console.log("thing_id: ", thing_id);
-			
-							if(provided_thing_id == null){
-								// TODO: could remember the last selected thing_id, and use that the next time?
-								//provided_thing_id = thing_id; // Set the first thing_id we encounter as the one to be selected
-							}
 				
 							let thing_option_el = document.createElement('option');
 							thing_option_el.value = thing_id;
@@ -5611,7 +5711,7 @@
 									log_viz_el.classList.remove('extension-dashboard-widget-checkbox-toggle-unchecked-content');
 									
 									if(log_viz_el2){
-										console.log("log_viz_el2 already existed");
+										//console.log("log_viz_el2 already existed");
 										log_viz_el2.classList.add('extension-dashboard-hidden');
 										log_viz_el2.classList.remove('extension-dashboard-widget-checkbox-toggle-checked-content');
 									}
@@ -5774,7 +5874,7 @@
 									
 									
 									
-									
+									/*
 									// used to during development to make the graph less dense
 									if(is_boolean_log == false && this.developer){
 										// PRUNING
@@ -5789,7 +5889,7 @@
 										console.error("\n\n\nWARNING: PRUNING DATA BEFOREHAND!\n\n\n--> length before and after: ", log_data.length, pruned_data.length);
 										log_data = pruned_data;
 									}
-									
+									*/
 									
 									
 									
@@ -5838,9 +5938,9 @@
 									for(let h = 0; h < 25; h++){
 										
 										hours_data.push({'hours_into_the_past': h,'minimum':null,'maximum':null,'average':null,'start':(start_of_this_hour - (h * (60000 * 60))),'end':(end_of_this_hour - (h * (60000 * 60))),'beyond_start_value':null,'beyond_end_value':null,'values_to_average':[],'above_zero':0});
-										const millis_into_the_past = (60000 * 60 * (25 - h));
-										console.log("millis_into_the_past: ", millis_into_the_past);
-										alt_log_data.unshift({"d":new Date(end_of_this_hour - (60000 * 60 * h)), "v":0, "h":h, "millis_into_the_past":(60000 * 60 * h)});
+										const millis_into_the_past = (60000 * 60 * (24 - h));
+										//console.log("millis_into_the_past: ", millis_into_the_past);
+										alt_log_data.unshift({"d":new Date(start_of_this_hour - (60000 * 60 * h)), "v":0, "h":h, "millis_into_the_past":(60000 * 60 * h)});
 										
 										
 										//decreaser--;
@@ -5867,14 +5967,15 @@
 									
 									let min_max_lines_would_be_nice = false; // would it even make sense to display the minimum and maximum values spotted during the hour?
 									for(let dp = log_data.length - 1; dp >= 0; dp--){
-										console.log("dp: ", log_property_id, dp);
+										//console.log("dp: ", log_property_id, dp);
 										const this_date_stamp = log_data[dp]['d'].getTime();
 										const this_value = log_data[dp]['v'];
 										
+										/*
 										if(typeof next_date_stamp == 'number'){
 											console.log("this point is earlier: \n - sec: ", Math.round(next_date_stamp - this_date_stamp)/1000, "\n - min: ", Math.round(next_date_stamp - this_date_stamp)/60000);
 										}
-										
+										*/
 										
 										// If could be that the first datapoint is in the previous hour, or even hours old
 										if(this_date_stamp < start_of_this_hour){
@@ -5891,8 +5992,8 @@
 											if(is_boolean_log == false){
 												
 												if(this.debug){
-													console.warn("C\n\n\nALCULATING NUMERIC AVERAGES FOR THE HOUR THAT IS NOW COMPLETE: " + start_of_this_hour + " of " + log_property_id + "\n\n\n");
-													console.log("values_to_average: ", hours_data[hours_into_the_past]['values_to_average'].length);
+													console.warn("\n\n\ndashboard debug: CALCULATING NUMERIC AVERAGES FOR THE HOUR THAT IS NOW COMPLETE: " + start_of_this_hour + " of " + log_property_id + "\n\n\n");
+													console.log("dashboard debug: values_to_average: ", hours_data[hours_into_the_past]['values_to_average'].length);
 												}
 												let nuanced_values = [];
 												
@@ -5914,7 +6015,7 @@
 														let newest_point_inside_the_hour = hours_data[hours_into_the_past]['values_to_average'][0]; // hours_data[hours_into_the_past]['values_to_average'].length  - 1
 														
 														const millis_in_this_hour = hours_data[hours_into_the_past]['end'] - newest_point_inside_the_hour['t'];
-														console.log("beyond_end millis_in_this_hour, as sec: ", millis_in_this_hour / 1000);
+														//console.log("beyond_end millis_in_this_hour, as sec: ", millis_in_this_hour / 1000);
 														//console.log("millis outside of the hour, as sec: ", (hours_data[hours_into_the_past]['beyond_end_value']['t'] - hours_data[hours_into_the_past]['end'])/1000  );
 														total_millis_accounted_for += millis_in_this_hour;
 														let ratio_inside_this_hour = millis_in_this_hour / (hours_data[hours_into_the_past]['beyond_end_value']['t'] - newest_point_inside_the_hour['t']);
@@ -5936,13 +6037,13 @@
 															hypothetical_value_at_end_of_hour = newest_point_inside_the_hour['v'] - value_delta;
 														}
 														
-														console.log("hypothetical_value_at_end_of_hour: ", hypothetical_value_at_end_of_hour);
+														//console.log("hypothetical_value_at_end_of_hour: ", hypothetical_value_at_end_of_hour);
 														//raw_nuance.push({'m':millis_in_this_hour,'v':((hypothetical_value_at_end_of_hour + newest_point_inside_the_hour['v']) / 2 )});
 														//nuanced_values.push( ((hypothetical_value_at_end_of_hour + newest_point_inside_the_hour['v']) / 2 ) * millis_in_this_hour);
 														const beyond_end_score = ((hypothetical_value_at_end_of_hour + newest_point_inside_the_hour['v']) / 2 ) * (millis_in_this_hour / 1000);
-														console.log("adding beyond_end_score: ", beyond_end_score);
+														//console.log("adding beyond_end_score: ", beyond_end_score);
 														total_score += beyond_end_score
-														console.log("total_score for this hour is now: ", total_score);
+														//console.log("total_score for this hour is now: ", total_score);
 														
 														delete hours_data[hours_into_the_past]['beyond_end_value'];
 													}
@@ -5983,7 +6084,7 @@
 														
 														let oldest_point_inside_the_hour = hours_data[hours_into_the_past]['values_to_average'][ hours_data[hours_into_the_past]['values_to_average'].length  - 1 ];
 														const start_millis_in_this_hour = (oldest_point_inside_the_hour['t'] - hours_data[hours_into_the_past]['start']);
-														console.log("beyond_start start_millis_in_this_hour, in seconds: ", start_millis_in_this_hour / 1000);
+														//console.log("beyond_start start_millis_in_this_hour, in seconds: ", start_millis_in_this_hour / 1000);
 														total_millis_accounted_for += start_millis_in_this_hour;
 														let start_ratio_inside_this_hour = start_millis_in_this_hour / (oldest_point_inside_the_hour['t'] - hours_data[hours_into_the_past]['beyond_start_value']['t']);
 														//console.log("beyond start start_ratio_inside_this_hour: ", start_ratio_inside_this_hour);
@@ -6007,7 +6108,7 @@
 														//nuanced_values.push( ((hypothetical_value_at_start_of_hour + oldest_point_inside_the_hour['v']) / 2 ) * start_millis_in_this_hour);
 														
 														const beyond_start_score = ((hypothetical_value_at_start_of_hour + oldest_point_inside_the_hour['v']) / 2 ) * (start_millis_in_this_hour / 1000);
-														console.log("adding beyond_startscore, in seconds: ", beyond_start_score / 1000);
+														//console.log("adding beyond_startscore, in seconds: ", beyond_start_score / 1000);
 														
 														total_score += beyond_start_score;
 														delete hours_data[hours_into_the_past]['beyond_start_value'];
@@ -6015,69 +6116,20 @@
 													
 													delete hours_data[hours_into_the_past]['values_to_average'];
 													
-													
-													//console.error('raw_nuance: ', raw_nuance);
-													
-													//console.log("hours_into_the_past, total_millis_accounted_for, in minutes: ", hours_into_the_past, (total_millis_accounted_for / 60000));
-													
-													
-													//console.log("nuanced_values: ", nuanced_values);
-													//let added_up = 0;
-													/*
-													for(let a = 0; a < nuanced_values.length; a++){
-														added_up += nuanced_values[a];
-													}
-													*/
-													/*
-													let seconds_added = 0;
-													for(let rn = 0; rn < raw_nuance.length; rn++){
-														console.log(rn, ". raw_nuance[rn]: ", raw_nuance[rn]);
-														const raw_seconds = Math.round(raw_nuance[rn]['m'] / 1000);
-														seconds_added = seconds_added + raw_seconds;
-														
-														console.log("raw_seconds: ", raw_seconds, " at: ", typeof raw_nuance[rn]['v'], raw_nuance[rn]['v']);
-														console.log("total seconds_added: ", seconds_added);
-														
-														let score = Math.round(raw_seconds * raw_nuance[rn]['v']);
-														console.log(rn, ". raw score: ", score);
-														added_up = added_up + score;
-														console.log(" --> added_up: ", typeof added_up, added_up);
-														console.log("   --> avrg would be: ", added_up, " / ",  (rn+1), " / ", seconds_added, " ==> ", (added_up / (rn+1)) / seconds_added);
-														console.log("   --> avrg would be: ", (added_up / seconds_added));
-													}
-													*/
-													
-													
-													//added_up = added_up / Math.round(total_millis_accounted_for / 1000); //raw_nuance.length; /// total_millis_accounted_for;
-													//const adjusted = added_up / (Math.round(total_millis_accounted_for / 1000));
-													//console.log("nuanced average: ", adjusted);
-													
-													console.log("SANITY CHECK: total minutes accounted for this hour: ", Math.round(total_millis_accounted_for / 60000));
+													//console.log("SANITY CHECK: total minutes accounted for this hour: ", Math.round(total_millis_accounted_for / 60000));
 													
 													const final_average = Math.round((total_score / (total_millis_accounted_for / 1000)) * 1000) / 1000;
-													console.warn("\n\n\nhour's final_average: ", hours_into_the_past, " -> ", final_average, "\n\n\n");
+													if(this.debug){
+														console.warn("\n\n\ndashboard debug: log: hour's final_average: ", hours_into_the_past, " -> ", final_average, "\n\n\n");
+													}
 													hours_data[hours_into_the_past]['average'] = final_average;
 													
-													if(typeof alt_log_data[ (alt_log_data.length - hours_into_the_past) ] == 'undefined'){
-														console.error("missing index in alt_log_data: ", (alt_log_data.length - hours_into_the_past));
+													if(typeof alt_log_data[ ((alt_log_data.length - 1) - hours_into_the_past) ] == 'undefined'){
+														console.error("dashboard debug:  log: missing index in alt_log_data: ", (alt_log_data.length - hours_into_the_past));
 													}
 													else{
 														alt_log_data[ ( (alt_log_data.length - 1) - hours_into_the_past) ]['v'] = final_average;
 													}
-													
-													
-													//alt_log_data[hours_into_the_past] = {"v":final_average,"d":new Date(hours_data[hours_into_the_past]['start'])};
-													console.log("alt_log_data is now: \n\n", JSON.stringify(alt_log_data,null,2), "\n\n");
-													
-													//const raw_average = adjusted / raw_nuance.length;  //added_up / total_millis_accounted_for;//(added_up / total_millis_accounted_for) / raw_nuance.length;
-													//console.log("\n\nraw_average: ", raw_average);
-													/*
-													
-													const nuanced_average = (added_up / nuanced_values.length);
-													console.error("\n\nnuanced_average: ", nuanced_average);
-													hours_data[hours_into_the_past]['average'] = nuanced_average;
-													*/
-													//console.log("dumb_average: ", dumb_total / hours_data[hours_into_the_past]['values_to_average'].length); 
 													
 													
 												}
@@ -6090,7 +6142,7 @@
 											
 											let old_hours_into_the_past = hours_into_the_past;
 											if(this.debug){
-												console.log("==> old hours_into_the_past is now: ", old_hours_into_the_past);
+												console.log("dashboard debug: ==> old hours_into_the_past is now: ", old_hours_into_the_past);
 											}
 											
 											
@@ -6099,13 +6151,13 @@
 											
 											hours_into_the_past = Math.floor( ((hours_data[0]['end']) - this_date_stamp) / (60 * 60 * 1000));
 											if(this.debug){
-												console.log("==> new hours_into_the_past: ", hours_into_the_past, "HOUR JUMP: ", hours_into_the_past - old_hours_into_the_past);
+												console.log("dashboard debug: ==> new hours_into_the_past: ", hours_into_the_past, "HOUR JUMP: ", hours_into_the_past - old_hours_into_the_past);
 											}
 											
 											//console.warn("... hours_into_the_past is now: " + hours_into_the_past);
 											
 											if(hours_into_the_past == old_hours_into_the_past){
-												console.error("dashboard: log averages: hours in the past did not increase!");
+												console.error("dashboard debug: log averages: hours in the past did not increase!");
 												hours_into_the_past++;
 											}
 											
@@ -6119,7 +6171,7 @@
 											
 											// Similar to the beyond_start_value, we keep track of the value outside of the hour that will be useful later to calculate averages
 											if(is_boolean_log == false && next_date_stamp != null && next_value != null){
-												console.log("adding beyond_end_value into the numeric hour that is now complete");
+												//console.log("adding beyond_end_value into the numeric hour that is now complete");
 												hours_data[hours_into_the_past]['beyond_end_value'] = {'t':next_date_stamp, 'v':next_value};
 											}
 											
@@ -6165,7 +6217,7 @@
 														
 														// Does the other moment reach over the hour boundary? If so, that complicates calculations a bit.
 														if(future_boolean_off_date_stamp > end_of_this_hour){
-															console.log("the device was switched on in this hour: ", hours_into_the_past, ", and was switched of in the future, so at less hours into the past.. last_boolean_off_hour: ", last_boolean_off_hour);
+															//console.log("the device was switched on in this hour: ", hours_into_the_past, ", and was switched of in the future, so at less hours into the past.. last_boolean_off_hour: ", last_boolean_off_hour);
 															// There are three sections to update. The first is the bit in this hour (where it was switched on) until the end of this hour. The second part is the partial bit of the hour during which it was switched off again (which lies in the future).
 															// And thirdly, optionally, there may be an hour or more in between those two partial hours during which the switch was on too.
 													
@@ -6181,11 +6233,11 @@
 														
 														
 															if(hours_into_the_past > last_boolean_off_hour + 1){
-																console.log("Also have to fill in lots of hours in between:  from hours_into_the_past: ", hours_into_the_past, ", till last_boolean_off_hour: ", last_boolean_off_hour, ", so this many hours: ", last_boolean_off_hour - hours_into_the_past);
+																//console.log("Also have to fill in lots of hours in between:  from hours_into_the_past: ", hours_into_the_past, ", till last_boolean_off_hour: ", last_boolean_off_hour, ", so this many hours: ", last_boolean_off_hour - hours_into_the_past);
 																// Loop over all the hours in the future, up to the one in which it was switched off, and set the 'on' duration to the entire hour.
 																for(let nh = last_boolean_off_hour + 1; nh < hours_into_the_past; nh++){
 																	hours_data[nh]['above_zero'] = 60 * 60 * 1000; // it must have been on for the full hour
-																	console.log("this hour has been set to the full 60 minutes: ", nh);
+																	//console.log("this hour has been set to the full 60 minutes: ", nh);
 																}
 															}
 														
@@ -6206,13 +6258,13 @@
 															}
 															
 															if(hours_data[hours_into_the_past]['above_zero'] > (60 * 60 * 1000)){
-																console.error("the accumulated boolean ON time has already exceeded 60 minutes! ", hours_data[hours_into_the_past]['above_zero'] / 60000);
+																console.error("dashboard: the accumulated boolean ON time has already exceeded 60 minutes! ", hours_data[hours_into_the_past]['above_zero'] / 60000);
 															}
 												
 															hours_data[hours_into_the_past]['above_zero'] += time_delta_with_the_hour;
 											
 															if(hours_data[hours_into_the_past]['above_zero'] > (60 * 60 * 1000)){
-																console.error("After adding the latest boolean delta, the accumulated ON time has now exceeded 60 minutes! ", hours_data[hours_into_the_past]['above_zero'] / 60000);
+																console.error("dashboard: after adding the latest boolean delta, the accumulated ON time has now exceeded 60 minutes! ", hours_data[hours_into_the_past]['above_zero'] / 60000);
 															}
 														
 														
@@ -6227,7 +6279,7 @@
 														}
 													}
 													else{
-														console.warn("the boolean datapoint we're looking at is not for this hour!");
+														//console.warn("dashboard: the boolean datapoint we're looking at is not for this hour!");
 													}
 													
 													// reset
@@ -6269,7 +6321,7 @@
 													hours_data[hours_into_the_past]['minimum'] = this_value
 												}
 												else if(this_value < hours_data[hours_into_the_past]['minimum']){
-													console.log("spotted lower minimum: ")
+													//console.log("spotted lower minimum: ")
 													hours_data[hours_into_the_past]['minimum'] = this_value;
 												}
 									
@@ -6284,7 +6336,7 @@
 											
 											}
 											else{
-												console.error("dashboard: log averages: this numeric datapoint is somehow not within the hour we're looking at");
+												//console.error("dashboard: log averages: this numeric datapoint is somehow not within the hour we're looking at");
 											}
 										}
 										
@@ -6296,10 +6348,10 @@
 										if(is_boolean_log == false && min_max_lines_would_be_nice == false && hours_data[hours_into_the_past]['minimum'] != null && hours_data[hours_into_the_past]['maximum'] != null){
 											if(hours_data[hours_into_the_past]['minimum'] != hours_data[hours_into_the_past]['maximum']){
 												if(hours_data[hours_into_the_past]['minimum'] > hours_data[hours_into_the_past]['maximum']){
-													console.error("somehow maximum value spotted this hour was smaller than the minimum value spotted: ", hours_data[hours_into_the_past]['minimum'], hours_data[hours_into_the_past]['maximum']);
+													console.error("dashboard: somehow maximum value spotted this hour was smaller than the minimum value spotted: ", hours_data[hours_into_the_past]['minimum'], hours_data[hours_into_the_past]['maximum']);
 												}
 												else{
-													console.log("spotted a different minimum and maximum value this hour, so min-max lines would be nice.  hour,min,max: ", hours_into_the_past, hours_data[hours_into_the_past]['minimum'], hours_data[hours_into_the_past]['maximum'])
+													//console.log("spotted a different minimum and maximum value this hour, so min-max lines would be nice.  hour,min,max: ", hours_into_the_past, hours_data[hours_into_the_past]['minimum'], hours_data[hours_into_the_past]['maximum'])
 													min_max_lines_would_be_nice = true;
 												}
 												
@@ -6803,7 +6855,7 @@ ticks.attr("class", function(d,i){
 									  	// X axis
 									  	var x = d3.scaleBand()
 									    .range([ 0, rect.width ])
-									    .domain(log_data.map(function(d) { return d.d; }))
+									    .domain(log_data.map(function(d) { return d.d; })) // console.log("setting bar X tick to: ", d.d); 
 									    .padding(0.2);
 										
 										
@@ -6868,7 +6920,7 @@ ticks.attr("class", function(d,i){
 
 									
 										function onBarMouseOver(d){
-											//console.log("in onBarMouseOver. d: ", d);
+											console.log("in onBarMouseOver. d: ", d);
 											
 									    	tooltip
 												.transition()        
@@ -6880,7 +6932,7 @@ ticks.attr("class", function(d,i){
 											const tooltip_y = d.pageY + 25;
 											
 								    		tooltip
-											.text(d.target['__data__']['v'])
+											.text(d.target['__data__']['h'] + ". " + d.target['__data__']['v'])
 											.style("cursor", "pointer")
 											.style("left",tooltip_x + "px") 
 											.style("top", tooltip_y + "px")
