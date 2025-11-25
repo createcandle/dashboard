@@ -2186,18 +2186,25 @@
 				    this.messageQueue = [];
 				    this.eventHandlers = {};
 				    this.isConnected = false;
+					this.connecting = false;
 					this.thing_id = thing_id;
 
 				    this.connect();
 				  }
 
 				  connect() {
+					  //console.error("websocket client: in connect().  this.thing_id: ", this.thing_id);
+					  if(this.connecting == true){
+						  console.error("websocket client: already busy connecting!  this.thing_id: ", this.thing_id);
+						  return
+					  }
+					  this.connecting = true;
 				    //console.log(`Connecting to ${this.url}...`);
 				    try {
 				      this.ws = new WebSocket(this.url);
 				      this.setupEventHandlers();
 				    } catch (error) {
-				      console.error('dashboard: failed to create WebSocket:', error);
+				      console.error('dashboard: failed to create WebSocket:' + error);
 				      this.scheduleReconnect();
 				    }
 				  }
@@ -2206,6 +2213,7 @@
 				    this.ws.onopen = (event) => {
 				      //console.log('WebSocket connected');
 				      this.isConnected = true;
+					  this.connecting = false;
 				      this.reconnectAttempts = 0;
 
 				      // Send any queued messages
@@ -2255,6 +2263,7 @@
 				    this.ws.onclose = (event) => {
 				      //console.log(`dashboard: WebSocket closed: ${event.code} - ${event.reason}`, event);
 				      this.isConnected = false;
+					  this.connecting = false;
 				      this.stopHeartbeat();
 
 					  event['thing_id'] = this.thing_id;
@@ -2394,9 +2403,16 @@
 								
 								
 								if(typeof this.websockets[thing_id] != 'undefined'){
-								
-									//this.websockets[thing_id].connect();
-								
+									//console.log("the websocket client already exists:  thing_id,client: ", thing_id, this.websockets[thing_id]);
+									if(this.currently_relevant_thing_ids.indexOf(thing_id) != -1){
+										//console.error("could reconnect to websocket... for thing_id: ", thing_id, "\n -- connecting: ", this.websockets[thing_id].connecting, "\n -- isConnected: ", this.websockets[thing_id].isConnected );
+										if(this.websockets[thing_id].connecting == false && this.websockets[thing_id].isConnected == false){
+											this.websockets[thing_id].connect();
+										}
+										else{
+											//console.log("... but the websocket is already on it?")
+										}
+									}
 								
 								
 								}
@@ -2410,7 +2426,7 @@
 									}
 					
 									const thing_websocket_url = 'ws://' + window.location.hostname + ':' + port + '/things/' + thing_id + '?jwt=' + window.API.jwt; // /properties/temperature
-									//console.log("generate_widget_content: new thing_websocket_url: ", thing_websocket_url);
+									//console.log("generate_widget_content: creating new websocket client:  new thing_websocket_url: ", thing_websocket_url);
 					
 									this.websockets[ thing_id ] = new WebSocketClient(thing_websocket_url, thing_id);
 					
@@ -2419,7 +2435,7 @@
 					
 									client.on('open', () => {
 										if(this.debug){
-											console.log('dashboard debug: a new websocket is connected and ready');
+											console.warn('\n\ndashboard debug: a websocket is connected and ready.  thing_id: ' + client.thing_id + '\n\n');
 										}
 									});
 
@@ -2435,7 +2451,7 @@
 
 									client.on('close', (event) => {
 									  if(this.debug){
-										  console.warn('dashboard debug: WEBSOCKET CLOSED:', event.code, event.reason);
+										  console.warn('dashboard debug: WEBSOCKET CLOSED:', event.code, event.reason, event.thing_id);
 									  }
 									  if(event.code != 1000){
 										  if(this.debug){
@@ -2446,21 +2462,47 @@
 										  },5000 + (Math.floor(Math.random() * 1000)));
 									  }
 									  else if(typeof event.thing_id == 'string'){
+										  //console.log("websocket just closed, and it provided a thing_id so that it can potentially be re-opened: ", event.thing_id);
 										  if(typeof this.websockets[event.thing_id] != 'undefined'){
 											  if(this.debug){
-												  console.log("dashboard debug: websocket was closed. thing_id: ", event.thing_id);
+												  //console.log("dashboard debug: websocket was closed. thing_id: ", event.thing_id);
 											  }
 											  
-											  setTimeout(() => {
-												  if(this.currently_relevant_thing_ids.indexOf(event.thing_id) != -1){
-													  if(this.debug){
-														  console.log("Telling existing websocket client to immediately reconnect for still_relevant thing_id: ", event.thing_id);
-													  }
-													  this.websockets[event.thing_id].connect();
+											  if(this.currently_relevant_thing_ids.indexOf(event.thing_id) != -1){
+												  if(this.debug){
+													  console.log("dashboard debug: telling existing websocket client to immediately reconnect for still_relevant thing_id: ", event.thing_id);
 												  }
-												  
-											  },10);
-											  //delete this.websockets[event.thing_id]
+												  try{
+													  if(client.connecting == false && client.isConnected == false){
+														  if(this.debug){
+															  console.log("dashboard debug: CALLING Websocket CLIENT.CONNECT after it was closed");
+														  }
+														  client.connect();
+													  }
+													  else{
+														  if(this.debug){
+															  console.error("\ndashboard debug:  END.\n\nre-opening websocket after close: something beat me to it?");
+														  }
+													  }
+													  
+												  }
+												  catch(err){
+													  if(this.debug){
+														  console.error("dashboard debug: caught error trying to re-connect to websocket client: ", err);
+													  }
+												  }
+											  }
+											  else{
+												  if(this.debug){
+													  console.log("\ndashboard debug: END.\n\n websocket closed, and thing_id is no longer relevant: ", event.thing_id);
+												  }
+											  }
+											  
+										  }
+										  else{
+											  if(this.debug){
+												  console.error("dashboard debug: websocket that just closed no longer exists in this.websockets? ", event.thing_id, this.websockets);
+											  }
 										  }
 										  //console.warn("HURRAY, received thing_id from websocket client that finished closing: ", event.thing_id);
 									  }
@@ -2469,12 +2511,12 @@
 
 									client.on('message', (data) => {
 										if(this.debug){
-											console.log('\n\n\ndashboard debug: websocket received:', data);
+											console.log('\n\n\ndashboard debug: websocket received:', JSON.stringify(data,null,2));
 										}
 										
 										if(typeof this.websockets_lookup[thing_id] != 'undefined'){
 											if(this.debug){
-												console.log("dashboard debug: in theory these properties could be updated in the dashboard: ", this.websockets_lookup[thing_id]);
+												console.log("dashboard debug: in theory these properties could be updated in the dashboard, according to this.websockets_lookup: ", this.websockets_lookup[thing_id]);
 											}
 										}
 										
@@ -3139,9 +3181,10 @@
 				
 				
 				// Disconnect all the websockets that are no longer relevant (every thing_id from the lookup table that is not in the current grid_id)
+				
 				for (const [websocket_thing_id, websocket_client] of Object.entries( this.websockets )) {
 					if(this.debug){
-						console.log("dashboard debug: checking if websocket is still needed for: ", websocket_thing_id, " in this.currently_relevant_thing_ids?: ", this.currently_relevant_thing_ids);
+						//console.log("dashboard debug: checking if websocket is still needed for: ", websocket_thing_id, " in this.currently_relevant_thing_ids?: ", this.currently_relevant_thing_ids);
 					}
 					
 					if(websocket_client){
@@ -3150,7 +3193,7 @@
 						
 					}
 					else{
-						console.error("dashboard debug: websocket_client was invalid? ", typeof websocket_client, websocket_client);
+						//console.error("dashboard debug: websocket_client was invalid? ", typeof websocket_client, websocket_client);
 					}
 					
 					/*
@@ -3594,7 +3637,14 @@
 																				// SENDING VALUE CHANGE VIA WEBSOCKET
 																		
 																				this.recent_events[thing_id][property_id] = {"timestamp":Date.now(), "value":event.target.value, "type":"sent"}; // remember what and when was sent
-																				//console.error("dashboard: sending message over websocket.  thing_id, message: ", thing_id, "\n", JSON.stringify(outgoing_message,null,4))
+																				//console.error("dashboard: input changed, sending message over websocket.  thing_id, message: ", thing_id, "\n", JSON.stringify(outgoing_message,null,4));
+																				//console.log("websocket client to send with? ", this.websockets[thing_id]);
+																				if(this.websockets[thing_id].isConnected == false && this.websockets[thing_id].connecting == false){
+																					if(this.debug){
+																						console.warn("dashboard debug: unexpectedly had to re-connect the websocket client on input element change for thing_id: ", thing_id);
+																					}
+																					this.websockets[thing_id].connect();
+																				}
 																				this.websockets[thing_id].send(outgoing_message);
 																		
 																		
@@ -3616,11 +3666,15 @@
 																
 																			}
 																			catch(err){
-																				console.error("dashboard: caught error trying to send message via websocket: ", err);
+																				if(this.debug){
+																					console.error("dashboard debug: caught error trying to send message via websocket: ", err);
+																				}
 																			}
 																		}
 																		else{
-																			console.error("dashboard: no websocket for thing_id (yet)");
+																			if(this.debug){
+																				console.error("dashboard debug: no websocket for thing_id (yet)");
+																			}
 																		}
 																	}
 																}
@@ -3700,7 +3754,9 @@
 																						}
 																					}
 																					else{
-																						console.error("dashboard: no websocket for thing_id (yet)");
+																						if(this.debug){
+																							console.error("dashboard debug: no websocket for thing_id (yet)");
+																						}
 																					}
 																				});
 																				
