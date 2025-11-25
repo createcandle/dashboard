@@ -534,7 +534,7 @@
 							//console.log("slow interval: seconds passed: ", this.interval_counter);
 							this.interval_counter = 0;
 		                    
-							//this.render_logs(); // every 30 seconds update any visible log widgets
+							
 							
 							
 							// every X seconds run the Voco timers poll interval
@@ -580,6 +580,8 @@
 								this.content_el.classList.remove('extension-dashboard-night');
 							}
 							//this.get_init();
+							
+							this.render_logs(); // every 30 seconds update any visible log widgets
 						}
 				
 						
@@ -2426,7 +2428,9 @@
 													
 														// New value is not a number
 														if((typeof property_value == 'string' && property_value == "") || typeof property_value == 'boolean' || typeof property_value == 'object' || isNaN('' + property_value)){
-															console.log("dashboard debug: the incoming value is not a number, so no need to clean it: ", typeof property_value, property_value);
+															if(this.debug){
+																console.log("dashboard debug: the incoming value is not a number, so no need to clean it: ", typeof property_value, property_value);
+															}
 														}
 													
 														// If the provided value is a number, clean it up to match any 'step' attribute that element it will be placed into may have
@@ -2510,12 +2514,15 @@
 																}
 														
 																if(!isNaN("" + new_value)){
-																	//console.log("NUMBER CLEANING COMPLETE. CHANGE: ", typeof property_value, property_value, " ->> ", typeof new_value, new_value);
-																	property_value = new_value;
+																	if(this.debug){
+																		console.log("NUMBER CLEANING COMPLETE. CHANGE: ", typeof property_value, property_value, " ->> ", typeof new_value, new_value);
+																	}
 																}
 															
 															}
-														
+															if(!isNaN("" + new_value)){
+																property_value = new_value;
+															}
 														
 														
 														}
@@ -2588,7 +2595,7 @@
 														
 															let input_type = el_to_update.getAttribute('type');
 															if(this.debug){
-																console.log("dashboard debug: INPUT el to update input_type: ", input_type);
+																console.log("dashboard debug: INPUT el to update [type]: ", input_type);
 															}
 														
 															if(typeof input_type != 'string'){
@@ -3110,7 +3117,7 @@
 			let needs = {};
 			if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'] != 'undefined'){
 				needs = this.dashboards[grid_id]['widgets'][widget_id]['needs'];
-				console.log("generate_widget_content: needs beforehand: ", needs);
+				//console.log("generate_widget_content: needs beforehand: ", needs);
 			}
 			
 			
@@ -5718,14 +5725,19 @@
 											"width":Math.floor(real_rect.width),
 											"height":Math.floor(real_rect.height),
 											}
-										
+											
+									if(this.debug){
+										console.log("dashboard debug: render_logs: new rect: ", rect);
+									}
 									
 									// for very wide widgets, allow the svg to render a little wider
 									if(tallness_hint_number == 2 && wideness_hint_number > 2){
 										rect['width'] = Math.round(rect['width'] * 1.15);
 									}
 									
-									
+									if(this.debug){
+										console.log("dashboard debug: render_logs: new rect after size adustment: ", rect);
+									}
 									
 									// ANALYZE THE DATA
 									
@@ -5762,10 +5774,11 @@
 									
 									
 									
-									/*
+									
 									// used to during development to make the graph less dense
-									if(is_boolean_log == false){
+									if(is_boolean_log == false && this.developer){
 										// PRUNING
+										
 										
 										let pruned_data = [];
 										for(let g = 0; g < log_data.length; g++){
@@ -5773,9 +5786,10 @@
 												pruned_data.push(log_data[g]);
 											}
 										}
+										console.error("\n\n\nWARNING: PRUNING DATA BEFOREHAND!\n\n\n--> length before and after: ", log_data.length, pruned_data.length);
 										log_data = pruned_data;
 									}
-									*/
+									
 									
 									
 									
@@ -5810,6 +5824,7 @@
 									let next_date_stamp = null;
 									let future_boolean_off_date_stamp = null;
 									let last_boolean_off_hour = null;
+									let future_boolean_off_hour_start = null;
 									
 									//let total_data = {'minimum':[],'maximum':[],'average':[],'above_zero':[]};
 									//let hour_data = {'minimum':null,'maximum':null,'average':null,'above_zero':0};  
@@ -5822,8 +5837,11 @@
 									//let decreaser = 25;
 									for(let h = 0; h < 25; h++){
 										
-										hours_data.push({'hours_into_the_past': h,'minimum':null,'maximum':null,'average':null,'start':null,'end':null,'beyond_start_value':null,'beyond_end_value':null,'values_to_average':[],'above_zero':0});
-										alt_log_data.push({"d":new Date(end_of_this_hour - (60000 * 60 * (25 - h))),"v":null})
+										hours_data.push({'hours_into_the_past': h,'minimum':null,'maximum':null,'average':null,'start':(start_of_this_hour - (h * (60000 * 60))),'end':(end_of_this_hour - (h * (60000 * 60))),'beyond_start_value':null,'beyond_end_value':null,'values_to_average':[],'above_zero':0});
+										const millis_into_the_past = (60000 * 60 * (25 - h));
+										console.log("millis_into_the_past: ", millis_into_the_past);
+										alt_log_data.unshift({"d":new Date(end_of_this_hour - (60000 * 60 * h)), "v":0, "h":h, "millis_into_the_past":(60000 * 60 * h)});
+										
 										
 										//decreaser--;
 									}
@@ -5835,8 +5853,8 @@
 									}
 									*/
 									
-									hours_data[0]['start'] = start_of_this_hour;
-									hours_data[0]['end'] = end_of_this_hour;
+									//hours_data[0]['start'] = start_of_this_hour;
+									//hours_data[0]['end'] = end_of_this_hour;
 									hours_data[0]['incomplete'] = true;
 									
 									//console.log("inital start_of_this_hour: ", start_of_this_hour);
@@ -5849,14 +5867,21 @@
 									
 									let min_max_lines_would_be_nice = false; // would it even make sense to display the minimum and maximum values spotted during the hour?
 									for(let dp = log_data.length - 1; dp >= 0; dp--){
-										//console.log("dp: ", dp);
+										console.log("dp: ", log_property_id, dp);
 										const this_date_stamp = log_data[dp]['d'].getTime();
 										const this_value = log_data[dp]['v'];
+										
+										if(typeof next_date_stamp == 'number'){
+											console.log("this point is earlier: \n - sec: ", Math.round(next_date_stamp - this_date_stamp)/1000, "\n - min: ", Math.round(next_date_stamp - this_date_stamp)/60000);
+										}
 										
 										
 										// If could be that the first datapoint is in the previous hour, or even hours old
 										if(this_date_stamp < start_of_this_hour){
-											//console.warn("\nDONGGGGG\n\nShifting to an earlier hour.\n\n");
+											if(this.debug){
+												console.warn("\ndashboard debug: log averages:\n\n\nDONGGGGG\n\nShifting to an earlier hour for: ", log_property_id, "\n\n - hours_into_the_past: ", hours_into_the_past);
+											}
+											
 											
 											
 											//
@@ -5865,12 +5890,13 @@
 											
 											if(is_boolean_log == false){
 												
-												
-												//console.warn("CALCULATING AVERAGES FOR THE HOUR THAT IS NOW COMPLETE");
-												//console.log("values_to_average: ", hours_data[hours_into_the_past]['values_to_average'])
+												if(this.debug){
+													console.warn("C\n\n\nALCULATING NUMERIC AVERAGES FOR THE HOUR THAT IS NOW COMPLETE: " + start_of_this_hour + " of " + log_property_id + "\n\n\n");
+													console.log("values_to_average: ", hours_data[hours_into_the_past]['values_to_average'].length);
+												}
 												let nuanced_values = [];
 												
-												let total_score = 0;
+												let total_score = 0; // millis * average of each two adjoining points, all added up
 												
 												// for completeness, remember what datapoint ended the hour loop. This will be useful to calculate averages later that take into account how the value was changing over time
 												hours_data[hours_into_the_past]['beyond_start_value'] = {'t':this_date_stamp, 'v':this_value};
@@ -5882,17 +5908,13 @@
 													let hypothetical_value_at_end_of_hour = null;
 													let hypothetical_value_at_start_of_hour = null;
 													
-													
-													
 													// calculate the slope between the most futuristic datapoint inside the hour, and a futuristic datapoint outside of the that hour;
 													if(hours_data[hours_into_the_past]['beyond_end_value'] != null){
 														
 														let newest_point_inside_the_hour = hours_data[hours_into_the_past]['values_to_average'][0]; // hours_data[hours_into_the_past]['values_to_average'].length  - 1
 														
-														
-														
 														const millis_in_this_hour = hours_data[hours_into_the_past]['end'] - newest_point_inside_the_hour['t'];
-														//console.log("millis_in_this_hour, as sec: ", millis_in_this_hour / 1000);
+														console.log("beyond_end millis_in_this_hour, as sec: ", millis_in_this_hour / 1000);
 														//console.log("millis outside of the hour, as sec: ", (hours_data[hours_into_the_past]['beyond_end_value']['t'] - hours_data[hours_into_the_past]['end'])/1000  );
 														total_millis_accounted_for += millis_in_this_hour;
 														let ratio_inside_this_hour = millis_in_this_hour / (hours_data[hours_into_the_past]['beyond_end_value']['t'] - newest_point_inside_the_hour['t']);
@@ -5914,29 +5936,40 @@
 															hypothetical_value_at_end_of_hour = newest_point_inside_the_hour['v'] - value_delta;
 														}
 														
-														//console.log("hypothetical_value_at_end_of_hour: ", hypothetical_value_at_end_of_hour);
+														console.log("hypothetical_value_at_end_of_hour: ", hypothetical_value_at_end_of_hour);
 														//raw_nuance.push({'m':millis_in_this_hour,'v':((hypothetical_value_at_end_of_hour + newest_point_inside_the_hour['v']) / 2 )});
 														//nuanced_values.push( ((hypothetical_value_at_end_of_hour + newest_point_inside_the_hour['v']) / 2 ) * millis_in_this_hour);
+														const beyond_end_score = ((hypothetical_value_at_end_of_hour + newest_point_inside_the_hour['v']) / 2 ) * (millis_in_this_hour / 1000);
+														console.log("adding beyond_end_score: ", beyond_end_score);
+														total_score += beyond_end_score
+														console.log("total_score for this hour is now: ", total_score);
 														
-														total_score += ((hypothetical_value_at_end_of_hour + newest_point_inside_the_hour['v']) / 2 ) * (millis_in_this_hour / 1000);
 														delete hours_data[hours_into_the_past]['beyond_end_value'];
 													}
 													
 													
 													
 													
+													// Add the 'normal' consecutive points that were all within the hour
 													
-													let dumb_total = hours_data[hours_into_the_past]['values_to_average'][0]['v'];
+													let dumb_total = hours_data[hours_into_the_past]['values_to_average'][0]['v']; // as a test, also just take all the recorded values and average them. Shouldn't be too far off from the 'nuanced' calculation
+													
 													for(let vt = 1; vt < hours_data[hours_into_the_past]['values_to_average'].length; vt++){
 														dumb_total += hours_data[hours_into_the_past]['values_to_average'][vt]['v'];
+														
+														// Calculate the average for two consecutive datapoints
 														const average_value = (hours_data[hours_into_the_past]['values_to_average'][vt - 1]['v'] + hours_data[hours_into_the_past]['values_to_average'][vt]['v']) / 2;
+														
+														// Then multiply this average with the time delta between those two points
 														//console.log("average_value: ", hours_data[hours_into_the_past]['values_to_average'][vt - 1]['v'], hours_data[hours_into_the_past]['values_to_average'][vt]['v'], " -> ", average_value);
 														const duration = hours_data[hours_into_the_past]['values_to_average'][vt - 1]['t'] - hours_data[hours_into_the_past]['values_to_average'][vt]['t'];
-														
+														//console.log("normal duration, in seconds: ", duration/1000);
 														//raw_nuance.push({'m':duration,'v':average_value});
 														total_millis_accounted_for += duration;
-														//console.log("- duration: ", duration);
-														total_score += (duration/1000) * average_value;
+														
+														const normal_point_score = (duration/1000) * average_value;
+														//console.log("+ average_value, duration (in seconds), and normal_point_score: ", average_value, (duration/1000) + "s", " -> ", normal_point_score);
+														total_score += normal_point_score;
 														//nuanced_values.push( average_value * duration );
 													}
 													
@@ -5950,7 +5983,7 @@
 														
 														let oldest_point_inside_the_hour = hours_data[hours_into_the_past]['values_to_average'][ hours_data[hours_into_the_past]['values_to_average'].length  - 1 ];
 														const start_millis_in_this_hour = (oldest_point_inside_the_hour['t'] - hours_data[hours_into_the_past]['start']);
-														//console.log("start_millis_in_this_hour: ", start_millis_in_this_hour);
+														console.log("beyond_start start_millis_in_this_hour, in seconds: ", start_millis_in_this_hour / 1000);
 														total_millis_accounted_for += start_millis_in_this_hour;
 														let start_ratio_inside_this_hour = start_millis_in_this_hour / (oldest_point_inside_the_hour['t'] - hours_data[hours_into_the_past]['beyond_start_value']['t']);
 														//console.log("beyond start start_ratio_inside_this_hour: ", start_ratio_inside_this_hour);
@@ -5972,7 +6005,11 @@
 														//console.log("hypothetical_value_at_start_of_hour: ", hypothetical_value_at_start_of_hour);
 														//raw_nuance.push({'m':start_millis_in_this_hour,'v':((hypothetical_value_at_start_of_hour + oldest_point_inside_the_hour['v']) / 2 )});
 														//nuanced_values.push( ((hypothetical_value_at_start_of_hour + oldest_point_inside_the_hour['v']) / 2 ) * start_millis_in_this_hour);
-														total_score += ((hypothetical_value_at_start_of_hour + oldest_point_inside_the_hour['v']) / 2 ) * (start_millis_in_this_hour / 1000);
+														
+														const beyond_start_score = ((hypothetical_value_at_start_of_hour + oldest_point_inside_the_hour['v']) / 2 ) * (start_millis_in_this_hour / 1000);
+														console.log("adding beyond_startscore, in seconds: ", beyond_start_score / 1000);
+														
+														total_score += beyond_start_score;
 														delete hours_data[hours_into_the_past]['beyond_start_value'];
 													}
 													
@@ -6015,11 +6052,22 @@
 													//const adjusted = added_up / (Math.round(total_millis_accounted_for / 1000));
 													//console.log("nuanced average: ", adjusted);
 													
+													console.log("SANITY CHECK: total minutes accounted for this hour: ", Math.round(total_millis_accounted_for / 60000));
+													
 													const final_average = Math.round((total_score / (total_millis_accounted_for / 1000)) * 1000) / 1000;
+													console.warn("\n\n\nhour's final_average: ", hours_into_the_past, " -> ", final_average, "\n\n\n");
 													hours_data[hours_into_the_past]['average'] = final_average;
 													
-													alt_log_data[hours_into_the_past] = {"v":final_average,"d":new Date(hours_data[hours_into_the_past]['start'])};
+													if(typeof alt_log_data[ (alt_log_data.length - hours_into_the_past) ] == 'undefined'){
+														console.error("missing index in alt_log_data: ", (alt_log_data.length - hours_into_the_past));
+													}
+													else{
+														alt_log_data[ ( (alt_log_data.length - 1) - hours_into_the_past) ]['v'] = final_average;
+													}
 													
+													
+													//alt_log_data[hours_into_the_past] = {"v":final_average,"d":new Date(hours_data[hours_into_the_past]['start'])};
+													console.log("alt_log_data is now: \n\n", JSON.stringify(alt_log_data,null,2), "\n\n");
 													
 													//const raw_average = adjusted / raw_nuance.length;  //added_up / total_millis_accounted_for;//(added_up / total_millis_accounted_for) / raw_nuance.length;
 													//console.log("\n\nraw_average: ", raw_average);
@@ -6034,27 +6082,30 @@
 													
 												}
 											
-											
-											}
+											} // end of numeric log averaging process that happens when we switch to (an) hour(s) further into the past
 											
 											
 											
 											
 											
 											let old_hours_into_the_past = hours_into_the_past;
-											//console.log("old hours_into_the_past: ", hours_into_the_past);
-											
+											if(this.debug){
+												console.log("==> old hours_into_the_past is now: ", old_hours_into_the_past);
+											}
 											
 											
 											// calculate how many hours into the past we've traveled now
 											//hours_into_the_past += Math.floor((start_of_this_hour - this_date_stamp) / (60 * 60 * 1000));
 											
 											hours_into_the_past = Math.floor( ((hours_data[0]['end']) - this_date_stamp) / (60 * 60 * 1000));
+											if(this.debug){
+												console.log("==> new hours_into_the_past: ", hours_into_the_past, "HOUR JUMP: ", hours_into_the_past - old_hours_into_the_past);
+											}
 											
 											//console.warn("... hours_into_the_past is now: " + hours_into_the_past);
 											
 											if(hours_into_the_past == old_hours_into_the_past){
-												console.error("dashboard: hours in the past did not increase!");
+												console.error("dashboard: log averages: hours in the past did not increase!");
 												hours_into_the_past++;
 											}
 											
@@ -6068,8 +6119,13 @@
 											
 											// Similar to the beyond_start_value, we keep track of the value outside of the hour that will be useful later to calculate averages
 											if(is_boolean_log == false && next_date_stamp != null && next_value != null){
-												//console.log("adding beyond_end_value into the hour that is now complete");
+												console.log("adding beyond_end_value into the numeric hour that is now complete");
 												hours_data[hours_into_the_past]['beyond_end_value'] = {'t':next_date_stamp, 'v':next_value};
+											}
+											
+											if(this.debug){
+												console.log("dashboard debug: min_max_lines_would_be_nice: ", min_max_lines_would_be_nice);
+												//console.error("hours_data: ", hours_data);
 											}
 											
 										} // end of calculating hour average
@@ -6079,71 +6135,120 @@
 										// So we remembered the last time it was switched off in future_boolean_off_date_stamp
 										
 										if(is_boolean_log){
-											if(this_value == 1){
+											if(this_value === 1){
 												
 												if(dp == log_data.length - 1){
 													// the very first datapoint we handle is one in which the switch was enabled. We can assume it has been on since that time, until now.
-													//console.log("The first boolean datapoint was 'ON'.");
-													hours_data[hours_into_the_past]['above_zero'] += (now_timestamp - this_date_stamp);
+													if(this.debug){
+														console.log("The first boolean datapoint was 'ON'.");
+													}
+													
+													/*
+													if(this_date_stamp > start_of_this_hour){
+														hours_data[hours_into_the_past]['above_zero'] += (now_timestamp - this_date_stamp);
+													}
+													*/
+													
 													
 													// Pretend that the device was switched off right now
 													
 													future_boolean_off_date_stamp = now_timestamp;
 													last_boolean_off_hour = 0;
+													future_boolean_off_hour_start = start_of_this_hour;
 													
 												}
 												
 												if(future_boolean_off_date_stamp != null && last_boolean_off_hour != null){
 													// We've spotted an OFF datapoint before, and this timestamp is for an event further in the past where the switch was enabled. Time to do some calculations.
 													
-													// Does the other moment reach over the hour boundary? If so, that complicates calculations a bit.
-													if(future_boolean_off_date_stamp > end_of_this_hour){
-														// There are three sections to update. The first is the bit in this hour (where it was switched on) until the end of this hour. The second part is the partial bit of the hour during which it was switched off again (which lies in the future).
-														// And thirdly, optionally, there may be an hour or more in between those two partial hours during which the switch was on too.
-													
-														// update the duration that the switch was on in this hour
-														hours_data[hours_into_the_past]['above_zero'] += (future_boolean_off_date_stamp - this_date_stamp);
-													
-														// update the duration that the switch was on during the hour in which it was switched off
-														hours_data[last_boolean_off_hour]['above_zero'] += (end_of_this_hour - this_date_stamp)
+													if(this_date_stamp > start_of_this_hour && this_date_stamp < end_of_this_hour){
 														
-														/*
-														if(hours_into_the_past > last_boolean_off_hour + 1){
-															console.log("Also have to fill in lots of hours in between");
-															// Loop over all the hours in the future, up to the one in which it was switched off, and set the 'on' duration to the entire hour.
-															for(let nh = last_boolean_off_hour; nh < hours_into_the_past; nh++){
-																hours_data[nh]['above_zero'] = 60 * 60 * 1000; // it must have been on for the full hour
+														// Does the other moment reach over the hour boundary? If so, that complicates calculations a bit.
+														if(future_boolean_off_date_stamp > end_of_this_hour){
+															console.log("the device was switched on in this hour: ", hours_into_the_past, ", and was switched of in the future, so at less hours into the past.. last_boolean_off_hour: ", last_boolean_off_hour);
+															// There are three sections to update. The first is the bit in this hour (where it was switched on) until the end of this hour. The second part is the partial bit of the hour during which it was switched off again (which lies in the future).
+															// And thirdly, optionally, there may be an hour or more in between those two partial hours during which the switch was on too.
+													
+															// update the duration that the switch was on in this hour
+															hours_data[hours_into_the_past]['above_zero'] += (end_of_this_hour - this_date_stamp);
+													
+															// update the duration that the switch was on during the hour in which it was switched off
+															//hours_data[last_boolean_off_hour]['above_zero'] += (end_of_this_hour - this_date_stamp);
+															if(last_boolean_off_hour != hours_into_the_past && future_boolean_off_date_stamp != null){
+																hours_data[last_boolean_off_hour]['above_zero'] += (future_boolean_off_date_stamp - future_boolean_off_hour_start);
 															}
-														}
-														*/
+														
+														
+														
+															if(hours_into_the_past > last_boolean_off_hour + 1){
+																console.log("Also have to fill in lots of hours in between:  from hours_into_the_past: ", hours_into_the_past, ", till last_boolean_off_hour: ", last_boolean_off_hour, ", so this many hours: ", last_boolean_off_hour - hours_into_the_past);
+																// Loop over all the hours in the future, up to the one in which it was switched off, and set the 'on' duration to the entire hour.
+																for(let nh = last_boolean_off_hour + 1; nh < hours_into_the_past; nh++){
+																	hours_data[nh]['above_zero'] = 60 * 60 * 1000; // it must have been on for the full hour
+																	console.log("this hour has been set to the full 60 minutes: ", nh);
+																}
+															}
 														
 													
+														}
+														else{
+														
+															
+														
+														
+															// nice and simple..?
+															
+															const time_delta_with_the_hour = future_boolean_off_date_stamp - this_date_stamp;
+															
+															if(this.debug){
+																console.warn("the device was switched on in this hour: ", hours_into_the_past, ", and was switched of in the same hour. So last_boolean_off_hour should be the same: ", last_boolean_off_hour);
+																console.log("switch was briefly on within the hour. So minutes on (from time_delta_with_the_hour) should be less than 60): ", Math.round(time_delta_with_the_hour/60000));
+															}
+															
+															if(hours_data[hours_into_the_past]['above_zero'] > (60 * 60 * 1000)){
+																console.error("the accumulated boolean ON time has already exceeded 60 minutes! ", hours_data[hours_into_the_past]['above_zero'] / 60000);
+															}
+												
+															hours_data[hours_into_the_past]['above_zero'] += time_delta_with_the_hour;
+											
+															if(hours_data[hours_into_the_past]['above_zero'] > (60 * 60 * 1000)){
+																console.error("After adding the latest boolean delta, the accumulated ON time has now exceeded 60 minutes! ", hours_data[hours_into_the_past]['above_zero'] / 60000);
+															}
+														
+														
+															/*
+															let timestamp_of_next_point_or_hour_limit = next_date_stamp;
+															if(next_date_stamp >= end_of_this_hour){
+																timestamp_of_next_point_or_hour_limit = end_of_this_hour;
+															}
+															above_zero += (timestamp_of_next_point_or_hour_limit - this_data_stamp);
+															*/
+														
+														}
 													}
 													else{
-													
-														// nice and simple
-														//console.log("switch was briefly on within the hour. Seconds on: ", Math.round((future_boolean_off_date_stamp - this_date_stamp)/1000));
-													
-														hours_data[hours_into_the_past]['above_zero'] += (future_boolean_off_date_stamp - this_date_stamp);
-														/*
-														let timestamp_of_next_point_or_hour_limit = next_date_stamp;
-														if(next_date_stamp >= end_of_this_hour){
-															timestamp_of_next_point_or_hour_limit = end_of_this_hour;
-														}
-														above_zero += (timestamp_of_next_point_or_hour_limit - this_data_stamp);
-														*/
-														
+														console.warn("the boolean datapoint we're looking at is not for this hour!");
 													}
+													
 													// reset
 													future_boolean_off_date_stamp = null;
 													last_boolean_off_hour = null;
-												}	
+													future_boolean_off_hour_start = null;
+												}
+												else{
+													if(this.debug){
+														console.warn("dashboard: boolean log averaging: spotted a datapoint in which the device on turned ON, but there is no remembered datapoint that indicates when in the future it was turned off!");
+													}
+												}
 												
 											}
 											else if(future_boolean_off_date_stamp == null){
-												//console.log("remembering when the device was switched off");
+												if(this.debug){
+													console.log("dashboard debug: log averages: remembering when the device was switched off. remembering this_date_stamp and hours_into_the_past: ", this_date_stamp, hours_into_the_past);
+												}
 												future_boolean_off_date_stamp = this_date_stamp;
 												last_boolean_off_hour = hours_into_the_past;
+												future_boolean_off_hour_start = start_of_this_hour;
 											}
 											else{
 												if(this.debug){
@@ -6154,42 +6259,50 @@
 											
 											//console.log("BOOLEAN hours_data: ", hours_data);
 											
-											
-											
 										}
-										
-										
-										// If the log type is hourly, then calculate the required values first
-										//else if(log_viz_type == 'hourly'){
+										else{
+											// Update spotted minimum and/or maximum value for this hour
+											//console.log("INSIDE HOUR? ", start_of_this_hour, this_date_stamp, end_of_this_hour);
+											if(this_date_stamp >= start_of_this_hour && this_date_stamp < end_of_this_hour){
 											
-											
-										
-										// Update spotted minimum and/or maximum value for this hour
-										//console.log("INSIDE HOUR? ", start_of_this_hour, this_date_stamp, end_of_this_hour);
-										if(this_date_stamp >= start_of_this_hour && this_date_stamp < end_of_this_hour){
-											
-											if(hours_data[hours_into_the_past]['minimum'] == null){
-												hours_data[hours_into_the_past]['minimum'] = this_value
-											}
-											else if(this_value < hours_data[hours_into_the_past]['minimum']){
-												hours_data[hours_into_the_past]['minimum'] = this_value;
-											}
+												if(hours_data[hours_into_the_past]['minimum'] == null){
+													hours_data[hours_into_the_past]['minimum'] = this_value
+												}
+												else if(this_value < hours_data[hours_into_the_past]['minimum']){
+													console.log("spotted lower minimum: ")
+													hours_data[hours_into_the_past]['minimum'] = this_value;
+												}
 									
-											if(hours_data[hours_into_the_past]['maximum'] == null){
-												hours_data[hours_into_the_past]['maximum'] = this_value;
+												if(hours_data[hours_into_the_past]['maximum'] == null){
+													hours_data[hours_into_the_past]['maximum'] = this_value;
+												}
+												else if(this_value > hours_data[hours_into_the_past]['maximum']){
+													hours_data[hours_into_the_past]['maximum'] = this_value;
+												}
+											
+												hours_data[hours_into_the_past]['values_to_average'].push({"t":this_date_stamp, "v":this_value});
+											
 											}
-											else if(this_value > hours_data[hours_into_the_past]['maximum']){
-												hours_data[hours_into_the_past]['maximum'] = this_value;
+											else{
+												console.error("dashboard: log averages: this numeric datapoint is somehow not within the hour we're looking at");
 											}
-											
-											hours_data[hours_into_the_past]['values_to_average'].push({"t":this_date_stamp, "v":this_value});
-											
-											
 										}
+										
+										
+											
+										
+										
 										
 										if(is_boolean_log == false && min_max_lines_would_be_nice == false && hours_data[hours_into_the_past]['minimum'] != null && hours_data[hours_into_the_past]['maximum'] != null){
 											if(hours_data[hours_into_the_past]['minimum'] != hours_data[hours_into_the_past]['maximum']){
-												min_max_lines_would_be_nice = true;
+												if(hours_data[hours_into_the_past]['minimum'] > hours_data[hours_into_the_past]['maximum']){
+													console.error("somehow maximum value spotted this hour was smaller than the minimum value spotted: ", hours_data[hours_into_the_past]['minimum'], hours_data[hours_into_the_past]['maximum']);
+												}
+												else{
+													console.log("spotted a different minimum and maximum value this hour, so min-max lines would be nice.  hour,min,max: ", hours_into_the_past, hours_data[hours_into_the_past]['minimum'], hours_data[hours_into_the_past]['maximum'])
+													min_max_lines_would_be_nice = true;
+												}
+												
 											}
 										}
 										
@@ -6207,10 +6320,7 @@
 									} // END OF LOOPING OVER DATA POINTS TO CALCULATE AVERAGES
 									
 									
-									if(this.debug){
-										console.log("dashboard debug: min_max_lines_would_be_nice: ", min_max_lines_would_be_nice);
-										//console.error("hours_data: ", hours_data);
-									}
+									
 									
 									
 									
@@ -6257,6 +6367,11 @@
 										let new_log_data = [];
 										let previous_value = null;
 										let previous_date = null;
+										
+										if(this.debug){
+											console.log("dashboard debug: log_data.length before adding boolean sawtooth datapoints: ", log_data.length);
+										}
+										
 										for(let dp = 0; dp < log_data.length; dp++){
 											
 											if(previous_value == null){
@@ -6280,6 +6395,10 @@
 											new_log_data.push(log_data[dp]);
 										}
 										log_data = new_log_data;
+										
+										if(this.debug){
+											console.log("dashboard debug: log_data.length after adding boolean sawtooth datapoints: ", log_data.length);
+										}
 										
 									}
 									

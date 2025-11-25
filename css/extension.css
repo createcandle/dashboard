@@ -1204,7 +1204,8 @@ body.cups-printing:not(.screensaver) #extension-dashboard-print-button-container
 	margin-bottom:.1rem;
 	overflow:hidden;
 	display:flex;
-	padding: .5rem 1rem .5rem 1.5rem;
+	align-items:center;
+	padding: 1rem 1rem 1rem 1.5rem;
 	box-sizing: border-box;
 	flex-wrap:wrap;
 	flex-shrink:0;
@@ -2264,11 +2265,11 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 	flex-direction:column;
 }
 
-
+/*
 .extension-dashboard-widget-name-needs-rename:empty + .extension-dashboard-widget-options_list-needs-update{
 	margin-top:1rem;
 }
-
+*/
 
 
 
@@ -3381,7 +3382,7 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 	color: var(--extension-dashboard-widget-editable-text-color);
     font-weight: bold;
 	font-size:3rem;
-	padding:1rem 0 .5rem .5rem;
+	padding:1rem 0 1rem .5rem;
 }
 
 
@@ -3617,7 +3618,7 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-setpoint-needs-update{
 	width:105px;
-	height:80px;
+	/*height:80px;*/
 }
 
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-setpoint-needs-update{
