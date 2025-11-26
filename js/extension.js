@@ -5923,7 +5923,7 @@
 			.then(() => {
 				
 				if(this.logs_data){
-					for (let [log_id, log_data] of Object.entries(this.logs_data)) {
+					for (const [log_id, local_log_data] of Object.entries(this.logs_data)) {
 	
 						if(typeof log_id_to_render == 'string' && log_id != log_id_to_render){
 							if(this.debug){
@@ -5966,6 +5966,18 @@
 										log_viz_el2.classList.remove('extension-dashboard-widget-checkbox-toggle-checked-content');
 									}
 									
+									
+									// Create a copy of the local data, so that the local data isn't modified
+									
+									//let log_data = Object.assign({}, local_log_data);
+									let log_data = structuredClone(local_log_data);
+									
+									if(this.debug){
+										console.log("dashboard debug: log_data clone: ", log_data);
+									}
+									
+									
+									
 									// Did the user set a prefered visualization type?
 									
 									/*
@@ -5988,11 +6000,12 @@
 									
 									// GET INFORMATION ABOUT THE WIDGET, INCLUDING IT'S PIXEL DIMENSIONS
 									
-									let log_viz_type = 'line';
+									
 									const widget_id = log_viz_el.getAttribute('data-extension-dashboard-log-widget_id');
 									const what_log_id_needed = log_viz_el.getAttribute('data-extension-dashboard-log-what_log_id_needed');
 									
-									
+									/*
+									let log_viz_type = 'line';
 									if(
 										typeof this.dashboards[this.current_grid_id] != 'undefined' && 
 										typeof this.dashboards[this.current_grid_id]['widgets'] != 'undefined' && 
@@ -6012,11 +6025,12 @@
 									if(this.debug){
 										console.log("dashboard debug: render_logs: log_viz_type: ", log_viz_type);
 									}
+									*/
 					
 									// Should the dataviz be rendered in a compact manner for a 1x1 widget?
 									let wideness_hint_el = log_viz_el.closest('[gs-w]');
 									let tallness_hint_el = log_viz_el.closest('[gs-h]');
-									//console.log("closest_hint_el: ", closest_hint_el);
+									
 									
 									let wideness_hint_number = 1;
 									if(wideness_hint_el){
@@ -6091,9 +6105,10 @@
 									
 									// ANALYZE THE DATA
 									
+									
 									// Find out some information about the length of time we have data for
 									const real_oldest = d3.min(log_data, d => d.d);
-									
+									//console.log("real_oldest: ", real_oldest);
 									
 									// Check if the data is for a boolean
 									let is_boolean_log = true;
@@ -6148,10 +6163,6 @@
 									
 									
 									
-									
-									
-									
-									
 									const highest = d3.max(log_data, d => d.v);
 									const lowest = d3.min(log_data, d => d.v);
 									
@@ -6190,12 +6201,11 @@
 										hours_data.push({'hours_into_the_past': h,'minimum':null,'maximum':null,'average':null,'start':(start_of_this_hour - (h * (60000 * 60))),'end':(end_of_this_hour - (h * (60000 * 60))),'beyond_start_value':null,'beyond_end_value':null,'values_to_average':[],'above_zero':0});
 										const millis_into_the_past = (60000 * 60 * (24 - h));
 										//console.log("millis_into_the_past: ", millis_into_the_past);
-										alt_log_data.unshift({"d":new Date(start_of_this_hour - (60000 * 60 * h)), "v":0, "h":h, "millis_into_the_past":(60000 * 60 * h)});
+										alt_log_data.unshift({"d":new Date(start_of_this_hour - (60000 * 60 * h)), "v":null, "h":h, "millis_into_the_past":(60000 * 60 * h)});
 										
 										
 										//decreaser--;
 									}
-									
 									
 									/*
 									for(let ah = 25; ah >= 0; ah--){
@@ -6720,7 +6730,7 @@
 								    	.attr("xmlns", "http://www.w3.org/2000/svg")
 										.attr("width", rect.width + 10)
 										.attr("height", rect.height + 10)
-										.attr("viewBox", [-10, -10, rect.width, rect.height+20])  //  - (svg_height_padding/2)
+										.attr("viewBox", [-30, -10, rect.width, rect.height+20])  //  - (svg_height_padding/2)
 										//.attr("style", "max-width: 100%; height: auto;");
 					
 									log_viz_el.appendChild(svg.node());
@@ -6864,7 +6874,7 @@ ticks.attr("class", function(d,i){
 					
 
 
-									let horizontal_tick_count = wideness_hint_number * 2;
+									let horizontal_tick_count = (wideness_hint_number * 2) + 1;
 									//console.log("wideness * 2 -> horizontal_tick_count: ", horizontal_tick_count);
 										
 									//var timeFormat = d3.timeFormat("%I:%M %p %a %Y");
@@ -6872,7 +6882,7 @@ ticks.attr("class", function(d,i){
 					
 									if(delta_millis > 67200000){ // 2 hours
 										timeFormat = d3.timeFormat("%H"); // hourly ticks
-										if(is_boolean_log && wideness_hint_number > 2){
+										if(wideness_hint_number > 2){ // is_boolean_log && 
 											horizontal_tick_count = Math.floor(delta_millis / (60*60*1000)); // as many ticks as there are hours
 										}
 									}
@@ -6889,21 +6899,11 @@ ticks.attr("class", function(d,i){
 								    	let x_axis = svg.append("g")
 								        	.attr("transform", `translate(0,${rect.height - 20})`)
 								        	.call(d3.axisBottom(xScale).tickSizeOuter(0).ticks(horizontal_tick_count).tickPadding(5).tickFormat(timeFormat))
-											/*
-											.selectAll(".tick text")
-											.attr("class", function(d,i){
-												return "tick-text tick-text-month" + d.getUTCMonth();
-											});
-											*/
 										
 										if(x_axis){
 											x_axis
 											.selectAll(".tick")
-											//.attr("class", "vertical-tick")
 											.attr("class", function(d,i){
-												//console.log("HANDING TICK");
-											 	//if(data[i].value == 11){ return "eleven"}
-											 	//else if(data[i].value == 0){ return "zero"}
 												return "extension-dashboard-x-tick"
 											});
 										
@@ -7083,9 +7083,10 @@ ticks.attr("class", function(d,i){
 									    	.attr("version", 1.1)
 									    	.attr("xmlns", "http://www.w3.org/2000/svg")
 											
-											.attr("width", rect.width - 20)
-											.attr("height", rect.height - 50)
-											.attr("viewBox", [-10, -30, rect.width, rect.height+50])  //  - (svg_height_padding/2)
+											.attr("width", rect.width)
+											.attr("height", rect.height)
+											//.attr("viewBox", [-30, -30, rect.width + 40, rect.height + 60])  //  - (svg_height_padding/2)
+											.attr("viewBox", [0, 0, rect.width, rect.height])  //  - (svg_height_padding/2)
 											/*
 											.attr("width", rect.width + 10)
 											.attr("height", rect.height + 10)
@@ -7104,7 +7105,7 @@ ticks.attr("class", function(d,i){
 										
 									  	// X axis
 									  	var x = d3.scaleBand()
-									    .range([ 0, rect.width ])
+									    .range([ 20, rect.width - 40 ])
 									    .domain(log_data.map(function(d) { return d.d; })) // console.log("setting bar X tick to: ", d.d); 
 									    .padding(0.2);
 										
@@ -7130,11 +7131,11 @@ ticks.attr("class", function(d,i){
 										*/
 					
 	  								    let x_axis = svg.append("g")
-	  								        .attr("transform", `translate(0,${rect.height})`)
+	  								        .attr("transform", `translate(30,${rect.height - 30})`)
 	  								        .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%H")))   //  timeFormat   //  .tickSizeOuter(0).ticks(horizontal_tick_count).tickPadding(5).tickFormat(timeFormat)
 								    		.selectAll("text")
-								      		.attr("transform", "translate(-10,0)rotate(-45)")
-											.attr("class", "extension-dashboard-bar-x-tick-text")
+								      		.attr("transform", "translate(0,0)rotate(-45)") // was -10,0
+											.attr("class", "extension-dashboard-x-tick")
 								      		.style("text-anchor", "end");
 							    			/*
 											.selectAll(".tick text")
@@ -7149,7 +7150,7 @@ ticks.attr("class", function(d,i){
 	  										x_axis
 	  										.selectAll(".tick")
 	  										.attr("class", function(d,i){
-	  											return "extension-dashboard-bar-x-tick"
+	  											return "extension-dashboard-x-tick";
 	  										});
 	  									}
 										
@@ -7163,10 +7164,16 @@ ticks.attr("class", function(d,i){
 									  	// Add Y axis
 									  	var y = d3.scaleLinear()
 									    .domain([0, domain_max])
-									    .range([ rect.height, -20]);
+									    .range([ rect.height, 40]);
 									  
-									  	svg.append("g")
-									    .call(d3.axisLeft(y));
+									  	let y_axis = svg.append("g")
+										.attr("transform", `translate(50,-30)`)
+									    .call(d3.axisLeft(y))
+								    	.selectAll(".tick")
+										.attr("class", "extension-dashboard-y-tick");
+
+
+
 
 									
 										function onBarMouseOver(d){
@@ -7203,6 +7210,7 @@ ticks.attr("class", function(d,i){
 									    .data(log_data)
 									    .enter()
 									    .append("rect")
+										  .attr("transform", `translate(30,-30)`)
 									      .attr("x", function(d) { return x(d.d); })
 									      .attr("y", function(d) { return y(d.v); })
 											.attr("class", "extension-dashboard-widget-log-bar-bar")
@@ -7225,16 +7233,76 @@ ticks.attr("class", function(d,i){
 										time_delta_description_el.textContent = 'Hourly averages'; //'Averages over last ' + log_data.length + ' hours';
 										log_viz_el.appendChild(time_delta_description_el);
 										
-										
-										
-										
-										
-										
-										
 										return log_viz_el;
 						
 						
 									}
+									
+									
+									
+									try{
+										// Prune starting null values from alt_log_data, and change any null values in between valid datapoints into zero (of the minimum value?).
+									
+										//const initial_alt_log_data_length = alt_log_data.length;
+									
+										const minimum_y_value_despite_potential_null_values = d3.min(alt_log_data, d => d.v);
+										console.log("minimum_y_value_despite_potential_null_values: ", typeof minimum_y_value_despite_potential_null_values, minimum_y_value_despite_potential_null_values);
+									
+										//let spotted_valid_value = false;
+										//console.log("null trimmiing: initial_alt_log_data_length: ", initial_alt_log_data_length);
+										//for(let pa = alt_log_data.length - 1; pa >= 0; pa--){
+									
+										let initial_nulls_count = 0;
+										for(let pa = 0; pa < alt_log_data.length - 1; pa++){
+										
+											if(typeof alt_log_data[pa] != 'undefined'){
+												if(alt_log_data[pa]['v'] != null){
+													//spotted_valid_value = true;
+													initial_nulls_count = pa + 1;
+													break
+												}
+												/*
+												console.log(pa + ". trimming nulls: ", alt_log_data[pa]['v']);
+											
+												if(alt_log_data[pa]['v'] == null){
+													alt_log_data.splice(pa,1);
+													pa--;
+													console.log("trimmed a null");
+												
+												}
+											
+										
+												if(alt_log_data[pa]['v'] == null){
+													alt_log_data[pa]['v'] = 0;
+												}
+												*/
+											}
+											else{
+												console.error("dashboard: undefined item in alt_log_data array?");
+												break;
+											}
+										
+										}
+										console.log("initial_nulls_count: ", initial_nulls_count);
+										if(initial_nulls_count){
+											alt_log_data.splice(0,initial_nulls_count);
+											console.log("alt_log_data.length after pruning nulls from beginning: ", alt_log_data.length);
+										}
+									
+									
+										for(let pn = 0; pn < alt_log_data.length - 1; pn++){
+											if(alt_log_data[pn]['v'] == null){
+												alt_log_data[pn]['v'] = 0;
+											}
+										}
+									}
+									catch(err){
+										console.error("caught error in pruning null values from alt_log_data: ", err);
+									}
+									
+									
+									
+									
 									
 									
 									
