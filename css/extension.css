@@ -625,6 +625,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 #extension-dashboard-widget-modal-ui-container{
 	margin:1.5rem 0;
 	padding: 2rem;
+	padding-bottom:6rem;
 	background-color: rgba(255, 255, 255, .1);
 	border-radius: 1rem;
 }
@@ -674,6 +675,17 @@ body.kiosk #extension-dashboard-widget-modal-ui-container:not(:empty){
 
 
 
+/*  SUGGESTED WIDGET NAMES LIST  */
+
+
+.extension-dashboard-widget-suggested-names-container li.extension-dashboard-list-selector-item{
+	border-top-left-radius:0;
+}
+
+.extension-dashboard-widget-suggested-names-container:not(:empty){
+	margin-bottom:3rem;
+}
+
 
 /*   ICON PICKER   */
 
@@ -689,6 +701,7 @@ body.kiosk #extension-dashboard-widget-modal-ui-container:not(:empty){
 }
 
 .extension-dashboard-widget-ui-icon-output{
+	margin-top:.5rem;
 	display:flex;
 	flex-direction:column;
 }
@@ -704,7 +717,13 @@ body.kiosk #extension-dashboard-widget-modal-ui-container:not(:empty){
 }
 
 
-.extension-dashboard-widget-ui-icon-output-image:not([src]),
+.extension-dashboard-widget-ui-icon-output-image:not([src]){
+	width: 100px;
+    height: 100px;
+    border: 5px dashed white;
+    border-radius: 1rem;
+	padding:1rem;
+}
 .extension-dashboard-widget-ui-icon-output-image:not([src]) + button{
 	display:none;
 }
@@ -808,6 +827,11 @@ body.kiosk #extension-dashboard-widget-modal-ui-container:not(:empty){
 	filter: invert(1);
 	opacity:1;
 }
+
+.extension-dashboard-widget-ui-icon-picker-info{
+	color:var(--widget-text-color);
+}
+
 
 
 
@@ -3347,6 +3371,10 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 }
 
 .extension-dashboard-widget-log svg{
+    --extension-dashboard-widget-log-base: var(--extension-dashboard-widget-text-color); 
+    --extension-dashboard-widget-log-red: color-mix(in sRGB, var(--extension-dashboard-widget-log-base) 50%, #F00);
+	--extension-dashboard-widget-log-green: color-mix(in sRGB, var(--extension-dashboard-widget-log-base) 50%, #0F0);
+	--extension-dashboard-widget-log-blue: color-mix(in sRGB, var(--extension-dashboard-widget-log-base) 50%, #00F);
 	/*width:calc(100% - 3rem);*/
 	max-width:100%;
 	max-height:100%;
@@ -3438,6 +3466,22 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 	fill:var(--extension-dashboard-background-color);
 }
 
+
+/* second log comparison */
+.extension-dashboard-second-y-tick,
+.extension-dashboard-second-y-axis > .domain,
+.extension-dashboard-second-y-axis-label,
+.extension-dashboard-widget-second-log-line{
+	stroke: var(--extension-dashboard-widget-log-blue)!important;
+}
+
+.extension-dashboard-y-axis-label{
+	font-weight:100;
+	font-size:80%;
+}
+
+
+
 /*
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .tick:nth-child(even){
 	display:none;
@@ -3458,9 +3502,52 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 }
 
 
-.extension-dashboard-log-tooltip-data{
+g.extension-dashboard-log-tooltip-data-container{
+	opacity:0;
+	transition-delay: 3s;
+	transition: opacity .2s linear;
+}
+
+.extension-dashboard-log-precision-minute g.extension-dashboard-log-tooltip-data-container{
+	opacity:1;
+	transition-delay: 3s;
+}
+
+
+g.extension-dashboard-log-tooltip-data-container > rect{
 	opacity:.1;
 }
+
+
+.extension-dashboard-log-precision-hour .extension-dashboard-widget-log-time-minute-description,
+.extension-dashboard-log-precision-minute .extension-dashboard-widget-log-time-hour-description{
+	display:none;
+}
+
+.extension-dashboard-widget-log-change-button{
+	height:40px;
+	width:100%;
+	position:absolute;
+	bottom:0;
+	left:0;
+	background-color:transparent;
+	cursor:pointer;
+}
+.extension-dashboard-widget-log-change-button:hover{
+	background-color: rgba(0, 0, 0, .1);
+}
+
+.extension-dashboard-widget-log-change-button:hover ~ svg .extension-dashboard-x-tick{
+	font-weight:bold;
+}
+
+
+/*
+.extension-dashboard-log-tooltip-data-container > .extension-dashboard-log-tooltip-data-container{
+	opacity:1;
+}
+*/
+.extension-dashboard-log-tooltip-data-container > rect:hover,
 .extension-dashboard-log-tooltip-data:hover{
 	opacity:1;
 	cursor: crosshair;
@@ -3486,7 +3573,6 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 .extension-dashboard-widget-log svg{
 	width:100%;
 	height:100%;
-	/*overflow:visible;*/
 }
 
 .extension-dashboard-widget-log .extension-dashboard-style-invisible-overlay{

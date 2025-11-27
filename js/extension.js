@@ -130,6 +130,7 @@
 			this.logs = null; // will hold info about the logs from window.API
 			this.last_time_logs_updated = 0;
 			this.current_logs = []; // which logs are visible on the current dashboard
+			this.newest_log_points = {}; // stores the date of the last datapoint from each log. Only re-render the log if there is a newer datapoint.
 			
 			this.logs_data = null;	 // become a dictionary with the actual raw boolean and number datapoints from the logs
 			this.last_time_logs_loaded = 0;
@@ -749,7 +750,7 @@
 					if(this.debug){
 						console.log("dashboard debug: doing a quick logs re-render after editing a log");
 					}
-					this.render_logs(true); // do a quick re-render
+					this.render_logs(true,null,true); // do a quick re-render
 				}
 				
 			});
@@ -1918,7 +1919,7 @@
 						}
 						if(should_redraw_logs){
 							//console.log("at least one log widget changed. But did it's size change? Hmm.");
-							this.render_logs(false);
+							this.render_logs(false,null,true);
 						}
 						
 					}
@@ -1983,7 +1984,7 @@
 				// Create websocket clients for any things that don't have them yet
 				this.connect_websockets();
 				
-				this.render_logs(switched_to_other_dashboard);
+				this.render_logs(switched_to_other_dashboard,null,switched_to_other_dashboard);
 				
 				setTimeout(() => {
 					this.update_moon();
@@ -4043,6 +4044,8 @@
 											let what_log_is_needed = class_name.replaceAll('-needs-log','');
 											what_log_is_needed = what_log_is_needed.replaceAll('extension-dashboard-widget-','');
 											//console.log("what_log_is_needed: ", what_log_is_needed);
+											
+											
 								
 											if(typeof needs['log'] == 'undefined'){
 												needs['log'] = {};
@@ -4050,22 +4053,37 @@
 											
 											if(typeof needs['log'][what_log_is_needed] != 'undefined' && typeof needs['log'][what_log_is_needed]['log_id'] != 'undefined' && typeof needs['log'][what_log_is_needed]['thing_id'] == 'string' && typeof needs['log'][what_log_is_needed]['property_id'] == 'string'){
 												//console.log("OK, this part of the template it already connected to a LOG thing-property combo");
-												child_els[ix].setAttribute('data-extension-dashboard-log-id', needs['log'][what_log_is_needed]['log_id']);
-												child_els[ix].setAttribute('data-extension-dashboard-log-thing', needs['log'][what_log_is_needed]['thing_id']);
-												child_els[ix].setAttribute('data-extension-dashboard-log-property', needs['log'][what_log_is_needed]['property_id']);
-												child_els[ix].setAttribute('data-extension-dashboard-log-what_log_is_needed', what_log_is_needed);
-												child_els[ix].setAttribute('data-extension-dashboard-log-widget_id', widget_id);
+												
+												let addition = '';
+												if(what_log_is_needed.startsWith('second_')){
+													addition = 'second_';
+												}
+												else if(what_log_is_needed.startsWith('third_')){
+													addition = 'third_';
+												}
+												child_els[ix].setAttribute('data-extension-dashboard-log-' + addition + 'id', needs['log'][what_log_is_needed]['log_id']);
+												child_els[ix].setAttribute('data-extension-dashboard-log-' + addition + 'thing', needs['log'][what_log_is_needed]['thing_id']);
+												child_els[ix].setAttribute('data-extension-dashboard-log-' + addition + 'property', needs['log'][what_log_is_needed]['property_id']);
+												child_els[ix].setAttribute('data-extension-dashboard-log-' + addition + 'what_log_is_needed', what_log_is_needed);
+												child_els[ix].setAttribute('data-extension-dashboard-log-' + addition + 'widget_id', widget_id);
 												
 												//child_els[ix].setAttribute('data-extension-dashboard-log-thing-combo', needs['update'][what_property_is_needed]['thing_id'] + '-' + needs['update'][what_property_is_needed]['property_id'] );
 												if(this.current_logs.indexOf(needs['log'][what_log_is_needed]['log_id']) == -1){
 													this.current_logs.push(needs['log'][what_log_is_needed]['log_id']);
-													//console.log("this.current_logs is now: ", this.current_logs);
+													if(this.debug){
+														console.log("dashboard debug: this.current_logs is now: ", this.current_logs);
+													}
 												}
 												else{
 													if(this.debug){
 														console.log("The same log twice? That log ID was already in the list of current logs: ", needs['log'][what_log_is_needed]['log_id'], this.current_logs);
 													}
 												}
+												
+												
+												// if it's a log comparison widget, check if there is a second log set.
+												//if(classes_string.indexOf(('second_' + what_log_is_needed) != -1)){}
+												
 												
 											}
 											else{
@@ -4389,7 +4407,11 @@
 						let widget_ui_el = document.createElement('div');
 						widget_ui_el.classList.add('extension-dashboard-widget-ui');
 				
-						if(typeof needs['rename'] != 'undefined' || typeof needs['update'] != 'undefined' || typeof needs['icon'] != 'undefined' || typeof needs['log'] != 'undefined'){
+				
+				
+						// WIDGET MODAL SETTINGS TITLE
+				
+						if(typeof needs['rename'] != 'undefined' || typeof needs['update'] != 'undefined' || typeof needs['icon'] != 'undefined' || typeof needs['log'] != 'undefined' || typeof needs['action'] != 'undefined'){
 							let widget_ui_title_el = document.createElement('h3');
 							let widget_settings_title = 'Settings';
 							if(typeof this.dashboards[grid_id]['widgets'][widget_id]['type'] == 'string'){
@@ -4399,6 +4421,11 @@
 							modal_ui_container_el.appendChild(widget_ui_title_el);
 						}
 				
+				
+				
+						//
+						// NEEDS RENAME
+						//
 				
 						if(typeof needs['rename'] != 'undefined'){
 					
@@ -4424,11 +4451,36 @@
 									this.dashboards[grid_id]['widgets'][widget_id]['needs']['rename'][what_string_is_needed] = rename_input_el.value;
 								})
 								rename_container_el.appendChild(rename_input_el);
+								
+								if(what_string_is_needed.toLowerCase() == 'name'){
+									let suggested_names_container_el = document.createElement('ul');
+									suggested_names_container_el.classList.add('extension-dashboard-widget-suggested-names-container');
+									suggested_names_container_el.setAttribute('id','extension-dashboard-widget-suggested-names-container');
+								
+									suggested_names_container_el.addEventListener('click', (event) => {
+										if(event.target.tagName == 'LI'){
+											rename_input_el.value = event.target.textContent;
+											this.dashboards[grid_id]['widgets'][widget_id]['needs']['rename'][what_string_is_needed] = event.target.textContent;
+										}
+									})
+									rename_container_el.appendChild(suggested_names_container_el);
+								}
+								
 							}
 							widget_ui_el.appendChild(rename_container_el);
 							//console.log("rename: widget_ui_el: ", widget_ui_el);
+							
+							
+							
+							
 						}
 						
+						
+						
+						
+						//
+						//  NEEDS ICON
+						//
 						
 						if(typeof needs['icon'] != 'undefined'){
 					
@@ -4449,6 +4501,7 @@
 						
 								let icon_wrapper_el = document.createElement('div');
 								icon_wrapper_el.classList.add('extension-dashboard-widget-ui-icon-wrapper');
+								icon_wrapper_el.classList.add('extension-dashboard-widget-ui-icon-has-been-selected');
 								
 								let what_icon_is_needed_title_el = document.createElement('h4');
 								what_icon_is_needed_title_el.textContent = what_icon_is_needed.replaceAll('_',' ');
@@ -5676,6 +5729,47 @@
 														this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_details'] = properties[property_id];
 													}
 													
+													const suggested_names_container_el = this.view.querySelector('#extension-dashboard-widget-suggested-names-container');
+													if(suggested_names_container_el){
+														let existing_suggestions = [];
+														if(suggested_names_container_el.children.length < 10){
+															for(let es = 0; es < suggested_names_container_el.children.length; es++){
+																existing_suggestions.push(suggested_names_container_el.children[es].textContent);
+															}
+															console.log("existing_suggestions: ", existing_suggestions);
+														
+															if(typeof thing_title == 'string' && thing_title.length){
+																if(existing_suggestions.indexOf(thing_title) == -1){
+																	let title_suggestion_el = document.createElement('li');
+																	title_suggestion_el.classList.add('extension-dashboard-list-selector-item');
+																	title_suggestion_el.textContent = thing_title;
+																	suggested_names_container_el.appendChild(title_suggestion_el);
+																}
+															}
+														
+															if(typeof property_title == 'string' && property_title.length){
+																if(existing_suggestions.indexOf(property_title) == -1){
+																	let property_suggestion_el = document.createElement('li');
+																	property_suggestion_el.classList.add('extension-dashboard-list-selector-item');
+																	property_suggestion_el.textContent = property_title;
+																	suggested_names_container_el.appendChild(property_suggestion_el);
+																}
+															}
+														
+															if(typeof thing_title == 'string' && thing_title.length && typeof property_title == 'string' && property_title.length){
+																const thing_property_title = thing_title + ' ' + property_title;
+																if(existing_suggestions.indexOf(thing_property_title) == -1){
+																	let thing_property_suggestion_el = document.createElement('li');
+																	thing_property_suggestion_el.classList.add('extension-dashboard-list-selector-item');
+																	thing_property_suggestion_el.textContent = thing_property_title;
+																	suggested_names_container_el.appendChild(thing_property_suggestion_el);
+																}
+															}
+														}
+														
+													}
+													
+													
 												}
 												else{
 													if(this.debug){
@@ -5896,12 +5990,15 @@
 		}
 		
 		
+		
+		
+		
 		// Log ID is the log ID used in the logs database, which is a number
 		// setting fresh_log_data_load to true force a reload of data from the backend.
 		// setting fresh_log_data_load to false forces NOT reloading data from the backend
 		// if fresh_log_data_load is null, the load_log_data function makes to choice based on how long ago fresh log data was last loaded
 			
-		render_logs(fresh_log_data_load=null,log_id_to_render=null){
+		render_logs(fresh_log_data_load=null,log_id_to_render=null,force_redraw=false){
 			
 			
 			if(this.current_logs.length == 0){
@@ -5937,6 +6034,7 @@
 						for (let lo = 0; lo < this.logs.length; lo++){
 							if(this.logs[lo]['id'] == log_id){
 								//console.log("found the log data match");
+								
 								let log_thing_id = null;
 								if(typeof this.logs[lo]['thing'] == 'string'){
 									log_thing_id = this.logs[lo]['thing'];
@@ -5948,8 +6046,51 @@
 								//console.log("log_thing_id: ", log_thing_id);
 								//console.log("log_property_id: ", log_property_id);
 								
-								let log_viz_container_el = document.querySelector('#extension-dashboard-' + this.current_grid_id + ' div[data-extension-dashboard-log-id="' + log_id + '"]');
-								if(log_viz_container_el){
+								let log_viz_container_els = document.querySelectorAll('#extension-dashboard-' + this.current_grid_id + ' div[data-extension-dashboard-log-id="' + log_id + '"]');
+								for(let lvc = 0; lvc < log_viz_container_els.length; lvc++){
+									const log_viz_container_el = log_viz_container_els[lvc];
+									
+									const second_id = log_viz_container_el.getAttribute('data-extension-dashboard-log-second_id');
+									
+									
+									// ONLY RE-RENDER IS THERE IS FRESH DATA, OR IF fresh_log_data_load WAS SET TO TRUE
+									if(force_redraw == false && typeof this.newest_log_points[log_id] != 'undefined' && typeof this.newest_log_points[log_id]['d'] != 'undefined' && local_log_data.length && typeof local_log_data[local_log_data.length-1]['d'] != 'undefined' && this.newest_log_points[log_id]['d'].getTime() == local_log_data[local_log_data.length-1]['d'].getTime()){
+										if(this.debug){
+											console.warn("dashboard debug: log: first log's data is the same as before");
+										}
+										if(typeof second_id == 'string'){
+											if(typeof this.newest_log_points[second_id] != 'undefined' && typeof this.newest_log_points[second_id]['d'] != 'undefined' && typeof this.logs_data[second_id] != 'undefined' && this.logs_data[second_id].length && typeof this.logs_data[second_id][this.logs_data[second_id].length-1]['d'] != 'undefined' && this.newest_log_points[second_id]['d'].getTime() == this.logs_data[second_id][this.logs_data[second_id].length-1]['d'].getTime()){
+												if(this.debug){
+													console.warn("dashboard debug: log: second (comparison) log also has no new data. Not re-rendering.");
+												}
+												continue;
+											}
+											else{
+												if(this.debug){
+													console.warn("dashboard debug: log: the first log's data has not changed, but the data of the second log has -> re-rending log");
+												}
+											}
+										}
+										else{
+											if(this.debug){
+												console.warn("dashboard debug: log: not re-rendering the log - no fresh data");
+											}
+											continue;
+										}
+									}
+									else{
+										//console.warn("FRESH LOG DATA");
+									}
+									this.newest_log_points[log_id] = local_log_data[local_log_data.length-1];
+									
+									
+									let precisions = {"minute":null,"hour":null,"day":null}
+									let current_precision = 'minute';
+									
+									let log_datum = {};
+									
+									
+												
 									
 									let log_viz_el = log_viz_container_el.querySelector('.extension-dashboard-widget-checkbox-toggle-unchecked-content');
 									let log_viz_el2 = log_viz_container_el.querySelector('.extension-dashboard-widget-checkbox-toggle-checked-content');
@@ -5970,11 +6111,21 @@
 									// Create a copy of the local data, so that the local data isn't modified
 									
 									//let log_data = Object.assign({}, local_log_data);
+									
 									let log_data = structuredClone(local_log_data);
 									
 									if(this.debug){
 										console.log("dashboard debug: log_data clone: ", log_data);
 									}
+									
+									
+									
+									// TODO should the log's Y axis start at zero? if the lowest value is relatively close to it?
+									
+									
+									
+									
+									
 									
 									
 									
@@ -6000,9 +6151,49 @@
 									
 									// GET INFORMATION ABOUT THE WIDGET, INCLUDING IT'S PIXEL DIMENSIONS
 									
+									const thing_id = log_viz_container_el.getAttribute('data-extension-dashboard-log-thing');
+									const property_id = log_viz_container_el.getAttribute('data-extension-dashboard-log-property');
 									
-									const widget_id = log_viz_el.getAttribute('data-extension-dashboard-log-widget_id');
-									const what_log_id_needed = log_viz_el.getAttribute('data-extension-dashboard-log-what_log_id_needed');
+									
+									const widget_id = log_viz_container_el.getAttribute('data-extension-dashboard-log-widget_id');
+									const what_log_id_needed = log_viz_container_el.getAttribute('data-extension-dashboard-log-what_log_id_needed');
+									if(this.debug){
+										console.warn("dashboard debug: log: widget ID: ", widget_id);
+									}
+									//console.log("what_log_id_needed: ", what_log_id_needed);
+									
+									if(typeof widget_id == 'string'){
+										if(typeof this.locally_saved_values[this.current_grid_id] == 'undefined'){
+											this.locally_saved_values[this.current_grid_id] = {};
+										}
+										if(typeof this.locally_saved_values[this.current_grid_id][widget_id] == 'undefined'){
+											this.locally_saved_values[this.current_grid_id][widget_id] = {};
+										}
+										
+										if(typeof this.locally_saved_values[this.current_grid_id][widget_id]['viz'] == 'undefined'){
+											this.locally_saved_values[this.current_grid_id][widget_id]['viz'] = {};
+										}
+										if(typeof this.locally_saved_values[this.current_grid_id][widget_id]['viz']['precision'] == 'string'){
+											current_precision = this.locally_saved_values[this.current_grid_id][widget_id]['viz']['precision'];
+											if(this.debug){
+												console.warn("dashboard debug: log: got current_precision from locally_saved_values: ", current_precision);
+											}
+											if(current_precision == 'minute'){
+												log_viz_container_el.classList.add('extension-dashboard-log-precision-minute');
+												log_viz_container_el.classList.remove('extension-dashboard-log-precision-hour');
+											}
+											else if(current_precision == 'hour'){
+												log_viz_container_el.classList.remove('extension-dashboard-log-precision-minute');
+												log_viz_container_el.classList.add('extension-dashboard-log-precision-hour');
+											}
+											
+										}
+
+									}
+									
+									
+									
+									
 									
 									/*
 									let log_viz_type = 'line';
@@ -6061,14 +6252,7 @@
 										}
 									}
 									
-									let svg_width_padding = 0;
-									let svg_height_padding = 0;
-									if(wideness_hint_el){
-										svg_width_padding = 20;
-									}
-									if(tallness_hint_el){
-										svg_height_padding = 20;
-									}
+									
 									//console.log("Found the element that the dataviz should be placed into: ", log_viz_el);
 					
 									//console.log("the relevant  log_data: ", log_data);
@@ -6095,47 +6279,18 @@
 									}
 									
 									// for very wide widgets, allow the svg to render a little wider
+									/*
 									if(tallness_hint_number == 2 && wideness_hint_number > 2){
 										rect['width'] = Math.round(rect['width'] * 1.15);
 									}
 									
+									
 									if(this.debug){
 										console.log("dashboard debug: render_logs: new rect after size adustment: ", rect);
 									}
+									*/
 									
-									// ANALYZE THE DATA
 									
-									
-									// Find out some information about the length of time we have data for
-									const real_oldest = d3.min(log_data, d => d.d);
-									//console.log("real_oldest: ", real_oldest);
-									
-									// Check if the data is for a boolean
-									let is_boolean_log = true;
-									let spotted_a_one = false;
-									for(let dp = 0; dp < log_data.length; dp++){
-										if(typeof log_data[dp]['v'] != 'number' || typeof log_data[dp]['d'] == 'undefined'){
-											if(this.debug){
-												console.error("SKIPPING LOG! unexpected/missing value in log datapoint: ", log_data[dp]);
-											}
-											continue
-										}
-										if(log_data[dp]['v'] === 1){
-											spotted_a_one = true;
-										}
-										
-										if(log_data[dp]['v'] != 1 && log_data[dp]['v'] != 0){
-											is_boolean_log = false;
-											break
-										}
-									}
-									if(spotted_a_one == false){ // empty logs only have the value zero, but that doesn't mean they are boolean
-										is_boolean_log = false;
-									}
-									
-									if(this.debug){
-										console.log("dashboard debug: render_logs:  is_boolean_log: ", is_boolean_log);
-									}
 									
 									
 									
@@ -6163,581 +6318,1147 @@
 									
 									
 									
-									const highest = d3.max(log_data, d => d.v);
-									const lowest = d3.min(log_data, d => d.v);
-									
-									let hourly_data = [];
-									
-									let now_timestamp = Date.now();
-									
-									//console.log("now_timestamp: ", now_timestamp);
-									
-									// We work our way backwards in time as we loop over the data
-									
-									// above_zero: the amount of milliseconds that the device was switched on (boolean 1) during a particular hour
-									
-									let hours_into_the_past = 0;
-									let start_of_this_hour = now_timestamp - (now_timestamp % (60000*60));
-									let end_of_this_hour = start_of_this_hour + (60000*60);
-									let above_zero_end_stamp = null;
-									//let above_zero = 0; 
-									let next_value = null;
-									let next_date_stamp = null;
-									let future_boolean_off_date_stamp = null;
-									let last_boolean_off_hour = null;
-									let future_boolean_off_hour_start = null;
-									
-									//let total_data = {'minimum':[],'maximum':[],'average':[],'above_zero':[]};
-									//let hour_data = {'minimum':null,'maximum':null,'average':null,'above_zero':0};  
 									
 									
-									let alt_log_data = [];
 									
-									// Create an array with empty slots
-									let hours_data = [];
-									//let decreaser = 25;
-									for(let h = 0; h < 25; h++){
+									
+									
+									//
+									//     W R A N G L E
+									//
+									
+									// ANALYZE THE DATA
+									
+									
+									const wrangle = (log_data) => {
 										
-										hours_data.push({'hours_into_the_past': h,'minimum':null,'maximum':null,'average':null,'start':(start_of_this_hour - (h * (60000 * 60))),'end':(end_of_this_hour - (h * (60000 * 60))),'beyond_start_value':null,'beyond_end_value':null,'values_to_average':[],'above_zero':0});
-										const millis_into_the_past = (60000 * 60 * (24 - h));
-										//console.log("millis_into_the_past: ", millis_into_the_past);
-										alt_log_data.unshift({"d":new Date(start_of_this_hour - (60000 * 60 * h)), "v":null, "h":h, "millis_into_the_past":(60000 * 60 * h)});
+										let wrangle_result = {};
+										
+										let hourly_log_data = structuredClone(log_data);
+										
+										// Find out some information about the length of time we have data for
+										const real_oldest = d3.min(log_data, d => d.d);
+										precisions['hour'] = real_oldest;
+										//console.log("real_oldest: ", real_oldest);
+									
+										// Check if the data is for a boolean
+										let is_boolean_log = true;
+										let spotted_a_one = false;
+										for(let dp = 0; dp < log_data.length; dp++){
+											if(typeof log_data[dp]['v'] != 'number' || typeof log_data[dp]['d'] == 'undefined'){
+												if(this.debug){
+													console.error("SKIPPING LOG! unexpected/missing value in log datapoint: ", log_data[dp]);
+												}
+												continue
+											}
+											if(log_data[dp]['v'] === 1){
+												spotted_a_one = true;
+											}
+										
+											if(log_data[dp]['v'] != 1 && log_data[dp]['v'] != 0){
+												is_boolean_log = false;
+												break
+											}
+										}
+										if(spotted_a_one == false){ // empty logs only have the value zero, but that doesn't mean they are boolean
+											is_boolean_log = false;
+										}
+									
+										if(this.debug){
+											console.log("dashboard debug: render_logs:  is_boolean_log: ", is_boolean_log);
+										}
 										
 										
-										//decreaser--;
+										
+										
+										
+										
+										
+										const highest = d3.max(log_data, d => d.v);
+										const lowest = d3.min(log_data, d => d.v);
+									
+										let hourly_data = [];
+									
+										const now_timestamp = Date.now();
+									
+										//console.log("now_timestamp: ", now_timestamp);
+									
+										// We work our way backwards in time as we loop over the data
+									
+										// above_zero: the amount of milliseconds that the device was switched on (boolean 1) during a particular hour
+									
+										let hours_into_the_past = 0;
+										let start_of_this_hour = now_timestamp - (now_timestamp % (60000*60));
+										let end_of_this_hour = start_of_this_hour + (60000*60);
+										let above_zero_end_stamp = null;
+										//let above_zero = 0; 
+										let next_value = null;
+										let next_date_stamp = null;
+										let future_boolean_off_date_stamp = null;
+										let last_boolean_off_hour = null;
+										let future_boolean_off_hour_start = null;
+									
+										//let total_data = {'minimum':[],'maximum':[],'average':[],'above_zero':[]};
+										//let hour_data = {'minimum':null,'maximum':null,'average':null,'above_zero':0};  
+									
+										let alt_log_data = [];
+									
+										// Create an array with empty slots
+										let hours_data = [];
+										//let decreaser = 25;
+										for(let h = 0; h < 26; h++){
+										
+											hours_data.push({'hours_into_the_past': h,'minimum':null,'maximum':null,'average':null,'start':(start_of_this_hour - (h * (60000 * 60))),'end':(end_of_this_hour - (h * (60000 * 60))),'beyond_start_value':null,'beyond_end_value':null,'values_to_average':[],'above_zero':0});
+											const millis_into_the_past = (60000 * 60 * (25 - h));
+											//console.log("millis_into_the_past: ", millis_into_the_past);
+											alt_log_data.unshift({"d":new Date(start_of_this_hour - (60000 * 60 * h)), "v":null, "h":h, "millis_into_the_past":(60000 * 60 * h)});
+										
+										
+											//decreaser--;
+										}
+									
+										/*
+										for(let ah = 25; ah >= 0; ah--){
+											alt_log_data[ah] = {"d":new Date(start_of_this_hour - (60000 * 60 * ah)),"v":null}
+										}
+										*/
+									
+										//hours_data[0]['start'] = start_of_this_hour;
+										//hours_data[0]['end'] = end_of_this_hour;
+										hours_data[0]['incomplete'] = true;
+									
+										//console.log("inital start_of_this_hour: ", start_of_this_hour);
+										//console.log("inital end_of_this_hour: ", end_of_this_hour);
+									
+									
+									
+									
+									
+										let last_squished_dp = log_data.length; // keep track of which datapoints in hourly_log_data have already been squished
+										let min_max_lines_would_be_nice = false; // would it even make sense to display the minimum and maximum values spotted during the hour?
+										let last_averaged_dp = log_data.length - 1;
+										
+										
+										
+										for(let dp = log_data.length - 1; dp >= 0; dp--){
+											//console.log("dp: ", log_property_id, dp);
+											if(typeof log_data[dp] == 'undefined'){
+												console.error("undefined entry while looping over log data. dp: ", dp);
+												continue
+											}
+											const this_date_stamp = log_data[dp]['d'].getTime();
+											const this_value = log_data[dp]['v'];
+											
+											if(this_value == null){
+												console.error("while looping over log data, this_value was null.  dp, log_data[dp], ", dp, log_data[dp]);
+											}
+											/*
+											if(typeof next_date_stamp == 'number'){
+												console.log("this point is earlier: \n - sec: ", Math.round(next_date_stamp - this_date_stamp)/1000, "\n - min: ", Math.round(next_date_stamp - this_date_stamp)/60000);
+											}
+											*/
+										
+											// If could be that the first datapoint is in the previous hour, or even hours old
+											if(this_date_stamp < start_of_this_hour){ //   || dp == 0
+												if(this.debug){
+													console.warn("\ndashboard debug: log averages:\n\n\nDONGGGGG\n\nShifting to an earlier hour for: ", log_property_id, "\n\n - hours_into_the_past: ", hours_into_the_past);
+												}
+											
+											
+											
+												//
+												// CALCULATE HOUR AVERAGES
+												//
+											
+												if(is_boolean_log == false){
+												
+													if(this.debug){
+														console.warn("\n\n\ndashboard debug: CALCULATING NUMERIC AVERAGES FOR THE HOUR THAT IS NOW COMPLETE: " + start_of_this_hour + " of " + log_property_id + "\n\n\n");
+														console.log("dashboard debug: values_to_average: ", hours_data[hours_into_the_past]['values_to_average'].length);
+													}
+													let nuanced_values = [];
+												
+													let total_score = 0; // millis * average of each two adjoining points, all added up
+												
+													// for completeness, remember what datapoint ended the hour loop. This will be useful to calculate averages later that take into account how the value was changing over time
+													hours_data[hours_into_the_past]['beyond_start_value'] = {'t':this_date_stamp, 'v':this_value};
+											
+													if(hours_data[hours_into_the_past]['values_to_average'].length){
+													
+														let raw_nuance = [];
+														let total_millis_accounted_for = 0;
+														let hypothetical_value_at_end_of_hour = null;
+														let hypothetical_value_at_start_of_hour = null;
+													
+														// calculate the slope between the most futuristic datapoint inside the hour, and a futuristic datapoint outside of the that hour;
+														if(hours_data[hours_into_the_past]['beyond_end_value'] != null){
+														
+															let newest_point_inside_the_hour = hours_data[hours_into_the_past]['values_to_average'][0]; // hours_data[hours_into_the_past]['values_to_average'].length  - 1
+														
+															const millis_in_this_hour = hours_data[hours_into_the_past]['end'] - newest_point_inside_the_hour['t'];
+															//console.log("beyond_end millis_in_this_hour, as sec: ", millis_in_this_hour / 1000);
+															//console.log("millis outside of the hour, as sec: ", (hours_data[hours_into_the_past]['beyond_end_value']['t'] - hours_data[hours_into_the_past]['end'])/1000  );
+															total_millis_accounted_for += millis_in_this_hour;
+															let ratio_inside_this_hour = millis_in_this_hour / (hours_data[hours_into_the_past]['beyond_end_value']['t'] - newest_point_inside_the_hour['t']);
+															//console.log("ratio_inside_this_hour: ", ratio_inside_this_hour);
+														
+														
+															//console.log("value of point outside of the hour: ", hours_data[hours_into_the_past]['beyond_end_value']['v']);
+															//console.log("value of newest_point_inside_the_hour['v']: ", newest_point_inside_the_hour['v']);
+															let value_delta = Math.abs(newest_point_inside_the_hour['v'] - hours_data[hours_into_the_past]['beyond_end_value']['v']);
+															//console.log("value_delta: ", value_delta);
+														
+															value_delta = value_delta * ratio_inside_this_hour;
+															//console.log("value_delta after applying ratio: ", value_delta);
+														
+															if(hours_data[hours_into_the_past]['beyond_end_value']['v'] > newest_point_inside_the_hour['v']){
+																hypothetical_value_at_end_of_hour = newest_point_inside_the_hour['v'] + value_delta;
+															}
+															else{
+																hypothetical_value_at_end_of_hour = newest_point_inside_the_hour['v'] - value_delta;
+															}
+														
+															//console.log("hypothetical_value_at_end_of_hour: ", hypothetical_value_at_end_of_hour);
+															//raw_nuance.push({'m':millis_in_this_hour,'v':((hypothetical_value_at_end_of_hour + newest_point_inside_the_hour['v']) / 2 )});
+															//nuanced_values.push( ((hypothetical_value_at_end_of_hour + newest_point_inside_the_hour['v']) / 2 ) * millis_in_this_hour);
+															const beyond_end_score = ((hypothetical_value_at_end_of_hour + newest_point_inside_the_hour['v']) / 2 ) * (millis_in_this_hour / 1000);
+															//console.log("adding beyond_end_score: ", beyond_end_score);
+															total_score += beyond_end_score
+															//console.log("total_score for this hour is now: ", total_score);
+														
+															delete hours_data[hours_into_the_past]['beyond_end_value'];
+														}
+													
+													
+													
+													
+														// Add the 'normal' consecutive points that were all within the hour
+													
+														let dumb_total = hours_data[hours_into_the_past]['values_to_average'][0]['v']; // as a test, also just take all the recorded values and average them. Shouldn't be too far off from the 'nuanced' calculation
+													
+														for(let vt = 1; vt < hours_data[hours_into_the_past]['values_to_average'].length; vt++){
+															dumb_total += hours_data[hours_into_the_past]['values_to_average'][vt]['v'];
+														
+															// Calculate the average for two consecutive datapoints
+															const average_value = (hours_data[hours_into_the_past]['values_to_average'][vt - 1]['v'] + hours_data[hours_into_the_past]['values_to_average'][vt]['v']) / 2;
+														
+															// Then multiply this average with the time delta between those two points
+															//console.log("average_value: ", hours_data[hours_into_the_past]['values_to_average'][vt - 1]['v'], hours_data[hours_into_the_past]['values_to_average'][vt]['v'], " -> ", average_value);
+															const duration = hours_data[hours_into_the_past]['values_to_average'][vt - 1]['t'] - hours_data[hours_into_the_past]['values_to_average'][vt]['t'];
+															//console.log("normal duration, in seconds: ", duration/1000);
+															//raw_nuance.push({'m':duration,'v':average_value});
+															total_millis_accounted_for += duration;
+														
+															const normal_point_score = (duration/1000) * average_value;
+															//console.log("+ average_value, duration (in seconds), and normal_point_score: ", average_value, (duration/1000) + "s", " -> ", normal_point_score);
+															total_score += normal_point_score;
+															//nuanced_values.push( average_value * duration );
+														}
+													
+													
+													
+													
+													
+													
+														// calculate the slope between the most futuristic datapoint inside the hour, and a futuristic datapoint outside of the that hour;
+														if(hours_data[hours_into_the_past]['beyond_start_value'] != null){
+														
+															let oldest_point_inside_the_hour = hours_data[hours_into_the_past]['values_to_average'][ hours_data[hours_into_the_past]['values_to_average'].length  - 1 ];
+															const start_millis_in_this_hour = (oldest_point_inside_the_hour['t'] - hours_data[hours_into_the_past]['start']);
+															//console.log("beyond_start start_millis_in_this_hour, in seconds: ", start_millis_in_this_hour / 1000);
+															total_millis_accounted_for += start_millis_in_this_hour;
+															let start_ratio_inside_this_hour = start_millis_in_this_hour / (oldest_point_inside_the_hour['t'] - hours_data[hours_into_the_past]['beyond_start_value']['t']);
+															//console.log("beyond start start_ratio_inside_this_hour: ", start_ratio_inside_this_hour);
+															//console.log("beyond start point outside of the hour: ", hours_data[hours_into_the_past]['beyond_start_value']['v']);
+															//console.log("beyond start oldest_point_inside_the_hour['v']: ", oldest_point_inside_the_hour['v']);
+															let start_value_delta = Math.abs(oldest_point_inside_the_hour['v'] - hours_data[hours_into_the_past]['beyond_start_value']['v']);
+															//console.log("beyond start start_value_delta: ", start_value_delta);
+														
+															start_value_delta = start_value_delta * start_ratio_inside_this_hour;
+															//console.log("beyond start start_value_delta after applying ratio: ", start_value_delta);
+														
+															if(hours_data[hours_into_the_past]['beyond_start_value']['v'] > oldest_point_inside_the_hour['v']){
+																hypothetical_value_at_start_of_hour = oldest_point_inside_the_hour['v'] + start_value_delta;
+															}
+															else{
+																hypothetical_value_at_start_of_hour = oldest_point_inside_the_hour['v'] - start_value_delta;
+															}
+															
+															//console.log("hypothetical_value_at_start_of_hour: ", hypothetical_value_at_start_of_hour);
+															//raw_nuance.push({'m':start_millis_in_this_hour,'v':((hypothetical_value_at_start_of_hour + oldest_point_inside_the_hour['v']) / 2 )});
+															//nuanced_values.push( ((hypothetical_value_at_start_of_hour + oldest_point_inside_the_hour['v']) / 2 ) * start_millis_in_this_hour);
+														
+															const beyond_start_score = ((hypothetical_value_at_start_of_hour + oldest_point_inside_the_hour['v']) / 2 ) * (start_millis_in_this_hour / 1000);
+															//console.log("adding beyond_startscore, in seconds: ", beyond_start_score / 1000);
+														
+															total_score += beyond_start_score;
+															delete hours_data[hours_into_the_past]['beyond_start_value'];
+														}
+													
+														delete hours_data[hours_into_the_past]['values_to_average'];
+													
+														//console.log("SANITY CHECK: total minutes accounted for this hour: ", Math.round(total_millis_accounted_for / 60000));
+													
+														const final_average = Math.round((total_score / (total_millis_accounted_for / 1000)) * 1000) / 1000;
+														if(this.debug){
+															console.warn("\n\n\ndashboard debug: log: hour's final_average: ", hours_into_the_past, " -> ", final_average, "\n\n\n");
+														}
+														hours_data[hours_into_the_past]['average'] = final_average;
+													
+														if(typeof alt_log_data[ ((alt_log_data.length - 1) - hours_into_the_past) ] == 'undefined'){
+															console.error("dashboard debug:  log: missing index in alt_log_data: ", (alt_log_data.length - hours_into_the_past));
+														}
+														else if(final_average != null){
+															alt_log_data[ ( (alt_log_data.length - 1) - hours_into_the_past) ]['v'] = final_average;
+														}
+														
+														//console.log("squishing datapoints: ", dp + 1, " to ", last_squished_dp);
+														for(let hl = dp + 1; hl < last_squished_dp; hl++){
+															hourly_log_data[hl]['v'] = final_average;
+														}
+														last_squished_dp = dp + 1;
+														if(dp == 0){
+															hourly_log_data[0]['v'] = final_average;
+															last_squished_dp = 0;
+															//console.log("fully squished the hourly averaged version of the log data.  hourly_log_data: ", hourly_log_data);
+															
+															if(final_average != null){
+																alt_log_data[ ( (alt_log_data.length - 1) - hours_into_the_past) ]['v'] = final_average;
+															}
+														}
+														
+													}
+											
+												} // end of numeric log averaging process that happens when we switch to (an) hour(s) further into the past
+											
+											
+											
+											
+											
+												let old_hours_into_the_past = hours_into_the_past;
+												if(this.debug){
+													console.log("dashboard debug: ==> old hours_into_the_past is now: ", old_hours_into_the_past);
+												}
+											
+											
+												// calculate how many hours into the past we've traveled now
+												//hours_into_the_past += Math.floor((start_of_this_hour - this_date_stamp) / (60 * 60 * 1000));
+											
+												hours_into_the_past = Math.floor( ((hours_data[0]['end']) - this_date_stamp) / (60 * 60 * 1000));
+												if(this.debug){
+													console.log("dashboard debug: ==> new hours_into_the_past: ", hours_into_the_past, "HOUR JUMP: ", hours_into_the_past - old_hours_into_the_past);
+												}
+											
+											
+												if(hours_into_the_past == old_hours_into_the_past){
+													if(this.debug){
+														console.error("dashboard debug: log averages: hours in the past did not increase! forcing increment..");
+													}
+													hours_into_the_past++;
+												}
+											
+												// and set the boundaries for this hour
+												start_of_this_hour = this_date_stamp - (this_date_stamp % (60 * 60 * 1000));
+												end_of_this_hour = start_of_this_hour + (60 * 60 * 1000);
+												if(this.debug){
+													console.log("dashboard debug: log averages: start_of_this_hour is now: ", start_of_this_hour);
+												}
+											
+												hours_data[hours_into_the_past]['start'] = start_of_this_hour;
+												hours_data[hours_into_the_past]['end'] = end_of_this_hour;
+											
+												// Similar to the beyond_start_value, we keep track of the value outside of the hour that will be useful later to calculate averages
+												if(is_boolean_log == false && next_date_stamp != null && next_value != null){
+													//console.log("adding beyond_end_value into the numeric hour that is now complete");
+													hours_data[hours_into_the_past]['beyond_end_value'] = {'t':next_date_stamp, 'v':next_value};
+												}
+											
+												if(this.debug){
+													console.log("dashboard debug: min_max_lines_would_be_nice: ", min_max_lines_would_be_nice);
+													//console.error("hours_data: ", hours_data);
+												}
+											
+											} // end of calculating hour average
+										
+										
+											// If it's a boolean log, we're interested in how much of the hour it was 'on'.
+											// So we remembered the last time it was switched off in future_boolean_off_date_stamp
+										
+											if(is_boolean_log){
+												if(this_value === 1){
+												
+													if(dp == log_data.length - 1){
+														// the very first datapoint we handle is one in which the switch was enabled. We can assume it has been on since that time, until now.
+														if(this.debug){
+															console.log("The first boolean datapoint was 'ON'.");
+														}
+													
+														/*
+														if(this_date_stamp > start_of_this_hour){
+															hours_data[hours_into_the_past]['above_zero'] += (now_timestamp - this_date_stamp);
+														}
+														*/
+													
+													
+														// Pretend that the device was switched off right now
+													
+														future_boolean_off_date_stamp = now_timestamp;
+														last_boolean_off_hour = 0;
+														future_boolean_off_hour_start = start_of_this_hour;
+													
+													}
+												
+													if(future_boolean_off_date_stamp != null && last_boolean_off_hour != null){
+														// We've spotted an OFF datapoint before, and this timestamp is for an event further in the past where the switch was enabled. Time to do some calculations.
+													
+														if(this_date_stamp > start_of_this_hour && this_date_stamp < end_of_this_hour){
+														
+															// Does the other moment reach over the hour boundary? If so, that complicates calculations a bit.
+															if(future_boolean_off_date_stamp > end_of_this_hour){
+																//console.log("the device was switched on in this hour: ", hours_into_the_past, ", and was switched of in the future, so at less hours into the past.. last_boolean_off_hour: ", last_boolean_off_hour);
+																// There are three sections to update. The first is the bit in this hour (where it was switched on) until the end of this hour. The second part is the partial bit of the hour during which it was switched off again (which lies in the future).
+																// And thirdly, optionally, there may be an hour or more in between those two partial hours during which the switch was on too.
+													
+																// update the duration that the switch was on in this hour
+																hours_data[hours_into_the_past]['above_zero'] += (end_of_this_hour - this_date_stamp);
+													
+																// update the duration that the switch was on during the hour in which it was switched off
+																//hours_data[last_boolean_off_hour]['above_zero'] += (end_of_this_hour - this_date_stamp);
+																if(last_boolean_off_hour != hours_into_the_past && future_boolean_off_date_stamp != null){
+																	hours_data[last_boolean_off_hour]['above_zero'] += (future_boolean_off_date_stamp - future_boolean_off_hour_start);
+																}
+														
+														
+														
+																if(hours_into_the_past > last_boolean_off_hour + 1){
+																	//console.log("Also have to fill in lots of hours in between:  from hours_into_the_past: ", hours_into_the_past, ", till last_boolean_off_hour: ", last_boolean_off_hour, ", so this many hours: ", last_boolean_off_hour - hours_into_the_past);
+																	// Loop over all the hours in the future, up to the one in which it was switched off, and set the 'on' duration to the entire hour.
+																	for(let nh = last_boolean_off_hour + 1; nh < hours_into_the_past; nh++){
+																		hours_data[nh]['above_zero'] = 60 * 60 * 1000; // it must have been on for the full hour
+																		//console.log("this hour has been set to the full 60 minutes: ", nh);
+																	}
+																}
+														
+													
+															}
+															else{
+														
+															
+														
+														
+																// nice and simple..?
+															
+																const time_delta_with_the_hour = future_boolean_off_date_stamp - this_date_stamp;
+															
+																if(this.debug){
+																	console.warn("the device was switched on in this hour: ", hours_into_the_past, ", and was switched of in the same hour. So last_boolean_off_hour should be the same: ", last_boolean_off_hour);
+																	console.log("switch was briefly on within the hour. So minutes on (from time_delta_with_the_hour) should be less than 60): ", Math.round(time_delta_with_the_hour/60000));
+																}
+															
+																if(hours_data[hours_into_the_past]['above_zero'] > (60 * 60 * 1000)){
+																	console.error("dashboard: the accumulated boolean ON time has already exceeded 60 minutes! ", hours_data[hours_into_the_past]['above_zero'] / 60000);
+																}
+												
+																hours_data[hours_into_the_past]['above_zero'] += time_delta_with_the_hour;
+											
+																if(hours_data[hours_into_the_past]['above_zero'] > (60 * 60 * 1000)){
+																	console.error("dashboard: after adding the latest boolean delta, the accumulated ON time has now exceeded 60 minutes! ", hours_data[hours_into_the_past]['above_zero'] / 60000);
+																}
+														
+														
+																/*
+																let timestamp_of_next_point_or_hour_limit = next_date_stamp;
+																if(next_date_stamp >= end_of_this_hour){
+																	timestamp_of_next_point_or_hour_limit = end_of_this_hour;
+																}
+																above_zero += (timestamp_of_next_point_or_hour_limit - this_data_stamp);
+																*/
+														
+															}
+														}
+														else{
+															//console.warn("dashboard: the boolean datapoint we're looking at is not for this hour!");
+														}
+													
+														// reset
+														future_boolean_off_date_stamp = null;
+														last_boolean_off_hour = null;
+														future_boolean_off_hour_start = null;
+													}
+													else{
+														if(this.debug){
+															console.warn("dashboard: boolean log averaging: spotted a datapoint in which the device on turned ON, but there is no remembered datapoint that indicates when in the future it was turned off!");
+														}
+													}
+												
+												}
+												else if(future_boolean_off_date_stamp == null){
+													if(this.debug){
+														console.log("dashboard debug: log averages: remembering when the device was switched off. remembering this_date_stamp and hours_into_the_past: ", this_date_stamp, hours_into_the_past);
+													}
+													future_boolean_off_date_stamp = this_date_stamp;
+													last_boolean_off_hour = hours_into_the_past;
+													future_boolean_off_hour_start = start_of_this_hour;
+												}
+												else{
+													if(this.debug){
+														console.log("dashboard debug: oddly, there are two datapoints in a row that indicate the device was OFF");
+													}
+												
+												}
+											
+												//console.log("BOOLEAN hours_data: ", hours_data);
+											
+											}
+											else{
+												// Update spotted minimum and/or maximum value for this hour
+												//console.log("INSIDE HOUR? ", start_of_this_hour, this_date_stamp, end_of_this_hour);
+												if(this_date_stamp >= start_of_this_hour && this_date_stamp < end_of_this_hour){
+											
+													if(hours_data[hours_into_the_past]['minimum'] == null){
+														hours_data[hours_into_the_past]['minimum'] = this_value
+													}
+													else if(this_value < hours_data[hours_into_the_past]['minimum']){
+														//console.log("spotted lower minimum: ")
+														hours_data[hours_into_the_past]['minimum'] = this_value;
+													}
+									
+													if(hours_data[hours_into_the_past]['maximum'] == null){
+														hours_data[hours_into_the_past]['maximum'] = this_value;
+													}
+													else if(this_value > hours_data[hours_into_the_past]['maximum']){
+														hours_data[hours_into_the_past]['maximum'] = this_value;
+													}
+											
+													hours_data[hours_into_the_past]['values_to_average'].push({"t":this_date_stamp, "v":this_value});
+											
+												}
+												else{
+													//console.error("dashboard: log averages: this numeric datapoint is somehow not within the hour we're looking at");
+												}
+											}
+										
+										
+											
+										
+										
+										
+											if(is_boolean_log == false && min_max_lines_would_be_nice == false && hours_data[hours_into_the_past]['minimum'] != null && hours_data[hours_into_the_past]['maximum'] != null){
+												if(hours_data[hours_into_the_past]['minimum'] != hours_data[hours_into_the_past]['maximum']){
+													if(hours_data[hours_into_the_past]['minimum'] > hours_data[hours_into_the_past]['maximum']){
+														console.error("dashboard: somehow maximum value spotted this hour was smaller than the minimum value spotted: ", hours_data[hours_into_the_past]['minimum'], hours_data[hours_into_the_past]['maximum']);
+													}
+													else{
+														//console.log("spotted a different minimum and maximum value this hour, so min-max lines would be nice.  hour,min,max: ", hours_into_the_past, hours_data[hours_into_the_past]['minimum'], hours_data[hours_into_the_past]['maximum'])
+														min_max_lines_would_be_nice = true;
+													}
+												
+												}
+											}
+										
+										
+											next_value = this_value;
+											next_date_stamp = this_date_stamp;
+										
+											/*
+											if(is_boolean_log && value == 0){
+												future_boolean_off_date_stamp = next_date_stamp; // remember the last seen timestamp at which point the boolean was false
+												last_boolean_off_hour = hours_into_the_past; // and remember in which hour that took place.
+											}
+											*/
+										
+										} // END OF LOOPING OVER DATA POINTS TO CALCULATE AVERAGES
+									
+										//console.log("last_squished_dp: ", last_squished_dp);
+										if(last_squished_dp != 0){
+											hourly_log_data.splice(0,last_squished_dp);
+										}
+									
+										if(is_boolean_log){
+											for (let [hour_id, details] of Object.entries(hours_data)) {
+												if(typeof details['above_zero'] == 'number'){
+													alt_log_data[ 24 - parseInt(hour_id) ]['v'] = Math.round(details['above_zero'] / 60000);
+												}
+											}
+											//console.error("\n\n\nboolean alt_log_data: ", log_thing_id, log_property_id, "\n", JSON.stringify(alt_log_data,null,2));
+										}
+										else{
+											//console.error("\n\n\nnumeric alt_log_data: ", log_thing_id, log_property_id, alt_log_data);
+										}
+										
+										
+										
+										//
+										// PRUNING
+										//
+									
+										// well trimming really. Removing older datapoints so that what remains will be rendered nicely in the available horizontal pixels
+									
+										let pruned_log_data = [];
+										if(rect.width > 50 && log_data.length > 100 && log_data.length > Math.floor(rect.width/4)){
+											if(this.debug){
+												console.log("dashboard debug: log_data.length before pruning: ", log_data.length);
+											}
+										
+											for(let pr = log_data.length - Math.floor(rect.width / 4); pr < log_data.length; pr++ ){
+												//console.log("pr: ", pr);
+												if(typeof log_data[pr] != 'undefined' && typeof log_data[pr]['v'] != 'undefined' && log_data[pr]['v'] != null){
+													pruned_log_data.push(log_data[pr]);
+												}
+											
+											}
+											/*
+											while(log_data.length > Math.floor(rect.width / 4) ){
+												log_data.shift();
+											}
+											*/
+											if(this.debug){
+												console.log("dashboard debug: pruned_log_data.length : ", pruned_log_data.length);
+											}
+										}
+										else{
+											for(let pr = log_data.length - 1; pr >= 0; pr-- ){
+												
+												if(typeof log_data[pr] != 'undefined' && typeof log_data[pr]['v'] != 'undefined' && log_data[pr]['v'] != null && typeof log_data[pr]['d'] != 'undefined'){
+													
+													if(log_data[pr]['d'].getTime() > now_timestamp - (60 * 60 * 1000)){
+														pruned_log_data.unshift(log_data[pr]);
+													}
+													else if(pruned_log_data.length < 50 && log_data[pr]['d'].getTime() > now_timestamp - (2 * 60 * 60 * 1000)){
+														pruned_log_data.unshift(log_data[pr]);
+													}
+													
+												}
+											}
+											
+										}
+										
+										if(this.debug){
+											console.log("pruned_log_data: ", pruned_log_data.length, pruned_log_data);
+										}
+										
+										
+										
+									
+										function make_square_wave_data(old_data, is_boolean=true){
+											let new_log_data = [];
+											let previous_value = null;
+											let previous_date = null;
+										
+										
+											//console.log("dashboard debug: square_wave: old_data.length before adding boolean sawtooth datapoints: ", old_data.length);
+										
+										
+											for(let dp = 0; dp < old_data.length; dp++){
+											
+												if(old_data[dp]['v'] == null){
+													if(this.debug){
+														console.error('dashboard debug: make_square_wave_data: spotted null value in provided log data at positon', dp);
+													}
+													continue
+												}
+												if(previous_value == null){
+													previous_value = old_data[dp]['v'];
+													previous_date = old_data[dp]['d'];
+													//console.log("typeof log_data[dp]['d']: ", typeof log_data[dp]['d'], log_data[dp]['d']);
+												}
+												else if( old_data[dp]['v'] != previous_value){
+													previous_value = old_data[dp]['v'];
+													previous_date = old_data[dp]['d'];
+													if(old_data[dp]['d'].getTime() - 1 > previous_date.getTime()){
+														new_log_data.push({'v':previous_value,"d":old_data[dp]['d'].setDate(old_data[dp]['d'].getSeconds() - 1)});
+														//console.log("square_wave: moved extra datapoint a little to the past");
+													}
+													else{
+														new_log_data.push({'v':previous_value,"d":old_data[dp]['d']});
+													}
+													//console.log("adjusted old_data[dp]['d']: ", typeof old_data[dp]['d'], old_data[dp]['d']);
+												
+												}
+												new_log_data.push(old_data[dp]);
+											}
+											return new_log_data;
+										}
+									
+									
+										function make_into_hourly_square_wave_data(old_data){
+											let new_log_data = [];
+											//console.log("dashboard debug: square_wave: old_data.length before adding extra datapoints an hour after each provided one: ", old_data.length);
+										
+										
+											for(let dp = 0; dp < old_data.length; dp++){
+											
+												if(typeof old_data[dp] != 'undefined' && old_data[dp] != null && typeof old_data[dp]['v'] != 'undefined' && old_data[dp]['v'] != null){
+												
+													new_log_data.push(old_data[dp]);
+												
+													let extra_data_point_an_hour_later = Object.assign({}, old_data[dp])
+													extra_data_point_an_hour_later['d'] = new Date(old_data[dp]['d'].getTime() + ((60 * 60 * 1000) - 1)  ); //.setDate( (old_data[dp]['d'].getSeconds() + 3599) * 1000);
+													new_log_data.push(extra_data_point_an_hour_later);
+												}
+											
+											}
+											//console.log("dashboard debug: square_wave: new_log_data.length after adding extra datapoints an hour after each provided one: ", new_log_data.length);
+											return new_log_data;
+										}
+						
+						
+										// For a boolean log, we add extra datapoints to create a square-wave shape
+										if(is_boolean_log){
+										
+											log_data = make_square_wave_data(log_data);
+										
+											if(this.debug){
+												console.log("dashboard debug: log_data.length after adding boolean square_wave datapoints: ", log_data.length);
+											}
+										
+										}
+										else{
+										
+											if(pruned_log_data.length && alt_log_data.length){
+												//console.log("creating optimized log data with square_wave");
+												let square_alt_log_data = make_into_hourly_square_wave_data(alt_log_data);
+												//console.log("square_wave: square_alt_log_data: ", square_alt_log_data);
+											
+												let square_cut_off_point = 0;
+												const pruned_data_first_date_stamp = pruned_log_data[0]['d'].getTime();
+												//console.log("square_wave: pruned_data_first_date_stamp: ", pruned_data_first_date_stamp);
+											
+												for(let sdp = 0; sdp < square_alt_log_data.length; sdp++){
+													if(square_alt_log_data[sdp]['d'].getTime() >= pruned_data_first_date_stamp - 1){
+														//console.log("square_wave data caught up with pruned_log_data at datapoint sdp #: ", sdp);
+														if(sdp > 0){
+															square_cut_off_point = sdp - 1;
+															if(sdp > 1){
+																if( square_alt_log_data[sdp - 2]['d'].getTime() >= square_alt_log_data[sdp - 1]['d'].getTime() - 1){ // if we just happened to land on a square-wave added point, then we need to go back 2 points.
+																	square_cut_off_point = sdp - 2;
+																}
+															}
+															break
+														}
+													}
+												}
+												//console.log("square_wave square_cut_off_point: ", square_cut_off_point);
+												// get the log data that is the most light weight square-wave shape. This will form the base onto which the detailed and squished pruned parts will be added.
+												if(square_cut_off_point){
+													let averaged_log_data = square_alt_log_data.slice(0, square_cut_off_point);
+													//console.warn('square_wave averaged_log_data: ', averaged_log_data.length, averaged_log_data );
+													let detailed_log_data = averaged_log_data.concat(pruned_log_data);
+													let squished_log_data = averaged_log_data.concat(hourly_log_data.slice(hourly_log_data.length - pruned_log_data.length));
+													//console.warn("square_wave detailed_log_data: ", detailed_log_data.length, detailed_log_data);
+													//console.warn("square_wave squished_log_data: ", squished_log_data.length, squished_log_data);
+											
+													wrangle_result['log_data'] = detailed_log_data;
+													wrangle_result['hourly_log_data'] = squished_log_data;
+												}
+											
+											
+											}
+										
+										
+										}
+									
+										
+										wrangle_result['is_boolean_log'] = is_boolean_log;
+										wrangle_result['alt_log_data'] = alt_log_data;
+										wrangle_result['pruned_log_data'] = pruned_log_data;
+										wrangle_result['hours_into_the_past'] = hours_into_the_past;
+										
+										return wrangle_result;
+										
 									}
 									
+									
+									//let is_boolean_log = false;
+									
+									//let alt_log_data = [];
+									
+									//let hourly_log_data = [];
+									//, first_hourly_log_data;
+									
+									log_datum['first'] = wrangle(log_data);
+									//console.log("log_datum['first']: ", log_datum['first']);
+									
+									
+									//[is_boolean_log, log_data, alt_log_data, hourly_log_data] = log_datum['first'];
+									
+									//console.log("FIRST is_boolean_log, log_data, alt_log_data, hourly_log_data: ", is_boolean_log, log_data, alt_log_data, hourly_log_data);
+									
+									const highest = d3.max(log_datum['first']['log_data'], d => d.v);
+									const lowest = d3.min(log_datum['first']['log_data'], d => d.v);
+									
+									
+									
+									//
+									//  LOG COMPARISON
+									// 
+									
+									// Is there a second log to compare with?
+									
+									
+									let second_log_data = [];
+									let second_alt_log_data = [];
+									let second_thing_id = null;
+									let second_property_id = null;
+									let comparison = false;
+									
+									let comparison_highest = null;
+									let comparison_lowest = null;
+									
+									let comparison_requires_second_y_axis = false;
+									
+									let first_log_name = '';
+									let second_log_name = '';
+									
+									let second_highest = null;
+									let second_lowest = null;
+									
+									
+									if(typeof second_id == 'string' && typeof this.logs_data[second_id] != 'undefined'){
+										
+										second_log_data = this.logs_data[second_id];
+										comparison = true;
+										
+										this.newest_log_points[second_id] = second_log_data[second_log_data.length-1];
+										
+										second_highest = d3.max(second_log_data, d => d.v);
+										second_lowest = d3.min(second_log_data, d => d.v);
+										
+										
+										// Do we need a separate Y scale because the two datasets's values are in very different ranges?
+										// Doing this before pruning to get a better picture of the intended comparison
+										const first_log_highest = highest;
+										const second_log_highest = second_highest;
+										
+										const first_log_lowest = lowest;
+										const second_log_lowest = second_lowest;
+										
+										const first_log_range = first_log_highest - first_log_lowest;
+										const second_log_range = second_log_highest - second_log_lowest;
+										
+										//console.log("log comparison: ranges: ", first_log_range, second_log_range);
+										if(first_log_range > second_log_range * 10 || second_log_range > first_log_range * 10){
+											if(this.debug){
+												console.log("dashboard debug: log comparison: wildly different ranges: ", first_log_range, second_log_range);
+											}
+											comparison_requires_second_y_axis = true;
+										}
+										else{
+											//console.log("log comparison: highest: ", first_log_highest, second_log_highest);
+											if(first_log_highest > second_log_highest * 10 || second_log_highest > first_log_highest * 10){
+												if(this.debug){
+													console.log("dashboard debug: log comparison: wildly different highest values: ", first_log_highest, second_log_highest);
+												}
+												comparison_requires_second_y_axis = true;
+											}
+											else{
+												comparison_highest = Math.max(first_log_highest, second_log_highest);
+											}
+										
+											//console.log("log comparison: lowest: ", first_log_lowest, second_log_lowest);
+											if(first_log_lowest > second_log_lowest * 10 || second_log_lowest > first_log_lowest * 10){
+												if(this.debug){
+													console.log("dashboard debug: log comparison: wildly different lowest values: ", first_log_lowest, second_log_lowest);
+												}
+												comparison_requires_second_y_axis = true;
+											}
+											else{
+												comparison_lowest = Math.min(first_log_lowest, second_log_lowest);
+											}
+										}
+										
+										// get the thing_id and property_id for the second log
+										for (let lo2 = 0; lo2 < this.logs.length; lo2++){
+											if(this.logs[lo2]['id'] == second_id){
+												//console.log("found the second_id log data match");
+												
+												if(typeof this.logs[lo2]['thing'] == 'string'){
+													second_thing_id = this.logs[lo2]['thing'];
+													// Figure out an initial name for each log
+													if(thing_id != second_thing_id){
+														first_log_name = thing_id;
+														const first_thing = this.get_thing_by_thing_id(thing_id);
+														if(first_thing && typeof first_thing.title == 'string'){
+															first_log_name = first_thing.title;
+														}
+														second_log_name = second_thing_id;
+														const second_thing = this.get_thing_by_thing_id(second_thing_id);
+														if(second_thing && typeof second_thing.title == 'string'){
+															second_log_name = second_thing.title;
+														}
+													}
+												}
+												
+												if(typeof this.logs[lo2]['property'] == 'string'){
+													second_property_id = this.logs[lo2]['property'];
+													if(property_id != second_property_id){
+														if(first_log_name.length < (tallness_hint_number * 15)){
+															first_log_name += " - ";
+															const first_property = this.get_property_by_ids(thing_id,property_id);
+															if(first_property && typeof first_property.title == 'string'){
+																first_log_name += first_property.title;
+															}
+															else{
+																first_log_name += property_id;
+															}
+															
+														}
+														if(second_log_name.length < (tallness_hint_number * 15)){
+															second_log_name += " - ";
+															const second_property = this.get_property_by_ids(second_thing_id,second_property_id);
+															if(second_property && typeof second_property.title == 'string'){
+																second_log_name += second_property.title;
+															}
+															else{
+																second_log_name += second_property_id;
+															}
+														}
+													}
+												}
+											}
+										}
+										
+										log_datum['second'] = wrangle(second_log_data);
+										
+									}
+									
+									
+									
+									
+									log_data = log_datum['first']['log_data'];
+									let pruned_log_data = log_datum['first']['pruned_log_data'];
+									const is_boolean_log = log_datum['first']['is_boolean_log'];
+									let alt_log_data = log_datum['first']['alt_log_data'];
+									const hourly_log_data = log_datum['first']['hourly_log_data'];
+									const hours_into_the_past = log_datum['first']['hours_into_the_past'];
+									
+									
+									second_log_data = log_datum['second']['log_data'];
+									const second_hourly_log_data = log_datum['second']['hourly_log_data'];
+									
+									
+									
+									if(this.debug){
+										console.log("first and second hourly_log_data.length: ", hourly_log_data.length, second_hourly_log_data.length);
+										
+										console.log("dashboard debug:  comparison: ", comparison);
+										console.warn("dashboard debug:  log_datum['first']: ", log_datum['first']);
+										console.warn("dashboard debug:  log_datum['second']: ", log_datum['second']);
+										console.log("dashboard debug:  comparison log_data: ", log_data);
+										console.log("dashboard debug:  comparison second_log_data: ", second_log_data);
+										console.log("dashboard debug:  comparison second_thing_id: ", second_thing_id);
+										console.log("dashboard debug:  comparison second_property_id: ", second_property_id);
+									
+										console.log("dashboard debug:  comparison_highest: ", comparison_highest);
+										console.log("dashboard debug:  comparison_lowest: ", comparison_lowest);
+										
+										console.log("dashboard debug:  first_log_name: ", first_log_name);
+										console.log("dashboard debug:  second_log_name: ", second_log_name);
+									}
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									//console.log("pruned_log_data: ", pruned_log_data);
+									
+									//
+									//  PRUNING SECOND LOG
+									//
+									
+									//If there is a second log being compared, then adjust it's datapoints until it's within the same time range
+									
+									let oldest = d3.min(log_data, d => d.d);
+									if(pruned_log_data.length){
+										oldest = pruned_log_data[0]['d'];
+									}
+									precisions['minute'] = oldest;
+									let oldest_timestamp = oldest.getTime();
+									// over-ride the oldest time if the log we're comparing with is older
+									if(comparison){ //  && comparison_highest != null && comparison_lowest != null
+										//console.log("log comparison: need to prune points on second log that are older");
+										
+										let second_oldest = d3.min(second_log_data, d => d.d);
+										if(second_oldest.getTime() < oldest_timestamp){
+											//console.log("log comparison: need to prune points on second log that are older");
+											
+											let amount_of_data_points_to_delete_from_start = 0;
+											for(let sil = 0; sil < second_log_data.length; sil++){
+												if(typeof second_log_data[sil] == 'undefined'){
+													console.warn("log comparison: pruning older data points from second log resulted in out of bounds. sil:", sil);
+													break
+												}
+												if(second_log_data[sil]['d'].getTime() >= oldest_timestamp){
+													if(sil > 0){
+														amount_of_data_points_to_delete_from_start = sil; 
+													}
+													if(this.debug){
+														console.log("dashboard debug: log comparison: OK, spotted data point with date that is within range of the first log at index ", sil);
+													}
+													break
+												}
+											}
+											
+											if(this.debug){
+												console.log("dashboard debug: log comparison: amount_of_data_points_to_delete_from_start of second log (BLOCKED): ", amount_of_data_points_to_delete_from_start);
+											}
+											// TODO check if there are any points left in second_log_data after this. If not.. then.. maybe switch around which log gets to decide the X axis
+											/*
+											if(amount_of_data_points_to_delete_from_start > 0){
+												if(this.debug){
+													console.log("dashboard debug: log comparison: amount_of_data_points_to_delete_from_start of second log to make it match the time range of the first log: ", amount_of_data_points_to_delete_from_start);
+													console.log("dashboard debug: log comparison: second_log_data length before pruning: ", second_log_data.length);
+												}
+												second_log_data.splice(0, amount_of_data_points_to_delete_from_start);
+												if(this.debug){
+													console.log("dashboard debug: log comparison: second_log_data length after pruning: ", second_log_data.length);
+												}
+											}
+											*/
+										}
+										
+										// TODO: Recalculate the highiest and lowest values now that the dataset has been pruned? But only if they are now in a totally different ballpark from before
+										/*
+										
+										comparison_highest = Math.max(first_log_highest, second_log_highest);
+								
+										console.log("log comparison: lowest: ", first_log_lowest, second_log_lowest);
+										if(first_log_lowest > second_log_lowest * 10 || second_log_lowest > first_log_lowest * 10){
+											console.warn("log comparison: wildly different lowest values");
+										}
+										else{
+											comparison_lowest = Math.min(first_log_lowest, second_log_lowest);
+										}
+										*/
+										
+									}
+									
+									
+									
+									
+									
+									
 									/*
-									for(let ah = 25; ah >= 0; ah--){
-										alt_log_data[ah] = {"d":new Date(start_of_this_hour - (60000 * 60 * ah)),"v":null}
+									if(rect.width > 50 && second_log_data.length > 100){
+										if(this.debug){
+											console.log("dashboard debug: second_log_data.length before pruning: ", second_log_data.length);
+										}
+										while(second_log_data.length > Math.floor(rect.width / 4) ){
+											second_log_data.shift();
+										}
+										if(this.debug){
+											console.log("dashboard debug: second_log_data.length after pruning: ", log_data.length);
+										}
 									}
 									*/
 									
-									//hours_data[0]['start'] = start_of_this_hour;
-									//hours_data[0]['end'] = end_of_this_hour;
-									hours_data[0]['incomplete'] = true;
-									
-									//console.log("inital start_of_this_hour: ", start_of_this_hour);
-									//console.log("inital end_of_this_hour: ", end_of_this_hour);
 									
 									
 									
 									
 									
 									
-									let min_max_lines_would_be_nice = false; // would it even make sense to display the minimum and maximum values spotted during the hour?
-									for(let dp = log_data.length - 1; dp >= 0; dp--){
-										//console.log("dp: ", log_property_id, dp);
-										const this_date_stamp = log_data[dp]['d'].getTime();
-										const this_value = log_data[dp]['v'];
-										
-										/*
-										if(typeof next_date_stamp == 'number'){
-											console.log("this point is earlier: \n - sec: ", Math.round(next_date_stamp - this_date_stamp)/1000, "\n - min: ", Math.round(next_date_stamp - this_date_stamp)/60000);
-										}
-										*/
-										
-										// If could be that the first datapoint is in the previous hour, or even hours old
-										if(this_date_stamp < start_of_this_hour){
-											if(this.debug){
-												console.warn("\ndashboard debug: log averages:\n\n\nDONGGGGG\n\nShifting to an earlier hour for: ", log_property_id, "\n\n - hours_into_the_past: ", hours_into_the_past);
-											}
-											
-											
-											
-											//
-											// CALCULATE HOUR AVERAGES
-											//
-											
-											if(is_boolean_log == false){
-												
-												if(this.debug){
-													console.warn("\n\n\ndashboard debug: CALCULATING NUMERIC AVERAGES FOR THE HOUR THAT IS NOW COMPLETE: " + start_of_this_hour + " of " + log_property_id + "\n\n\n");
-													console.log("dashboard debug: values_to_average: ", hours_data[hours_into_the_past]['values_to_average'].length);
-												}
-												let nuanced_values = [];
-												
-												let total_score = 0; // millis * average of each two adjoining points, all added up
-												
-												// for completeness, remember what datapoint ended the hour loop. This will be useful to calculate averages later that take into account how the value was changing over time
-												hours_data[hours_into_the_past]['beyond_start_value'] = {'t':this_date_stamp, 'v':this_value};
-											
-												if(hours_data[hours_into_the_past]['values_to_average'].length){
-													
-													let raw_nuance = [];
-													let total_millis_accounted_for = 0;
-													let hypothetical_value_at_end_of_hour = null;
-													let hypothetical_value_at_start_of_hour = null;
-													
-													// calculate the slope between the most futuristic datapoint inside the hour, and a futuristic datapoint outside of the that hour;
-													if(hours_data[hours_into_the_past]['beyond_end_value'] != null){
-														
-														let newest_point_inside_the_hour = hours_data[hours_into_the_past]['values_to_average'][0]; // hours_data[hours_into_the_past]['values_to_average'].length  - 1
-														
-														const millis_in_this_hour = hours_data[hours_into_the_past]['end'] - newest_point_inside_the_hour['t'];
-														//console.log("beyond_end millis_in_this_hour, as sec: ", millis_in_this_hour / 1000);
-														//console.log("millis outside of the hour, as sec: ", (hours_data[hours_into_the_past]['beyond_end_value']['t'] - hours_data[hours_into_the_past]['end'])/1000  );
-														total_millis_accounted_for += millis_in_this_hour;
-														let ratio_inside_this_hour = millis_in_this_hour / (hours_data[hours_into_the_past]['beyond_end_value']['t'] - newest_point_inside_the_hour['t']);
-														//console.log("ratio_inside_this_hour: ", ratio_inside_this_hour);
-														
-														
-														//console.log("value of point outside of the hour: ", hours_data[hours_into_the_past]['beyond_end_value']['v']);
-														//console.log("value of newest_point_inside_the_hour['v']: ", newest_point_inside_the_hour['v']);
-														let value_delta = Math.abs(newest_point_inside_the_hour['v'] - hours_data[hours_into_the_past]['beyond_end_value']['v']);
-														//console.log("value_delta: ", value_delta);
-														
-														value_delta = value_delta * ratio_inside_this_hour;
-														//console.log("value_delta after applying ratio: ", value_delta);
-														
-														if(hours_data[hours_into_the_past]['beyond_end_value']['v'] > newest_point_inside_the_hour['v']){
-															hypothetical_value_at_end_of_hour = newest_point_inside_the_hour['v'] + value_delta;
-														}
-														else{
-															hypothetical_value_at_end_of_hour = newest_point_inside_the_hour['v'] - value_delta;
-														}
-														
-														//console.log("hypothetical_value_at_end_of_hour: ", hypothetical_value_at_end_of_hour);
-														//raw_nuance.push({'m':millis_in_this_hour,'v':((hypothetical_value_at_end_of_hour + newest_point_inside_the_hour['v']) / 2 )});
-														//nuanced_values.push( ((hypothetical_value_at_end_of_hour + newest_point_inside_the_hour['v']) / 2 ) * millis_in_this_hour);
-														const beyond_end_score = ((hypothetical_value_at_end_of_hour + newest_point_inside_the_hour['v']) / 2 ) * (millis_in_this_hour / 1000);
-														//console.log("adding beyond_end_score: ", beyond_end_score);
-														total_score += beyond_end_score
-														//console.log("total_score for this hour is now: ", total_score);
-														
-														delete hours_data[hours_into_the_past]['beyond_end_value'];
-													}
-													
-													
-													
-													
-													// Add the 'normal' consecutive points that were all within the hour
-													
-													let dumb_total = hours_data[hours_into_the_past]['values_to_average'][0]['v']; // as a test, also just take all the recorded values and average them. Shouldn't be too far off from the 'nuanced' calculation
-													
-													for(let vt = 1; vt < hours_data[hours_into_the_past]['values_to_average'].length; vt++){
-														dumb_total += hours_data[hours_into_the_past]['values_to_average'][vt]['v'];
-														
-														// Calculate the average for two consecutive datapoints
-														const average_value = (hours_data[hours_into_the_past]['values_to_average'][vt - 1]['v'] + hours_data[hours_into_the_past]['values_to_average'][vt]['v']) / 2;
-														
-														// Then multiply this average with the time delta between those two points
-														//console.log("average_value: ", hours_data[hours_into_the_past]['values_to_average'][vt - 1]['v'], hours_data[hours_into_the_past]['values_to_average'][vt]['v'], " -> ", average_value);
-														const duration = hours_data[hours_into_the_past]['values_to_average'][vt - 1]['t'] - hours_data[hours_into_the_past]['values_to_average'][vt]['t'];
-														//console.log("normal duration, in seconds: ", duration/1000);
-														//raw_nuance.push({'m':duration,'v':average_value});
-														total_millis_accounted_for += duration;
-														
-														const normal_point_score = (duration/1000) * average_value;
-														//console.log("+ average_value, duration (in seconds), and normal_point_score: ", average_value, (duration/1000) + "s", " -> ", normal_point_score);
-														total_score += normal_point_score;
-														//nuanced_values.push( average_value * duration );
-													}
-													
-													
-													
-													
-													
-													
-													// calculate the slope between the most futuristic datapoint inside the hour, and a futuristic datapoint outside of the that hour;
-													if(hours_data[hours_into_the_past]['beyond_start_value'] != null){
-														
-														let oldest_point_inside_the_hour = hours_data[hours_into_the_past]['values_to_average'][ hours_data[hours_into_the_past]['values_to_average'].length  - 1 ];
-														const start_millis_in_this_hour = (oldest_point_inside_the_hour['t'] - hours_data[hours_into_the_past]['start']);
-														//console.log("beyond_start start_millis_in_this_hour, in seconds: ", start_millis_in_this_hour / 1000);
-														total_millis_accounted_for += start_millis_in_this_hour;
-														let start_ratio_inside_this_hour = start_millis_in_this_hour / (oldest_point_inside_the_hour['t'] - hours_data[hours_into_the_past]['beyond_start_value']['t']);
-														//console.log("beyond start start_ratio_inside_this_hour: ", start_ratio_inside_this_hour);
-														//console.log("beyond start point outside of the hour: ", hours_data[hours_into_the_past]['beyond_start_value']['v']);
-														//console.log("beyond start oldest_point_inside_the_hour['v']: ", oldest_point_inside_the_hour['v']);
-														let start_value_delta = Math.abs(oldest_point_inside_the_hour['v'] - hours_data[hours_into_the_past]['beyond_start_value']['v']);
-														//console.log("beyond start start_value_delta: ", start_value_delta);
-														
-														start_value_delta = start_value_delta * start_ratio_inside_this_hour;
-														//console.log("beyond start start_value_delta after applying ratio: ", start_value_delta);
-														
-														if(hours_data[hours_into_the_past]['beyond_start_value']['v'] > oldest_point_inside_the_hour['v']){
-															hypothetical_value_at_start_of_hour = oldest_point_inside_the_hour['v'] + start_value_delta;
-														}
-														else{
-															hypothetical_value_at_start_of_hour = oldest_point_inside_the_hour['v'] - start_value_delta;
-														}
-														
-														//console.log("hypothetical_value_at_start_of_hour: ", hypothetical_value_at_start_of_hour);
-														//raw_nuance.push({'m':start_millis_in_this_hour,'v':((hypothetical_value_at_start_of_hour + oldest_point_inside_the_hour['v']) / 2 )});
-														//nuanced_values.push( ((hypothetical_value_at_start_of_hour + oldest_point_inside_the_hour['v']) / 2 ) * start_millis_in_this_hour);
-														
-														const beyond_start_score = ((hypothetical_value_at_start_of_hour + oldest_point_inside_the_hour['v']) / 2 ) * (start_millis_in_this_hour / 1000);
-														//console.log("adding beyond_startscore, in seconds: ", beyond_start_score / 1000);
-														
-														total_score += beyond_start_score;
-														delete hours_data[hours_into_the_past]['beyond_start_value'];
-													}
-													
-													delete hours_data[hours_into_the_past]['values_to_average'];
-													
-													//console.log("SANITY CHECK: total minutes accounted for this hour: ", Math.round(total_millis_accounted_for / 60000));
-													
-													const final_average = Math.round((total_score / (total_millis_accounted_for / 1000)) * 1000) / 1000;
-													if(this.debug){
-														console.warn("\n\n\ndashboard debug: log: hour's final_average: ", hours_into_the_past, " -> ", final_average, "\n\n\n");
-													}
-													hours_data[hours_into_the_past]['average'] = final_average;
-													
-													if(typeof alt_log_data[ ((alt_log_data.length - 1) - hours_into_the_past) ] == 'undefined'){
-														console.error("dashboard debug:  log: missing index in alt_log_data: ", (alt_log_data.length - hours_into_the_past));
-													}
-													else{
-														alt_log_data[ ( (alt_log_data.length - 1) - hours_into_the_past) ]['v'] = final_average;
-													}
-													
-													
-												}
-											
-											} // end of numeric log averaging process that happens when we switch to (an) hour(s) further into the past
-											
-											
-											
-											
-											
-											let old_hours_into_the_past = hours_into_the_past;
-											if(this.debug){
-												console.log("dashboard debug: ==> old hours_into_the_past is now: ", old_hours_into_the_past);
-											}
-											
-											
-											// calculate how many hours into the past we've traveled now
-											//hours_into_the_past += Math.floor((start_of_this_hour - this_date_stamp) / (60 * 60 * 1000));
-											
-											hours_into_the_past = Math.floor( ((hours_data[0]['end']) - this_date_stamp) / (60 * 60 * 1000));
-											if(this.debug){
-												console.log("dashboard debug: ==> new hours_into_the_past: ", hours_into_the_past, "HOUR JUMP: ", hours_into_the_past - old_hours_into_the_past);
-											}
-											
-											//console.warn("... hours_into_the_past is now: " + hours_into_the_past);
-											
-											if(hours_into_the_past == old_hours_into_the_past){
-												console.error("dashboard debug: log averages: hours in the past did not increase!");
-												hours_into_the_past++;
-											}
-											
-											// and set the boundaries for this hour
-											start_of_this_hour = this_date_stamp - (this_date_stamp % (60 * 60 * 1000));
-											end_of_this_hour = start_of_this_hour + (60 * 60 * 1000);
-											//console.log("start_of_this_hour is now: ", start_of_this_hour);
-											
-											hours_data[hours_into_the_past]['start'] = start_of_this_hour;
-											hours_data[hours_into_the_past]['end'] = end_of_this_hour;
-											
-											// Similar to the beyond_start_value, we keep track of the value outside of the hour that will be useful later to calculate averages
-											if(is_boolean_log == false && next_date_stamp != null && next_value != null){
-												//console.log("adding beyond_end_value into the numeric hour that is now complete");
-												hours_data[hours_into_the_past]['beyond_end_value'] = {'t':next_date_stamp, 'v':next_value};
-											}
-											
-											if(this.debug){
-												console.log("dashboard debug: min_max_lines_would_be_nice: ", min_max_lines_would_be_nice);
-												//console.error("hours_data: ", hours_data);
-											}
-											
-										} // end of calculating hour average
-										
-										
-										// If it's a boolean log, we're interested in how much of the hour it was 'on'.
-										// So we remembered the last time it was switched off in future_boolean_off_date_stamp
-										
-										if(is_boolean_log){
-											if(this_value === 1){
-												
-												if(dp == log_data.length - 1){
-													// the very first datapoint we handle is one in which the switch was enabled. We can assume it has been on since that time, until now.
-													if(this.debug){
-														console.log("The first boolean datapoint was 'ON'.");
-													}
-													
-													/*
-													if(this_date_stamp > start_of_this_hour){
-														hours_data[hours_into_the_past]['above_zero'] += (now_timestamp - this_date_stamp);
-													}
-													*/
-													
-													
-													// Pretend that the device was switched off right now
-													
-													future_boolean_off_date_stamp = now_timestamp;
-													last_boolean_off_hour = 0;
-													future_boolean_off_hour_start = start_of_this_hour;
-													
-												}
-												
-												if(future_boolean_off_date_stamp != null && last_boolean_off_hour != null){
-													// We've spotted an OFF datapoint before, and this timestamp is for an event further in the past where the switch was enabled. Time to do some calculations.
-													
-													if(this_date_stamp > start_of_this_hour && this_date_stamp < end_of_this_hour){
-														
-														// Does the other moment reach over the hour boundary? If so, that complicates calculations a bit.
-														if(future_boolean_off_date_stamp > end_of_this_hour){
-															//console.log("the device was switched on in this hour: ", hours_into_the_past, ", and was switched of in the future, so at less hours into the past.. last_boolean_off_hour: ", last_boolean_off_hour);
-															// There are three sections to update. The first is the bit in this hour (where it was switched on) until the end of this hour. The second part is the partial bit of the hour during which it was switched off again (which lies in the future).
-															// And thirdly, optionally, there may be an hour or more in between those two partial hours during which the switch was on too.
-													
-															// update the duration that the switch was on in this hour
-															hours_data[hours_into_the_past]['above_zero'] += (end_of_this_hour - this_date_stamp);
-													
-															// update the duration that the switch was on during the hour in which it was switched off
-															//hours_data[last_boolean_off_hour]['above_zero'] += (end_of_this_hour - this_date_stamp);
-															if(last_boolean_off_hour != hours_into_the_past && future_boolean_off_date_stamp != null){
-																hours_data[last_boolean_off_hour]['above_zero'] += (future_boolean_off_date_stamp - future_boolean_off_hour_start);
-															}
-														
-														
-														
-															if(hours_into_the_past > last_boolean_off_hour + 1){
-																//console.log("Also have to fill in lots of hours in between:  from hours_into_the_past: ", hours_into_the_past, ", till last_boolean_off_hour: ", last_boolean_off_hour, ", so this many hours: ", last_boolean_off_hour - hours_into_the_past);
-																// Loop over all the hours in the future, up to the one in which it was switched off, and set the 'on' duration to the entire hour.
-																for(let nh = last_boolean_off_hour + 1; nh < hours_into_the_past; nh++){
-																	hours_data[nh]['above_zero'] = 60 * 60 * 1000; // it must have been on for the full hour
-																	//console.log("this hour has been set to the full 60 minutes: ", nh);
-																}
-															}
-														
-													
-														}
-														else{
-														
-															
-														
-														
-															// nice and simple..?
-															
-															const time_delta_with_the_hour = future_boolean_off_date_stamp - this_date_stamp;
-															
-															if(this.debug){
-																console.warn("the device was switched on in this hour: ", hours_into_the_past, ", and was switched of in the same hour. So last_boolean_off_hour should be the same: ", last_boolean_off_hour);
-																console.log("switch was briefly on within the hour. So minutes on (from time_delta_with_the_hour) should be less than 60): ", Math.round(time_delta_with_the_hour/60000));
-															}
-															
-															if(hours_data[hours_into_the_past]['above_zero'] > (60 * 60 * 1000)){
-																console.error("dashboard: the accumulated boolean ON time has already exceeded 60 minutes! ", hours_data[hours_into_the_past]['above_zero'] / 60000);
-															}
-												
-															hours_data[hours_into_the_past]['above_zero'] += time_delta_with_the_hour;
-											
-															if(hours_data[hours_into_the_past]['above_zero'] > (60 * 60 * 1000)){
-																console.error("dashboard: after adding the latest boolean delta, the accumulated ON time has now exceeded 60 minutes! ", hours_data[hours_into_the_past]['above_zero'] / 60000);
-															}
-														
-														
-															/*
-															let timestamp_of_next_point_or_hour_limit = next_date_stamp;
-															if(next_date_stamp >= end_of_this_hour){
-																timestamp_of_next_point_or_hour_limit = end_of_this_hour;
-															}
-															above_zero += (timestamp_of_next_point_or_hour_limit - this_data_stamp);
-															*/
-														
-														}
-													}
-													else{
-														//console.warn("dashboard: the boolean datapoint we're looking at is not for this hour!");
-													}
-													
-													// reset
-													future_boolean_off_date_stamp = null;
-													last_boolean_off_hour = null;
-													future_boolean_off_hour_start = null;
-												}
-												else{
-													if(this.debug){
-														console.warn("dashboard: boolean log averaging: spotted a datapoint in which the device on turned ON, but there is no remembered datapoint that indicates when in the future it was turned off!");
-													}
-												}
-												
-											}
-											else if(future_boolean_off_date_stamp == null){
-												if(this.debug){
-													console.log("dashboard debug: log averages: remembering when the device was switched off. remembering this_date_stamp and hours_into_the_past: ", this_date_stamp, hours_into_the_past);
-												}
-												future_boolean_off_date_stamp = this_date_stamp;
-												last_boolean_off_hour = hours_into_the_past;
-												future_boolean_off_hour_start = start_of_this_hour;
-											}
-											else{
-												if(this.debug){
-													console.warn("dashboard debug: oddly, there are two datapoints in a row that indicate the device was OFF");
-												}
-												
-											}
-											
-											//console.log("BOOLEAN hours_data: ", hours_data);
-											
+									 
+									
+									// SHOULD THE Y AXIS START AT ZERO?
+									
+									let log_should_start_at_zero = false;
+									
+									let minimum_y_value = d3.min(log_data, d => d.v);
+									let maximum_y_value = d3.max(log_data, d => d.v);
+									
+									if(comparison_highest != null && comparison_lowest != null){
+										if(comparison_lowest > 1 && comparison_lowest - comparison_highest < -1){
+											log_should_start_at_zero = true;
+											minimum_y_value = 0;
 										}
 										else{
-											// Update spotted minimum and/or maximum value for this hour
-											//console.log("INSIDE HOUR? ", start_of_this_hour, this_date_stamp, end_of_this_hour);
-											if(this_date_stamp >= start_of_this_hour && this_date_stamp < end_of_this_hour){
-											
-												if(hours_data[hours_into_the_past]['minimum'] == null){
-													hours_data[hours_into_the_past]['minimum'] = this_value
-												}
-												else if(this_value < hours_data[hours_into_the_past]['minimum']){
-													//console.log("spotted lower minimum: ")
-													hours_data[hours_into_the_past]['minimum'] = this_value;
-												}
-									
-												if(hours_data[hours_into_the_past]['maximum'] == null){
-													hours_data[hours_into_the_past]['maximum'] = this_value;
-												}
-												else if(this_value > hours_data[hours_into_the_past]['maximum']){
-													hours_data[hours_into_the_past]['maximum'] = this_value;
-												}
-											
-												hours_data[hours_into_the_past]['values_to_average'].push({"t":this_date_stamp, "v":this_value});
-											
+											if(comparison_lowest < minimum_y_value){
+												minimum_y_value = comparison_lowest;
 											}
-											else{
-												//console.error("dashboard: log averages: this numeric datapoint is somehow not within the hour we're looking at");
+											if(comparison_highest > maximum_y_value){
+												maximum_y_value = comparison_highest;
 											}
 										}
-										
-										
-											
-										
-										
-										
-										if(is_boolean_log == false && min_max_lines_would_be_nice == false && hours_data[hours_into_the_past]['minimum'] != null && hours_data[hours_into_the_past]['maximum'] != null){
-											if(hours_data[hours_into_the_past]['minimum'] != hours_data[hours_into_the_past]['maximum']){
-												if(hours_data[hours_into_the_past]['minimum'] > hours_data[hours_into_the_past]['maximum']){
-													console.error("dashboard: somehow maximum value spotted this hour was smaller than the minimum value spotted: ", hours_data[hours_into_the_past]['minimum'], hours_data[hours_into_the_past]['maximum']);
-												}
-												else{
-													//console.log("spotted a different minimum and maximum value this hour, so min-max lines would be nice.  hour,min,max: ", hours_into_the_past, hours_data[hours_into_the_past]['minimum'], hours_data[hours_into_the_past]['maximum'])
-													min_max_lines_would_be_nice = true;
-												}
-												
-											}
-										}
-										
-										
-										next_value = this_value;
-										next_date_stamp = this_date_stamp;
-										
-										/*
-										if(is_boolean_log && value == 0){
-											future_boolean_off_date_stamp = next_date_stamp; // remember the last seen timestamp at which point the boolean was false
-											last_boolean_off_hour = hours_into_the_past; // and remember in which hour that took place.
-										}
-										*/
-										
-									} // END OF LOOPING OVER DATA POINTS TO CALCULATE AVERAGES
-									
-									
-									
-									
-									
-									
-									
-									if(is_boolean_log){
-										for (let [hour_id, details] of Object.entries(hours_data)) {
-											if(typeof details['above_zero'] == 'number'){
-												alt_log_data[ 24 - parseInt(hour_id) ]['v'] = Math.round(details['above_zero'] / 60000);
-											}
-										}
-										//console.error("\n\n\nboolean alt_log_data: ", log_thing_id, log_property_id, "\n", JSON.stringify(alt_log_data,null,2));
 									}
-									else{
-										//console.error("\n\n\nnumeric alt_log_data: ", log_thing_id, log_property_id, alt_log_data);
+									else if(minimum_y_value > 1 && minimum_y_value - maximum_y_value < -1){
+										log_should_start_at_zero = true;
+										minimum_y_value = 0;
+									}
+									if(this.debug){
+										console.log("dashboard debug; log_should_start_at_zero: ", log_should_start_at_zero);
 									}
 									
 									
 									
-										
-										
-									
-										
-									//} // End of log_viz_hourly
 									
 									
-									// PRUNING.. well trimming really. Removing older datapoints so that what remains will be rendered nicely in the available horizontal pixels
 									
-									if(rect.width > 50 && log_data.length > 100){
-										if(this.debug){
-											console.log("dashboard debug: log_data.length before pruning: ", log_data.length);
-										}
-										while(log_data.length > Math.floor(rect.width / 4) ){
-											log_data.shift();
-										}
-										if(this.debug){
-											console.log("dashboard debug: log_data.length after pruning: ", log_data.length);
-										}
-									}
-									
-						
-						
-									// For a boolean log, we add extra datapoints to create a square-wave shape
-									if(is_boolean_log){
-										let new_log_data = [];
-										let previous_value = null;
-										let previous_date = null;
-										
-										if(this.debug){
-											console.log("dashboard debug: log_data.length before adding boolean sawtooth datapoints: ", log_data.length);
-										}
-										
-										for(let dp = 0; dp < log_data.length; dp++){
-											
-											if(previous_value == null){
-												previous_value = log_data[dp]['v'];
-												previous_date = log_data[dp]['d'];
-												//console.log("typeof log_data[dp]['d']: ", typeof log_data[dp]['d'], log_data[dp]['d']);
-											}
-											else if( log_data[dp]['v'] != previous_value){
-												previous_value = log_data[dp]['v'];
-												previous_date = log_data[dp]['d'];
-												if(log_data[dp]['d'].getTime() - 1 > previous_date.getTime()){
-													new_log_data.push({'v':!log_data[dp]['v'],"d":log_data[dp]['d'].setDate(log_data[dp]['d'].getSeconds() - 1)});
-													//console.log("moved extra boolean datapoint a little to the past");
-												}
-												else{
-													new_log_data.push({'v':!log_data[dp]['v'],"d":log_data[dp]['d']});
-												}
-												//console.log("adjusted log_data[dp]['d']: ", typeof log_data[dp]['d'], log_data[dp]['d']);
-												
-											}
-											new_log_data.push(log_data[dp]);
-										}
-										log_data = new_log_data;
-										
-										if(this.debug){
-											console.log("dashboard debug: log_data.length after adding boolean sawtooth datapoints: ", log_data.length);
-										}
-										
-									}
-									
-						
-					
-					
-					
 									log_viz_el.innerHTML = '';
 					
-					
+											
+											
+											
+											
+									//
+									//  DRAW SVG
+									//
+											
+											
+									let margin = {top: 10, right: 10, bottom: 30, left: 30};
+								    /*
+								    width = +svg.attr("width") - margin.left - margin.right,
+								    height = +svg.attr("height") - margin.top - margin.bottom,
+								    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+									*/
 									
+									//const highest_value_as_text = '' + highest;
+									if(highest > 999 || lowest < -99){ // negative values need more space for the leading minus character
+										margin.left = 50;
+									}
+									else if(highest <= 1 && lowest >= 0){ // values between 0 and 1 need more space for the leading zero and comma
+										margin.left = 30;
+									}
+									else if(highest > 99 || lowest < -9){ 
+										margin.left = 30;
+									}
+									//console.log("highest value, adjusted margin.left: ", highest, margin.left);
 					
-									// -1*(svg_padding/2)
+					
+									if(second_highest > 999 || second_lowest < -99){
+										margin.right = 50;
+									}
+									else if(second_highest <= 1 && second_lowest >= 0){
+										//margin.right = 30;
+									}
+									else if(second_highest > 99 || second_lowest < -9){
+										margin.right = 30;
+									}
+									//console.log("second highest value, adjusted margin.right: ", second_highest, margin.right);
+					
+									// Technically values between -1 and 0 could need a but more space too, but it seems a very rare case
+									
 									const svg = d3.create("svg")
 								    	.attr("title", "Dataviz")
 								    	.attr("version", 1.1)
 								    	.attr("xmlns", "http://www.w3.org/2000/svg")
-										.attr("width", rect.width + 10)
-										.attr("height", rect.height + 10)
-										.attr("viewBox", [-30, -10, rect.width, rect.height+20])  //  - (svg_height_padding/2)
+										.attr("width", rect.width)
+										.attr("height", rect.height)
+										.attr("viewBox", [0, 0, rect.width, rect.height])
 										//.attr("style", "max-width: 100%; height: auto;");
 					
 									log_viz_el.appendChild(svg.node());
 					
-									
-									// the data has been trimmed to better be able to fit the amount of available pixels
-									const oldest = d3.min(log_data, d => d.d);
+					
+					
 									const newest = Date.now(); //d3.max(log_data, d => d.d); // with the old method the time delta between the first and last data point is interesting, but it's not useful for saying "showing data from X minutes ago", since the timespan for which data is availble may be far in the past
 									const delta_millis = newest - oldest;
 						
@@ -6746,6 +7467,7 @@
 										//console.log("creating log description element");
 										let time_delta_description_el = document.createElement('div');
 										time_delta_description_el.classList.add('extension-dashboard-widget-log-time-description');
+										time_delta_description_el.classList.add('extension-dashboard-widget-log-time-minute-description');
 										let time_delta_description = '';
 							
 										let leftover_millis = delta_millis_until_now % (60000*60);
@@ -6773,17 +7495,24 @@
 							
 									}
 						
-									const xScale = d3.scaleUtc()
-										.domain([oldest, newest])
-		    							.range([10, rect.width - 20])
-					
-
-									const minimum_y_value = d3.min(log_data, d => d.v);
-									const maximum_y_value = d3.max(log_data, d => d.v)
-									const yScale = d3.scaleLinear()
-										.domain([minimum_y_value, maximum_y_value])
-										.range([rect.height - 20, 10])
-										
+									
+									if(comparison_requires_second_y_axis){
+										margin['right'] += 40;
+									}
+									if(first_log_name){
+										margin['left'] += 30;
+									}
+									if(second_log_name){
+										margin['right'] += 20;
+									}
+									
+									
+									
+									let second_yScale = null;
+									//let second_xScale = null;
+									let second_y_axis = null;
+									let second_line = null;
+									let second_path = null;
 									//console.log("D3 minimum_y_value: ", minimum_y_value);
 						
 									//console.log("yScale of minimum_y_value (should be 0): ", yScale(minimum_y_value));
@@ -6796,23 +7525,93 @@
 									}
 									*/
 									
+									// there is a second log to compare with, but it's values are not in the same ballpark as the first log, then we'll need to create a second Y axis on the right
+									if(comparison_requires_second_y_axis){
+										if(this.debug){
+											console.log("dashboard debug: log comparison requires a second Y scale");
+										}
+										
+										second_yScale = d3.scaleLinear()
+										.domain([d3.min(second_log_data, d => d.v), d3.max(second_log_data, d => d.v)])
+										.range([rect.height - margin.bottom, margin.top])
+										
+										second_y_axis = svg.append("g")
+										.attr("transform", "translate(" + (rect.width - margin.right) + ",0)")
+										.attr("class", "extension-dashboard-second-y-axis")
+										.call(d3.axisRight(second_yScale));
+										
+										// Add labels too
+										if(first_log_name){
+											
+											svg.append("text")
+										    .attr("class", "extension-dashboard-y-axis-label")
+										    .attr("text-anchor", "end")
+										    .attr("y", 0)
+										    //.attr("dy", ".75em")
+										    .attr("transform", "translate(0," + margin.top + "), rotate(-90)")
+										    .text(first_log_name);
+										}
+										
+										if(second_log_name){
+											
+											svg.append("text")
+										    .attr("class", "extension-dashboard-y-axis-label extension-dashboard-second-y-axis-label")
+										    .attr("text-anchor", "end")
+										    .attr("y", rect.width)
+										    //.attr("dy", ".75em")
+										    .attr("transform", "translate(0," + margin.top + "), rotate(-90)")
+										    .text(second_log_name);
+										}
+				
+									}
+									
+									
+									
+									
+									
+									
+									// X axis
+						
+									const xScale = d3.scaleUtc()
+										.domain([oldest, newest])
+		    							.range([margin.left, rect.width - margin.right])
+										//.padding(0.2);
+									
+									/*
+								  	var x = d3.scaleBand()
+								    	.range([ margin.left, rect.width - margin.right ])
+								    	.domain(log_data.map(function(d) { return d.d; })) // console.log("setting bar X tick to: ", d.d); 
+								    	.padding(0.2);
+									*/
+									
+										
+										
+									
+									
+									// Y axis
+									
+									const yScale = d3.scaleLinear()
+										.domain([minimum_y_value, maximum_y_value])
+										.range([rect.height - margin.bottom, margin.top])
+									
+									
 									let y_axis = null;
 									if(is_boolean_log){
 										y_axis = svg.append("g")
-										.attr("transform", `translate(10,0)`)
+										.attr("transform", "translate(" + margin.left + ",0)")
 										.call(d3.axisLeft(yScale).tickValues([0,1]).tickFormat((d, i) => ['OFF', 'ON'][i]))   // .attr("test", "test")
 						
 									}
 									else if(tallness_hint_el == null){
 										y_axis = svg.append("g")
-										.attr("transform", `translate(10,0)`)
-										.call(d3.axisLeft(yScale).ticks(6)) 
+										.attr("transform", "translate(" + margin.left + ",0)")
+										.call(d3.axisLeft(yScale).ticks(6));
 										 
 									}
 									else{
 										y_axis = svg.append("g")
-										.attr("transform", `translate(10,0)`)
-										.call(d3.axisLeft(yScale))  
+										.attr("transform", "translate(" + margin.left + ",0)")
+										.call(d3.axisLeft(yScale));
 									}
 									
 									if(y_axis){
@@ -6825,13 +7624,9 @@
 										 	//else if(data[i].value == 0){ return "zero"}
 											return "extension-dashboard-y-tick"
 										});
-										
-										
-										
-										//.call(d3.axisLeft(yScale).ticks(6))  
-										
-										
 									}
+									
+									
 									
 									/*
 var ticks = d3.selectAll(".tick text");
@@ -6857,27 +7652,99 @@ ticks.attr("class", function(d,i){
 										.text("Price ($)");
 									*/
 						
+						
+									
+									
+									// ADD CLIP PATH
+									const clip_path_id = "extension-dashboard-widget-" + this.current_grid_id + "-" + widget_id + "-clip";
+									
+									svg.append("defs").append("clipPath")
+								    .attr("class", "extension-dashboard-widget-log-svg-clip")
+									.attr("id", clip_path_id)
+								    .append("rect")
+								    .attr("width", (rect.width - margin.left) - margin.right)
+								    .attr("height", (rect.height - margin.bottom) - margin.top)
+									.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+									
+						
+						
+									
+						
+						
+						
+									//
+									//  DRAW LINE
+									//
 
 									// Add the actual graph line
-									const line = d3.line()
+									let line = d3.line()
 										.x(d => xScale(d.d))
-										.y(d => yScale(d.v));
+										.y(d => yScale(d.v))
+										//.curve(d3.curveCatmullRom.alpha(0.5));
 
-
-									const path = svg.append('path')
+									let path = svg.append('path')
 							        	.datum(log_data)
 							        	.attr('fill', 'none')
 							        	.attr('stroke', 'currentColor')
 										.attr('class', 'extension-dashboard-widget-log-line')
+										.attr('style','clip-path: url("#' + clip_path_id +'"')
 							        	.attr('stroke-width', 1.5)
 							        	.attr('d', line);
 					
+
+
+
+									// COMPARISON: ADD SECOND LINE
+									
+									if(second_y_axis){
+										
+										second_y_axis
+										.selectAll(".tick")
+										//.attr("class", "vertical-tick")
+										.attr("class", function(d,i){
+											//console.log("HANDING TICK");
+										 	//if(data[i].value == 11){ return "eleven"}
+										 	//else if(data[i].value == 0){ return "zero"}
+											return "extension-dashboard-y-tick extension-dashboard-second-y-tick"
+										});
+										
+										// Add the second graph line
+										second_line = d3.line()
+										.x(d => xScale(d.d))
+										.y(d => second_yScale(d.v));
+
+
+										second_path = svg.append('path')
+							        	.datum(second_log_data)
+							        	.attr('fill', 'none')
+							        	.attr('stroke', 'red')
+										.attr('class', 'extension-dashboard-widget-second-log-line')
+										.attr('style','clip-path: url("#' + clip_path_id +'"')
+							        	//.attr('stroke-width', 1.5)
+							        	.attr('d', second_line);
+										
+									}
+									else if(comparison){
+										
+										const second_path = svg.append('path')
+							        	.datum(second_log_data)
+							        	.attr('fill', 'none')
+							        	.attr('stroke', 'red')
+										.attr('class', 'extension-dashboard-widget-second-log-line')
+							        	//.attr('stroke-width', 1.5)
+							        	.attr('d', line);
+										
+									}
+
+
+
 
 
 									let horizontal_tick_count = (wideness_hint_number * 2) + 1;
 									//console.log("wideness * 2 -> horizontal_tick_count: ", horizontal_tick_count);
 										
 									//var timeFormat = d3.timeFormat("%I:%M %p %a %Y");
+									let x_axis = null;
 									var timeFormat = null
 					
 									if(delta_millis > 67200000){ // 2 hours
@@ -6894,17 +7761,15 @@ ticks.attr("class", function(d,i){
 									}
 									if(timeFormat){
 										
-										
-										
-								    	let x_axis = svg.append("g")
-								        	.attr("transform", `translate(0,${rect.height - 20})`)
+								    	x_axis = svg.append("g")
+								        	.attr("transform", `translate(0,${rect.height - margin.bottom})`)
 								        	.call(d3.axisBottom(xScale).tickSizeOuter(0).ticks(horizontal_tick_count).tickPadding(5).tickFormat(timeFormat))
 										
 										if(x_axis){
 											x_axis
 											.selectAll(".tick")
 											.attr("class", function(d,i){
-												return "extension-dashboard-x-tick"
+												return "tick extension-dashboard-x-tick"
 											});
 										
 										
@@ -6924,37 +7789,47 @@ ticks.attr("class", function(d,i){
 						
 						
 									// TOOLTIP
-						
-									// Adds lots of vertical boxes which trigger a mouse-over state to show a tooltip
-									svg.append("g")
-									.attr("fill", "#fff")
-									.selectAll()
-									.data(log_data)
-									.join("rect")
-							        .attr("x", (d) => xScale(d.d))
-							        .attr("y", (d) => yScale(d.v))
-									.attr("transform", `translate(0,0)`)
-									.attr("class", "extension-dashboard-log-tooltip-data")
-							        .attr("height", (d) => {
-										/*
-										if(log_thing_id.endsWith("24")){
-											console.log("log_id: ", log_id, log_thing_id, log_property_id);
-											console.log("adding vertical tooltip lines.  yScale(0), yScale(d.v): ", yScale(0), yScale(d.v) );
-											console.log("height would return: ", yScale(0) - yScale(d.v));
-										}
-										*/
+									
+									let tooltip_container_g = null;
+									//console.log("pruned_log_data: ", pruned_log_data);
+									if(pruned_log_data.length){
+										// Adds lots of vertical boxes which trigger a mouse-over state to show a tooltip
+										tooltip_container_g = svg.append("g")
+										.attr("fill", "#fff")
+										.attr("class", "extension-dashboard-log-tooltip-data-container")
+										.selectAll()
+										.data(pruned_log_data)
+										.join("rect")
+								        .attr("x", (d) => xScale(d.d))
+								        .attr("y", (d) => yScale(d.v))
+										.attr("transform", "translate(0,0)")
+										.attr("class", "extension-dashboard-log-tooltip-data")
+								        .attr("height", (d) => {
+											/*
+											if(log_thing_id.endsWith("24")){
+												console.log("log_id: ", log_id, log_thing_id, log_property_id);
+												console.log("adding vertical tooltip lines.  yScale(0), yScale(d.v): ", yScale(0), yScale(d.v) );
+												console.log("height would return: ", yScale(0) - yScale(d.v));
+											}
+											*/
 										
-										//yScale(minimum_y_value)
+											//yScale(minimum_y_value)
 										
-										return yScale(minimum_y_value) - yScale(d.v)
+											return yScale(minimum_y_value) - yScale(d.v)
 										
-									})
-							        .attr("width", 3 ) // (last_ever_date - first_ever_date)
-									//.append("title")
-									//.text((d) => d.total);  // (d) => d.total   // function(d) { return d.total }
+										})
+								        .attr("width", 3 ) // (last_ever_date - first_ever_date)
+										//.append("title")
+										//.text((d) => d.total);  // (d) => d.total   // function(d) { return d.total }
 
-								    .on("mouseover", (d) => onMouseOver(d))                  
-								    .on("mouseout", onMouseOut)
+									    .on("mouseover", (d) => onMouseOver(d))                  
+									    .on("mouseout", onMouseOut)
+									}
+									else{
+										if(this.debug){
+											console.warn("dashboard debug: log: no pruned_log_data? ", pruned_log_data);
+										}
+									}
 						
 						
 									const tooltip = d3.select("#extension-dashboard-log-tooltip");
@@ -7028,7 +7903,9 @@ ticks.attr("class", function(d,i){
 								
 										}
 										catch(err){
-											console.error("dashboard: caught error in dataviz onMouseOver: ", err);x
+											if(this.debug){
+												console.error("dashboard debug: log: caught error in dataviz onMouseOver: ", err);
+											}
 										}
 
 									}
@@ -7085,12 +7962,12 @@ ticks.attr("class", function(d,i){
 											
 											.attr("width", rect.width)
 											.attr("height", rect.height)
-											//.attr("viewBox", [-30, -30, rect.width + 40, rect.height + 60])  //  - (svg_height_padding/2)
-											.attr("viewBox", [0, 0, rect.width, rect.height])  //  - (svg_height_padding/2)
+											//.attr("viewBox", [-30, -30, rect.width + 40, rect.height + 60]) 
+											.attr("viewBox", [0, 0, rect.width, rect.height])  
 											/*
 											.attr("width", rect.width + 10)
 											.attr("height", rect.height + 10)
-											.attr("viewBox", [-10, -10, rect.width, rect.height+20])  //  - (svg_height_padding/2)
+											.attr("viewBox", [-10, -10, rect.width, rect.height+20])
 											*/
 											
 											//.attr("style", "max-width: 100%; height: auto;");
@@ -7099,13 +7976,14 @@ ticks.attr("class", function(d,i){
 					
 									
 										
-										const highest = d3.max(log_data, d => d.v);
-										const lowest = d3.min(log_data, d => d.v);
+										//const highest = d3.max(log_data, d => d.v);
+										//const lowest = d3.min(log_data, d => d.v);
 										const oldest = d3.min(log_data, d => d.d);
 										
 									  	// X axis
 									  	var x = d3.scaleBand()
-									    .range([ 20, rect.width - 40 ])
+									    //.range([ margin.left, rect.width - 40 ])
+										.range([ margin.left, rect.width - margin.right ])
 									    .domain(log_data.map(function(d) { return d.d; })) // console.log("setting bar X tick to: ", d.d); 
 									    .padding(0.2);
 										
@@ -7131,11 +8009,11 @@ ticks.attr("class", function(d,i){
 										*/
 					
 	  								    let x_axis = svg.append("g")
-	  								        .attr("transform", `translate(30,${rect.height - 30})`)
+	  								        .attr("transform", "translate(0," + (rect.height - margin.bottom) + ")")
 	  								        .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%H")))   //  timeFormat   //  .tickSizeOuter(0).ticks(horizontal_tick_count).tickPadding(5).tickFormat(timeFormat)
 								    		.selectAll("text")
 								      		.attr("transform", "translate(0,0)rotate(-45)") // was -10,0
-											.attr("class", "extension-dashboard-x-tick")
+											.attr("class", "tick extension-dashboard-x-tick")
 								      		.style("text-anchor", "end");
 							    			/*
 											.selectAll(".tick text")
@@ -7150,12 +8028,14 @@ ticks.attr("class", function(d,i){
 	  										x_axis
 	  										.selectAll(".tick")
 	  										.attr("class", function(d,i){
-	  											return "extension-dashboard-x-tick";
+	  											return "tick extension-dashboard-x-tick";
 	  										});
 	  									}
 										
 										
-										let domain_max = highest;
+										// minimum_y_value, 
+										const domain_min = minimum_y_value;
+										let domain_max = maximum_y_value;
 										
 										if(is_boolean_log){
 											domain_max = 60; // minutes in the hour that the device was on
@@ -7163,14 +8043,14 @@ ticks.attr("class", function(d,i){
 
 									  	// Add Y axis
 									  	var y = d3.scaleLinear()
-									    .domain([0, domain_max])
-									    .range([ rect.height, 40]);
+									    .domain([domain_min, domain_max])
+									    .range([ rect.height - margin.bottom, margin.top]);
 									  
 									  	let y_axis = svg.append("g")
-										.attr("transform", `translate(50,-30)`)
+										.attr("transform", "translate(" + margin.left +  ",0)")
 									    .call(d3.axisLeft(y))
 								    	.selectAll(".tick")
-										.attr("class", "extension-dashboard-y-tick");
+										.attr("class", "tick extension-dashboard-y-tick");
 
 
 
@@ -7210,12 +8090,12 @@ ticks.attr("class", function(d,i){
 									    .data(log_data)
 									    .enter()
 									    .append("rect")
-										  .attr("transform", `translate(30,-30)`)
+										  //.attr("transform", "translate(0," + (0 - margin.bottom) + ")")
 									      .attr("x", function(d) { return x(d.d); })
 									      .attr("y", function(d) { return y(d.v); })
 											.attr("class", "extension-dashboard-widget-log-bar-bar")
 									      .attr("width", x.bandwidth())
-									      .attr("height", function(d) { return rect.height - y(d.v); })
+									      .attr("height", function(d) { return (rect.height - margin.bottom) - y(d.v); })
 									      .attr("fill", "#69b3a2")
 										
 										.on("mouseover", (d) => onBarMouseOver(d))                  
@@ -7246,7 +8126,7 @@ ticks.attr("class", function(d,i){
 										//const initial_alt_log_data_length = alt_log_data.length;
 									
 										const minimum_y_value_despite_potential_null_values = d3.min(alt_log_data, d => d.v);
-										console.log("minimum_y_value_despite_potential_null_values: ", typeof minimum_y_value_despite_potential_null_values, minimum_y_value_despite_potential_null_values);
+										//console.log("minimum_y_value_despite_potential_null_values: ", typeof minimum_y_value_despite_potential_null_values, minimum_y_value_despite_potential_null_values);
 									
 										//let spotted_valid_value = false;
 										//console.log("null trimmiing: initial_alt_log_data_length: ", initial_alt_log_data_length);
@@ -7283,10 +8163,10 @@ ticks.attr("class", function(d,i){
 											}
 										
 										}
-										console.log("initial_nulls_count: ", initial_nulls_count);
+										//console.log("initial_nulls_count: ", initial_nulls_count);
 										if(initial_nulls_count){
 											alt_log_data.splice(0,initial_nulls_count);
-											console.log("alt_log_data.length after pruning nulls from beginning: ", alt_log_data.length);
+											//console.log("alt_log_data.length after pruning nulls from beginning: ", alt_log_data.length);
 										}
 									
 									
@@ -7334,7 +8214,220 @@ ticks.attr("class", function(d,i){
 									
 						
 						
-					
+						
+						
+									let hourly_time_delta_description_el = document.createElement("div");
+									hourly_time_delta_description_el.classList.add('extension-dashboard-widget-log-time-description');
+									hourly_time_delta_description_el.classList.add('extension-dashboard-widget-log-time-hour-description');
+									hourly_time_delta_description_el.textContent = 'Hourly averages'; //'Averages over last ' + log_data.length + ' hours';
+									log_viz_el.appendChild(hourly_time_delta_description_el);
+						
+						
+						
+						
+						
+									//
+									//  PRECISION ANIMATION EXPERIMENT
+									//
+						
+						
+									const change_precision = (provided_precision=null,transition=true) => {
+										//console.log("in change_precision.  current_precision,provided_precision: ", current_precision, provided_precision);
+										
+										const tooltip_container_node = tooltip_container_g.node()
+										
+										//console.log("tooltip_container_node", tooltip_container_node, tooltip_container_node.classList);
+										
+										// for now, just switch between these two precisions
+										
+										if(typeof provided_precision == 'string'){
+											current_precision = provided_precision;
+										}
+										else if(current_precision == 'minute'){
+											current_precision = 'hour';
+										}
+										else{
+											current_precision = 'minute';
+										}
+										
+										
+										if(this.debug){
+											console.warn("dashboard debug: log: current_precision is now: ", current_precision);
+										}
+										
+										if(typeof widget_id == 'string'){
+											this.locally_saved_values[this.current_grid_id][widget_id]['viz']['precision'] = current_precision;
+										}
+										localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
+										
+										
+										// Change the scale of the axis
+										xScale.domain([precisions[current_precision],Date.now()]);
+										
+										log_datum['second']
+										
+										/*
+										let new_line = d3.line()
+										.x(d => xScale(d.d))
+										.y(d => yScale(d.v))
+										.curve(d3.curveCatmullRom.alpha(0.5));
+										*/
+										
+										// change data to hourly_log_data
+										if(current_precision == 'minute'){
+											timeFormat = d3.timeFormat("%H:%M"); // tick on minutes
+											
+											//console.log("minute log_data.length: ", log_data.length);
+											
+											if(transition){
+												path
+												.interrupt()
+												.datum(log_data)
+												.transition() //.delay(1001)
+												.duration(3000)
+												.attr('d', line);
+												
+												second_path
+												.interrupt()
+												.datum(second_log_data)
+												.transition() //.delay(1001)
+												.duration(3000)
+												.attr('d', second_line);
+									
+											}
+											else{
+												path
+												.interrupt()
+												.datum(log_data)
+												.attr('d', line);
+												
+												second_path
+												.interrupt()
+												.datum(second_log_data)
+												.attr('d', second_line);
+											}
+											
+											
+											horizontal_tick_count = (wideness_hint_number * 2) + 1;
+											
+											tooltip_container_g.attr('class','extension-dashboard-log-tooltip-data-container');
+											
+											log_viz_container_el.classList.add('extension-dashboard-log-precision-minute');
+											log_viz_container_el.classList.remove('extension-dashboard-log-precision-hour');
+											
+											
+											if(typeof widget_id == 'string'){
+												this.locally_saved_values[this.current_grid_id][widget_id]['viz']['precision'] = current_precision;
+											}
+											
+											/*
+											if(tooltip_container_node){
+												tooltip_container_node.classList.remove('extension-dashboard-hidden');
+											}
+											*/
+										}
+										else if(current_precision == 'hour'){
+											timeFormat = d3.timeFormat("%H"); // tick on whole hours
+											
+											//console.log("hourly log_data.length: ", hourly_log_data.length);
+											
+											if(transition){
+												path
+												.interrupt()
+												.datum(hourly_log_data)
+												.transition() //.delay(1001)
+												.duration(3000)
+												.attr('d', line);
+												
+												second_path
+												.interrupt()
+												.datum(second_hourly_log_data)
+												.transition() //.delay(1001)
+												.duration(3000)
+												.attr('d', second_line);
+											}
+											else{
+												path
+												.interrupt()
+												.datum(hourly_log_data)
+												.attr('d', line);
+												
+												second_path
+												.interrupt()
+												.datum(second_hourly_log_data)
+												.attr('d', second_line);
+											}
+											
+											horizontal_tick_count = hours_into_the_past;
+											
+											log_viz_container_el.classList.remove('extension-dashboard-log-precision-minute');
+											log_viz_container_el.classList.add('extension-dashboard-log-precision-hour');
+											
+											tooltip_container_g.attr('class','extension-dashboard-log-tooltip-data-container extension-dashboard-hidden');
+											
+											
+											/*
+											if(tooltip_container_node){
+												console.log("adding hidden to tooltip container")
+												tooltip_container_node.classList.add('extension-dashboard-hidden');
+											}
+											*/
+										}
+										
+										//console.log("horizontal_tick_count: ", horizontal_tick_count);
+										
+										// Update the X axis
+										if(transition){
+											x_axis
+											.interrupt()
+											.transition()
+											//.delay(1001)
+											.duration(3000)
+											.call(d3.axisBottom(xScale).tickSizeOuter(0).ticks(horizontal_tick_count).tickPadding(5).tickFormat(timeFormat)) // .attr('class','tick extension-dashboard-x-tick')
+										}
+										else{
+											x_axis
+											.interrupt()
+											.call(d3.axisBottom(xScale).tickSizeOuter(0).ticks(horizontal_tick_count).tickPadding(5).tickFormat(timeFormat))
+										}
+										
+								        //.attr("transform", `translate(0,${rect.height - margin.bottom})`)
+								        //.call(d3.axisBottom(xScale).tickSizeOuter(0).ticks(horizontal_tick_count).tickPadding(5).tickFormat(timeFormat))
+										
+										if(x_axis){
+											x_axis
+											.selectAll(".tick")
+											.attr("class", function(d,i){
+												return "tick extension-dashboard-x-tick"
+											});
+										}
+										
+										
+										
+									}
+						
+									/*
+									setTimeout(change_precision,5000);
+									setTimeout(change_precision,10000);
+									setTimeout(change_precision,15000);
+									setTimeout(change_precision,20000);
+									setTimeout(change_precision,25000);
+									*/
+									
+									
+									if(current_precision == 'hour'){
+										change_precision('hour',false); // no transition
+									}
+									
+									let precision_button_el = document.createElement('div');
+									precision_button_el.classList.add('extension-dashboard-widget-log-change-button');
+									precision_button_el.addEventListener('click', () => {
+										change_precision();
+									})
+									log_viz_el.prepend(precision_button_el);
+									
+									
+									
 								}
 				
 							}
