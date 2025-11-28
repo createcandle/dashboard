@@ -6118,7 +6118,11 @@
 										console.log("dashboard debug: log_data clone: ", log_data);
 									}
 									
-									
+									const highest = d3.max(log_data, d => d.v);
+									const lowest = d3.min(log_data, d => d.v);
+									let oldest = d3.min(log_data, d => d.d);
+									let minimum_y_value = d3.min(log_data, d => d.v);
+									let maximum_y_value = d3.max(log_data, d => d.v);
 									
 									// TODO should the log's Y axis start at zero? if the lowest value is relatively close to it?
 									
@@ -6977,6 +6981,7 @@
 												}
 												new_log_data.push(old_data[dp]);
 											}
+											console.log("make_square_wave_data: new_log_data: ", new_log_data);
 											return new_log_data;
 										}
 									
@@ -7084,8 +7089,7 @@
 									
 									//console.log("FIRST is_boolean_log, log_data, alt_log_data, hourly_log_data: ", is_boolean_log, log_data, alt_log_data, hourly_log_data);
 									
-									const highest = d3.max(log_datum['first']['log_data'], d => d.v);
-									const lowest = d3.min(log_datum['first']['log_data'], d => d.v);
+									
 									
 									
 									
@@ -7221,29 +7225,36 @@
 										log_datum['second'] = wrangle(second_log_data);
 										
 									}
+									if(typeof log_datum['first'] != 'undefined'){
+										console.log("log_datum['first']: ", log_datum['first']);
+									}
+									
+									if(typeof log_datum['first'] != 'undefined' && typeof log_datum['first']['log_data'] != 'undefined'){
+										log_data = log_datum['first']['log_data'];
+									}
 									
 									
-									
-									
-									log_data = log_datum['first']['log_data'];
 									let pruned_log_data = log_datum['first']['pruned_log_data'];
 									const is_boolean_log = log_datum['first']['is_boolean_log'];
 									let alt_log_data = log_datum['first']['alt_log_data'];
 									const hourly_log_data = log_datum['first']['hourly_log_data'];
 									const hours_into_the_past = log_datum['first']['hours_into_the_past'];
 									
+									let second_hourly_log_data = null;
+									if(typeof log_datum['second'] != 'undefined'){
+										second_log_data = log_datum['second']['log_data'];
+										second_hourly_log_data = log_datum['second']['hourly_log_data'];
+									}
 									
-									second_log_data = log_datum['second']['log_data'];
-									const second_hourly_log_data = log_datum['second']['hourly_log_data'];
 									
 									
 									
 									if(this.debug){
-										console.log("first and second hourly_log_data.length: ", hourly_log_data.length, second_hourly_log_data.length);
+										//console.log("first and second hourly_log_data.length: ", hourly_log_data.length, second_hourly_log_data.length);
 										
 										console.log("dashboard debug:  comparison: ", comparison);
-										console.warn("dashboard debug:  log_datum['first']: ", log_datum['first']);
-										console.warn("dashboard debug:  log_datum['second']: ", log_datum['second']);
+										//console.warn("dashboard debug:  log_datum['first']: ", log_datum['first']);
+										//console.warn("dashboard debug:  log_datum['second']: ", log_datum['second']);
 										console.log("dashboard debug:  comparison log_data: ", log_data);
 										console.log("dashboard debug:  comparison second_log_data: ", second_log_data);
 										console.log("dashboard debug:  comparison second_thing_id: ", second_thing_id);
@@ -7276,7 +7287,7 @@
 									
 									//If there is a second log being compared, then adjust it's datapoints until it's within the same time range
 									
-									let oldest = d3.min(log_data, d => d.d);
+									
 									if(pruned_log_data.length){
 										oldest = pruned_log_data[0]['d'];
 									}
@@ -7372,8 +7383,7 @@
 									
 									let log_should_start_at_zero = false;
 									
-									let minimum_y_value = d3.min(log_data, d => d.v);
-									let maximum_y_value = d3.max(log_data, d => d.v);
+									
 									
 									if(comparison_highest != null && comparison_lowest != null){
 										if(comparison_lowest > 1 && comparison_lowest - comparison_highest < -1){
@@ -8287,12 +8297,15 @@ ticks.attr("class", function(d,i){
 												.duration(3000)
 												.attr('d', line);
 												
-												second_path
-												.interrupt()
-												.datum(second_log_data)
-												.transition() //.delay(1001)
-												.duration(3000)
-												.attr('d', second_line);
+												if(second_log_data && second_path){
+													second_path
+													.interrupt()
+													.datum(second_log_data)
+													.transition() //.delay(1001)
+													.duration(3000)
+													.attr('d', second_line);
+												}
+												
 									
 											}
 											else{
@@ -8301,10 +8314,12 @@ ticks.attr("class", function(d,i){
 												.datum(log_data)
 												.attr('d', line);
 												
-												second_path
-												.interrupt()
-												.datum(second_log_data)
-												.attr('d', second_line);
+												if(second_log_data && second_path){
+													second_path
+													.interrupt()
+													.datum(second_log_data)
+													.attr('d', second_line);
+												}
 											}
 											
 											
@@ -8339,12 +8354,15 @@ ticks.attr("class", function(d,i){
 												.duration(3000)
 												.attr('d', line);
 												
-												second_path
-												.interrupt()
-												.datum(second_hourly_log_data)
-												.transition() //.delay(1001)
-												.duration(3000)
-												.attr('d', second_line);
+												if(second_hourly_log_data){
+													second_path
+													.interrupt()
+													.datum(second_hourly_log_data)
+													.transition() //.delay(1001)
+													.duration(3000)
+													.attr('d', second_line);
+												}
+												
 											}
 											else{
 												path
@@ -8352,10 +8370,12 @@ ticks.attr("class", function(d,i){
 												.datum(hourly_log_data)
 												.attr('d', line);
 												
-												second_path
-												.interrupt()
-												.datum(second_hourly_log_data)
-												.attr('d', second_line);
+												if(second_hourly_log_data){
+													second_path
+													.interrupt()
+													.datum(second_hourly_log_data)
+													.attr('d', second_line);
+												}
 											}
 											
 											horizontal_tick_count = hours_into_the_past;

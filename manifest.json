@@ -54,7 +54,7 @@
     }
   },
   "short_name": "Dashboard",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "web_accessible_resources": [
     "css/*.css",
 	"icons/*.svg",
