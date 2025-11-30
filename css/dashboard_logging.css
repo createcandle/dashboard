@@ -1,0 +1,124 @@
+/*
+
+	DASHBOARD LOGGING
+	
+*/
+
+
+#extension-dashboard-logging-menu-item{
+	background-image: url(/images/logs-icon.svg);
+}
+
+#extension-dashboard-content.extension-dashboard-show-logging #extension-dashboard-content-container,
+#extension-dashboard-content:not(.extension-dashboard-show-logging) #extension-dashboard-logging-content{
+	display:none;
+}
+
+#extension-dashboard-logging-content .title-bar{
+	text-align: center;
+    line-height: 9.6rem;
+    height: 9.6rem;
+}
+
+#extension-dashboard-logging-content h3.logs-header{
+	font-weight: normal;
+	color:white;
+}
+	    
+
+
+#extension-dashboard-logging-content{
+	height:100%;
+	width:100%;
+}
+#extension-dashboard-logging-content svg{
+	width:100%;
+	max-width:100%;
+	filter: blur(1.5rem);
+	transition-delay:2s;
+	transition:all 1s ease;
+}
+
+#extension-dashboard-logging-content .extension-dashboard-logging-log-property-container.extension-dashboard-logging-unblur svg{
+	filter: blur(0);
+}
+#extension-dashboard-logging-content .extension-dashboard-logging-log-property-container.extension-dashboard-logging-unblur .extension-dashboard-logging-property-privacy-button{
+	background-image: url(../images/privacy-icon-open.svg);
+}
+#extension-dashboard-logging-content .extension-dashboard-logging-log-property-container.extension-dashboard-logging-unblur .extension-dashboard-logging-property-privacy-button:hover{
+	background-image: url(../images/privacy-icon.svg);
+}
+
+
+#extension-dashboard-logging-content-container{
+	margin-bottom:10rem;
+}
+
+
+.extension-dashboard-logging-log-thing-container{
+	border-radius:1rem;
+	background-color:rgba(255,255,255,.6);
+	padding:1.5rem;
+	margin:3rem 0;
+}
+
+.extension-dashboard-logging-log-property-container{
+	min-height:300px;
+	width:100%;
+	position:relative;
+	border-radius:1rem;
+	padding:1.5rem;
+	background-color:rgba(255,255,255,.4);
+	margin:.5rem 0;
+	box-sizing:border-box;
+}
+
+.extension-dashboard-logging-log-property-container h4{
+	margin-top:.5rem;
+}
+.extension-dashboard-logging-log-property-container h4:first-letter {
+    text-transform: uppercase;
+}
+
+
+
+.extension-dashboard-logging-privacy-container{
+	position:absolute;
+	top:0;
+	right:0;
+	display:flex;
+	align-items:center;
+}
+
+.extension-dashboard-logging-last-viewed-time{
+	margin-right:1rem;
+	font-style:italic;
+}
+
+.extension-dashboard-logging-property-privacy-button{
+	width:50px;
+	height:50px;
+	background-image: url(../images/privacy-icon.svg);
+	background-repeat:no-repeat;
+	background-position:center;
+	background-size: 70%;
+	margin:1rem;
+	border-radius:1rem;
+	background-color:#7caed1;
+	cursor:pointer;
+}
+.extension-dashboard-logging-property-privacy-button:hover{
+	background-image: url(../images/privacy-icon-open.svg);
+}
+
+
+
+
+
+
+
+
+
+
+
+

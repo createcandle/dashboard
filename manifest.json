@@ -4,7 +4,8 @@
     {
       "css": [
   		"css/extension_utils.css",
-        "css/extension.css"
+        "css/extension.css",
+		"css/dashboard_logging.css"
       ],
       "js": [
 		"js/gridstack.js",
@@ -54,7 +55,7 @@
     }
   },
   "short_name": "Dashboard",
-  "version": "0.1.10",
+  "version": "0.2.0",
   "web_accessible_resources": [
     "css/*.css",
 	"icons/*.svg",
