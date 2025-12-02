@@ -6146,7 +6146,8 @@
 			            window.API.postJson(
 			                `/extensions/${this.id}/api/ajax`, {
 			                    'action': 'get_logs_data',
-			                    'log_ids': this.current_logs
+			                    'log_ids': this.current_logs,
+								'from_timestamp': (3600000 * 24 * 4)
 			                }
 			            ).then((body) => {
 			                if(this.debug){
@@ -6462,7 +6463,7 @@
 			
 			
 			if(this.debug){
-				console.log("dashboard debug: log_data clone: ", log_data);
+				//console.log("dashboard debug: log_data clone: ", log_data);
 			}
 			
 			const highest = d3.max(log_data, d => d.v);
@@ -6470,6 +6471,15 @@
 			let oldest = d3.min(log_data, d => d.d);
 			let minimum_y_value = d3.min(log_data, d => d.v);
 			let maximum_y_value = d3.max(log_data, d => d.v);
+			
+			const now_timestamp = Date.now();
+			const start_of_today_timestamp = now_timestamp - (now_timestamp % 86400000);
+			const start_of_yesterday_timestamp = now_timestamp - 86400000;
+			
+			const hours_since_start_of_today = Math.round((now_timestamp - start_of_today_timestamp) / 3600000);
+			
+			const hours_since_start_of_yesterday = Math.round((now_timestamp - start_of_yesterday_timestamp) / 3600000);
+			//console.log("hours_since_start_of_yesterday: ",  hours_since_start_of_yesterday);
 			
 			// TODO should the log's Y axis start at zero? if the lowest value is relatively close to it?
 			
@@ -6572,46 +6582,8 @@
 				console.log("dashboard debug: render_dashboard_logs: log_viz_type: ", log_viz_type);
 			}
 			*/
-
-			// Should the dataviz be rendered in a compact manner for a 1x1 widget?
-			let wideness_hint_el = log_viz_el.closest('[gs-w]');
-			let tallness_hint_el = log_viz_el.closest('[gs-h]');
 			
 			
-			let wideness_hint_number = 1;
-			if(wideness_hint_el){
-				let wideness_hint = wideness_hint_el.getAttribute("gs-w");
-				//console.log("wideness_hint: ", wideness_hint);
-				if(typeof wideness_hint == 'string'){
-					wideness_hint = parseInt(wideness_hint);
-					if(!isNaN(wideness_hint)){
-						wideness_hint_number = wideness_hint;
-						if(this.debug){
-							console.log("dashboard debug: render_dashboard_logs: widget's horizontal size: ", typeof wideness_hint_number, wideness_hint_number);
-						}
-					}
-				}
-			}
-			
-			let tallness_hint_number = 1;
-			if(tallness_hint_el){
-				let tallness_hint = tallness_hint_el.getAttribute("gs-h");
-				if(typeof tallness_hint == 'string'){
-					tallness_hint = parseInt(tallness_hint);
-					if(!isNaN(tallness_hint)){
-						tallness_hint_number = tallness_hint;
-						if(this.debug){
-							console.log("dashboard debug: render_dashboard_logs: widget's vertical size: ", typeof tallness_hint_number, tallness_hint_number);
-						}
-					}
-				}
-			}
-			
-			
-			//console.log("Found the element that the dataviz should be placed into: ", log_viz_el);
-
-			//console.log("the relevant  log_data: ", log_data);
-
 			let real_rect = log_viz_container_el.getBoundingClientRect(log_viz_el);
 			if(this.debug){
 				console.log("dashboard debug: render_dashboard_logs: log_viz_el real_rect: ", real_rect);
@@ -6633,6 +6605,68 @@
 			if(this.debug){
 				console.log("dashboard debug: render_dashboard_logs: new rect: ", rect);
 			}
+			
+			
+			
+
+			// Should the dataviz be rendered in a compact manner for a 1x1 widget?
+			let wideness_hint_el = log_viz_el.closest('[gs-w]');
+			let tallness_hint_el = log_viz_el.closest('[gs-h]');
+			
+			
+			let wideness_hint_number = 1;
+			if(wideness_hint_el){
+				let wideness_hint = wideness_hint_el.getAttribute("gs-w");
+				//console.log("wideness_hint: ", wideness_hint);
+				if(typeof wideness_hint == 'string'){
+					wideness_hint = parseInt(wideness_hint);
+					if(!isNaN(wideness_hint)){
+						wideness_hint_number = wideness_hint;
+						if(this.debug){
+							console.log("dashboard debug: render_dashboard_logs: widget's horizontal size: ", typeof wideness_hint_number, wideness_hint_number);
+						}
+					}
+				}
+			}
+			else{
+				wideness_hint_number = Math.floor(real_rect.width / 150);
+				if(wideness_hint_number < 2){
+					wideness_hint_number = 2;
+				}
+				if(this.debug){
+					console.log("dashboard debug: logging wideness_hint_number: ", wideness_hint_number);
+				}
+			}
+			
+			let tallness_hint_number = 1;
+			if(tallness_hint_el){
+				let tallness_hint = tallness_hint_el.getAttribute("gs-h");
+				if(typeof tallness_hint == 'string'){
+					tallness_hint = parseInt(tallness_hint);
+					if(!isNaN(tallness_hint)){
+						tallness_hint_number = tallness_hint;
+						if(this.debug){
+							console.log("dashboard debug: render_dashboard_logs: widget's vertical size: ", typeof tallness_hint_number, tallness_hint_number);
+						}
+					}
+				}
+			}
+			else{
+				tallness_hint_number = Math.floor(real_rect.height / 30);
+				if(tallness_hint_number < 3){
+					tallness_hint_number = 3;
+				}
+				if(this.debug){
+					console.log("dashboard debug: logging tallness_hint_number: ", tallness_hint_number);
+				}
+			}
+			
+			
+			//console.log("Found the element that the dataviz should be placed into: ", log_viz_el);
+
+			//console.log("the relevant  log_data: ", log_data);
+
+			
 			
 			// for very wide widgets, allow the svg to render a little wider
 			/*
@@ -6688,13 +6722,38 @@
 			
 			const wrangle = (log_data) => {
 				
+				if(log_data.length == 0){
+					console.warn("dashboard: render log: wrangle: provided log data had zero length")
+				}
+				
+				
 				let wrangle_result = {};
 				
 				let hourly_log_data = structuredClone(log_data);
 				
+			
+				
 				// Find out some information about the length of time we have data for
 				const real_oldest = d3.min(log_data, d => d.d);
+				const real_newest = d3.max(log_data, d => d.d);
 				precisions['hour'] = real_oldest;
+				
+				
+				
+				//console.log("wrangle: is the newest datapoint less than a day old? ", real_newest.getTime() > start_of_today_timestamp);
+				//console.log("wrangle: is the oldest datapoint older than the start of yesterday?", real_oldest.getTime() < start_of_today_timestamp - 86400000);
+				if( real_oldest.getTime() < start_of_today_timestamp - 86400000 && real_newest.getTime() > start_of_today_timestamp){
+					
+					if(hours_since_start_of_today < 15){
+						//console.log("limiting precisions['hour'] to start of yesterday");
+						precisions['hour'] = new Date(start_of_today_timestamp - 86400000); // 
+					}
+					else{
+						//console.log("limiting precisions['hour'] to start of today");
+						precisions['hour'] = new Date(start_of_today_timestamp ); // - 86400000
+					}
+				}
+				
 				//console.log("real_oldest: ", real_oldest);
 			
 				// Check if the data is for a boolean
@@ -6735,7 +6794,7 @@
 			
 				let hourly_data = [];
 			
-				const now_timestamp = Date.now();
+				
 			
 				//console.log("now_timestamp: ", now_timestamp);
 			
@@ -6762,10 +6821,13 @@
 				// Create an array with empty slots
 				let hours_data = [];
 				//let decreaser = 25;
-				for(let h = 0; h < 51; h++){
+				
+				let hours_to_summarize = (9 * 24); // 1 week
+				
+				for(let h = 0; h < hours_to_summarize + 1; h++){
 				
 					hours_data.push({'hours_into_the_past': h,'minimum':null,'maximum':null,'average':null,'start':(start_of_this_hour - (h * (60000 * 60))),'end':(end_of_this_hour - (h * (60000 * 60))),'beyond_start_value':null,'beyond_end_value':null,'values_to_average':[],'above_zero':0});
-					const millis_into_the_past = (60000 * 60 * (50 - h));
+					const millis_into_the_past = (60000 * 60 * (hours_to_summarize - h));
 					//console.log("millis_into_the_past: ", millis_into_the_past);
 					alt_log_data.unshift({"d":new Date(start_of_this_hour - (60000 * 60 * h)), "v":null, "h":h, "millis_into_the_past":(60000 * 60 * h)});
 				
@@ -6808,6 +6870,17 @@
 					if(this_value == null){
 						console.error("while looping over log data, this_value was null.  dp, log_data[dp], ", dp, log_data[dp]);
 					}
+					
+					if(typeof hours_data[hours_into_the_past] == 'undefined'){
+						console.error("dashboard: render_log: wrangle: hours_data did not have a pre-made entry for hours_into_the_past: ", hours_into_the_past);
+						continue
+					}
+					
+					if(typeof hours_data[hours_into_the_past]['values_to_average'] == 'undefined'){
+						console.error("dashboard: render_log: wrangle: hours_data has an entry, but no 'values_to_average' array??:  hours_into_the_past,hours_data[hours_into_the_past]:", hours_into_the_past, hours_data[hours_into_the_past]);
+						continue
+					}
+					
 					/*
 					if(typeof next_date_stamp == 'number'){
 						console.log("this point is earlier: \n - sec: ", Math.round(next_date_stamp - this_date_stamp)/1000, "\n - min: ", Math.round(next_date_stamp - this_date_stamp)/60000);
@@ -6839,7 +6912,7 @@
 							// for completeness, remember what datapoint ended the hour loop. This will be useful to calculate averages later that take into account how the value was changing over time
 							hours_data[hours_into_the_past]['beyond_start_value'] = {'t':this_date_stamp, 'v':this_value};
 					
-							if(hours_data[hours_into_the_past]['values_to_average'].length){
+							if(hours_data[hours_into_the_past]['values_to_average']){
 							
 								let raw_nuance = [];
 								let total_millis_accounted_for = 0;
@@ -6847,7 +6920,7 @@
 								let hypothetical_value_at_start_of_hour = null;
 							
 								// calculate the slope between the most futuristic datapoint inside the hour, and a futuristic datapoint outside of the that hour;
-								if(hours_data[hours_into_the_past]['beyond_end_value'] != null){
+								if(hours_data[hours_into_the_past]['beyond_end_value'] != null && hours_data[hours_into_the_past]['values_to_average'].length){
 								
 									let newest_point_inside_the_hour = hours_data[hours_into_the_past]['values_to_average'][0]; // hours_data[hours_into_the_past]['values_to_average'].length  - 1
 								
@@ -6890,9 +6963,13 @@
 							
 								// Add the 'normal' consecutive points that were all within the hour
 							
-								let dumb_total = hours_data[hours_into_the_past]['values_to_average'][0]['v']; // as a test, also just take all the recorded values and average them. Shouldn't be too far off from the 'nuanced' calculation
-							
+								let dumb_total = null;
+								if(hours_data[hours_into_the_past]['values_to_average'] && hours_data[hours_into_the_past]['values_to_average'].length){
+									hours_data[hours_into_the_past]['values_to_average'][0]['v']; // as a test, also just take all the recorded values and average them. Shouldn't be too far off from the 'nuanced' calculation
+								}
+								
 								for(let vt = 1; vt < hours_data[hours_into_the_past]['values_to_average'].length; vt++){
+									//Update the 'dumb' total too, just to check if the end result is in the correct ballpark during debugging.
 									dumb_total += hours_data[hours_into_the_past]['values_to_average'][vt]['v'];
 								
 									// Calculate the average for two consecutive datapoints
@@ -6917,7 +6994,7 @@
 							
 							
 								// calculate the slope between the most futuristic datapoint inside the hour, and a futuristic datapoint outside of the that hour;
-								if(hours_data[hours_into_the_past]['beyond_start_value'] != null){
+								if(hours_data[hours_into_the_past]['beyond_start_value'] != null && hours_data[hours_into_the_past]['values_to_average'].length){
 								
 									let oldest_point_inside_the_hour = hours_data[hours_into_the_past]['values_to_average'][ hours_data[hours_into_the_past]['values_to_average'].length  - 1 ];
 									const start_millis_in_this_hour = (oldest_point_inside_the_hour['t'] - hours_data[hours_into_the_past]['start']);
@@ -6951,7 +7028,8 @@
 									delete hours_data[hours_into_the_past]['beyond_start_value'];
 								}
 							
-								delete hours_data[hours_into_the_past]['values_to_average'];
+								// clear some memory
+								//delete hours_data[hours_into_the_past]['values_to_average'];
 							
 								//console.log("SANITY CHECK: total minutes accounted for this hour: ", Math.round(total_millis_accounted_for / 60000));
 							
@@ -7022,7 +7100,8 @@
 					
 						if(typeof hours_data[hours_into_the_past] == 'undefined'){
 							console.error("hours_data has undefined hours_into_the_past: ", hours_into_the_past);
-							hours_data[hours_into_the_past] = {};
+							//hours_data[hours_into_the_past] = {};
+							continue
 						}
 						
 						hours_data[hours_into_the_past]['start'] = start_of_this_hour;
@@ -7432,6 +7511,7 @@
 							if(this.log_day_averages && typeof this.log_day_averages['' + log_id] != 'undefined' && this.log_day_averages['' + log_id].length > 2){
 								
 								let daily_log_data = structuredClone(this.log_day_averages['' + log_id]);
+								let daily_log_data_copy = structuredClone(this.log_day_averages['' + log_id]);
 								
 								let daily_square_cut_off_point = 0;
 								let first_log_data_timestamp = squished_log_data[0]['d'].getTime();
@@ -7441,11 +7521,12 @@
 									if(typeof daily_log_data[dsdp]['d'] == 'number'){
 										if(daily_log_data[dsdp]['d'] >= first_log_data_day_timestamp - 1){
 											//console.log("daily averages data caught up with squished_log_data at datapoint dsdp #: ", dsdp);
-											if(dsdp > 0){
+											if(dsdp > 0 && daily_square_cut_off_point == 0){
 												daily_square_cut_off_point = dsdp;
-												break
+												//break
 											}
 										}
+										daily_log_data[dsdp]['d'] = new Date(daily_log_data[dsdp]['d']);
 									}
 									else if(daily_log_data[dsdp]['d'].getTime() >= first_log_data_day_timestamp - 1){
 										//console.log("daily averages data caught up with squished_log_data at datapoint dsdp #: ", dsdp);
@@ -7457,13 +7538,27 @@
 								}
 								//console.log("daily_square_cut_off_point: ", daily_square_cut_off_point);
 								
+								
+								
+								let removed_daily_points = [];
 								if(daily_square_cut_off_point > 0 && daily_square_cut_off_point < daily_log_data.length - 1){
+									//console.log("daily_log_data length before: ", daily_log_data.length);
 									//console.log("removing this many data points from end of daily averages data: ", daily_square_cut_off_point);
-									daily_log_data.splice(daily_log_data.length - daily_square_cut_off_point)
+									removed_daily_points = daily_log_data.splice(daily_square_cut_off_point); // daily_log_data.length - 
+									//console.log("daily_log_data length after: ", daily_log_data.length);
+									if(daily_log_data.length){
+										removed_daily_points.unshift(daily_log_data[ daily_log_data.length - 1]);
+									}
+									
+								}
+								else{
+									//console.warn("not trimming the end of daily_log_data because of odd daily_square_cut_off_point: ", daily_square_cut_off_point);
 								}
 								
+								//console.log("removed_daily_points: ", removed_daily_points);
 								
-								const first_daily_log_data_timestamp = daily_log_data[0]['d'];
+								
+								const first_daily_log_data_timestamp = daily_log_data[0]['d'].getTime();
 								
 								daily_log_data = make_into_hourly_square_wave_data(daily_log_data, 86400000)
 								
@@ -7474,6 +7569,28 @@
 								
 								wrangle_result['log_data'] = wrangle_result['detailed_daily_log_data'];
 								wrangle_result['hourly_log_data'] = wrangle_result['squished_daily_log_data'];
+								
+								let squish_value_to = null;
+								let removed_daily_points_index = 0;
+								if(removed_daily_points.length){
+									
+									wrangle_result['monthly_log_data'] = structuredClone( wrangle_result['hourly_log_data'] );
+									
+									for(let ml = 0; ml < wrangle_result['monthly_log_data'].length; ml++){
+										while(removed_daily_points_index < removed_daily_points.length - 1 && wrangle_result['monthly_log_data'][ml]['d'].getTime() >= removed_daily_points[removed_daily_points_index + 1]['d'].getTime()){
+											removed_daily_points_index++;
+											//console.log("upped removed_daily_points_index to: ", removed_daily_points_index);
+										}
+										if( wrangle_result['monthly_log_data'][ml]['d'].getTime() >= removed_daily_points[removed_daily_points_index]['d'].getTime()){
+											//console.log(ml + ". squishing: ", wrangle_result['monthly_log_data'][ml]['v'] , " -> ", removed_daily_points[removed_daily_points_index]['v']) 
+											wrangle_result['monthly_log_data'][ml]['v'] = removed_daily_points[removed_daily_points_index]['v'];
+											
+										}
+											
+									}
+									
+									
+								}
 								
 								
 								
@@ -8188,7 +8305,7 @@
 
 
 
-
+			
 
 			let horizontal_tick_count = (wideness_hint_number * 2) + 1;
 			//console.log("wideness * 2 -> horizontal_tick_count: ", horizontal_tick_count);
@@ -8201,6 +8318,9 @@
 				timeFormat = d3.timeFormat("%H"); // hourly ticks
 				if(wideness_hint_number > 2){ // is_boolean_log && 
 					horizontal_tick_count = Math.floor(delta_millis / (60*60*1000)); // as many ticks as there are hours
+					if(horizontal_tick_count > 24){
+						horizontal_tick_count = 24;
+					}
 				}
 			}
 			else if(delta_millis > 300000){ // 5 minutes
@@ -8448,6 +8568,10 @@
 				*/
 				
 				let horizontal_tick_count = log_data.length;
+				
+				if(horizontal_tick_count > 24){
+					horizontal_tick_count = 24;
+				}
 				//var timeFormat = d3.timeFormat("%I:%M %p %a %Y");
 				var timeFormat = d3.timeFormat("%H");
 
@@ -8681,7 +8805,7 @@
 
 
 			//
-			//  PRECISION ANIMATION EXPERIMENT
+			//  PRECISION BUTTONS AND ANIMATION
 			//
 
 
@@ -8725,7 +8849,9 @@
 				
 				
 				// Change the scale of the axis
-				xScale.domain([precisions[current_precision],Date.now()]);
+				xScale.domain([precisions[current_precision],now_timestamp]);
+				
+				horizontal_tick_count = (wideness_hint_number * 2) + 1;
 				
 				//log_datum['second']
 				
@@ -8778,7 +8904,7 @@
 					}
 					
 					
-					horizontal_tick_count = (wideness_hint_number * 2) + 1;
+					
 					
 					if(tooltip_container_g){
 						tooltip_container_g.attr('class','extension-dashboard-log-tooltip-data-container');
@@ -8835,7 +8961,14 @@
 					}
 					
 					if(hours_into_the_past){
-						horizontal_tick_count = hours_into_the_past;
+						
+						// for very wide renders, allow precise hour labels on the X axis
+						if(wideness_hint_number > 4 && hours_since_start_of_today < 15){
+							horizontal_tick_count = hours_since_start_of_today;
+						}
+						else if(wideness_hint_number > 6){
+							horizontal_tick_count = hours_since_start_of_yesterday;
+						}
 					}
 					
 						
@@ -8916,10 +9049,56 @@
 					*/
 				}
 				
-				else if(current_precision == 'month'){
-					timeFormat = d3.timeFormat("%b %d"); // tick on weeks
+				else{
+					if(current_precision == 'month'){
+						timeFormat = d3.timeFormat("%b %d"); // tick on weeks
+					}
+					else if(current_precision == 'quarter' && wideness_hint_number > 4){
+						timeFormat = d3.timeFormat("%b %d"); // tick on weeks
+					}
+					else if(current_precision == 'quarter' || current_precision == 'year'){
+						timeFormat = d3.utcFormat("%B") // tick on months
+					}
+					else{
+						timeFormat = d3.utcFormat("%Y");
+					}
 					
-					if(hourly_log_data){
+					if(log_datum['first']['monthly_log_data']){
+						if(transition){
+							//console.log("path,hourly_log_data,line: ", path,hourly_log_data,line);
+							path
+							.interrupt()
+							.datum(log_datum['first']['monthly_log_data'])
+							.transition() //.delay(1001)
+							.duration(3000)
+							.attr('d', line);
+						
+							if(log_datum['second'] && log_datum['second']['monthly_log_data']){
+								second_path
+								.interrupt()
+								.datum(log_datum['second']['monthly_log_data'])
+								.transition() //.delay(1001)
+								.duration(3000)
+								.attr('d', second_line);
+							}
+						
+						}
+						else{
+							path
+							.interrupt()
+							.datum(log_datum['first']['monthly_log_data'])
+							.attr('d', line);
+						
+							if(log_datum['second'] && log_datum['second']['monthly_log_data']){
+								second_path
+								.interrupt()
+								.datum(log_datum['second']['monthly_log_data'])
+								.attr('d', second_line);
+							}
+						}
+					}
+					
+					else if(hourly_log_data){
 						if(transition){
 							//console.log("path,hourly_log_data,line: ", path,hourly_log_data,line);
 							path
