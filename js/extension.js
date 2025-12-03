@@ -103,6 +103,8 @@
 			this.highest_spotted_widget_id = 0;
 			this.editing = false;
 
+			this.get_initial_current_grid_id();
+
 			const stored_grid_id = localStorage.getItem("candle_dashboard_grid_id");
 			if(typeof stored_grid_id == 'string' && stored_grid_id.startsWith('grid')){
 				this.current_grid_id = stored_grid_id;
@@ -151,6 +153,9 @@
 			this.last_time_logs_loaded = 0;
 			
 			this.old_logs_data = {}; // stores old averaged data loaded from json files
+			
+			this.clip_path_counter = 0;
+			
 			
 			this.icon_dirs = [];
 			this.icon_paths = [];
@@ -203,6 +208,7 @@
 					
 					if(this.at_logging){
 						this.at_logging = false;
+						this.get_initial_current_grid_id();
 						this.show_dashboard();
 					}
 					
@@ -281,6 +287,26 @@
 
         }
 
+		
+		get_initial_current_grid_id(){
+			this.current_grid_id = 'grid0';
+			
+			const stored_grid_id = localStorage.getItem("candle_dashboard_grid_id");
+			if(typeof stored_grid_id == 'string' && stored_grid_id.startsWith('grid')){
+				this.current_grid_id = stored_grid_id;
+				//console.log("found stored grid_id in localstorage: ", this.current_grid_id);
+			}
+			
+			const dashboard_keys = Object.keys(this.dashboards);
+			if(dashboard_keys.length){
+				if(dashboard_keys.indexOf(this.current_grid_id) == -1){
+					this.current_grid_id = dashboard_keys[0];
+				}
+			}
+			
+		}
+		
+		
 		
 
 		update_things_data(){
@@ -507,10 +533,12 @@
 				if(window.location.hash.indexOf('dashboard-logging') != -1){
 					this.content_el.classList.add('extension-dashboard-show-logging');
 					this.at_logging = true;
+					this.current_grid_id = 'logging';
 				}
 				else{
 					this.content_el.classList.remove('extension-dashboard-show-logging');
 					this.at_logging = false;
+					this.get_initial_current_grid_id();
 				}
 				
 				
@@ -1324,6 +1352,8 @@
 			this.icon_paths = icon_paths;
 		}
 
+
+		
 
 
 
@@ -4570,12 +4600,14 @@
 						// WIDGET MODAL SETTINGS TITLE
 				
 						if(typeof needs['rename'] != 'undefined' || typeof needs['update'] != 'undefined' || typeof needs['icon'] != 'undefined' || typeof needs['log'] != 'undefined' || typeof needs['action'] != 'undefined'){
+							
 							let widget_ui_title_el = document.createElement('h3');
 							let widget_settings_title = 'Settings';
 							if(typeof this.dashboards[grid_id]['widgets'][widget_id]['type'] == 'string'){
 								widget_settings_title = widget_settings_title + ' for ' + this.dashboards[grid_id]['widgets'][widget_id]['type'].replaceAll('_',' ') + ' widget';
 							}
 							widget_ui_title_el.textContent = widget_settings_title;
+							
 							modal_ui_container_el.appendChild(widget_ui_title_el);
 						}
 				
@@ -6132,7 +6164,7 @@
 		
 		
 		load_logs_data(fresh_log_data_load=null, duration=null){
-			//console.log("dashboard: in load_logs_data.  fresh_log_data_load,last_time_logs_loaded: ", fresh_log_data_load, this.last_time_logs_loaded);
+			///console.log("dashboard: in load_logs_data.  fresh_log_data_load,last_time_logs_loaded: ", fresh_log_data_load, this.last_time_logs_loaded);
 			let promise = new Promise((resolve, reject) => {
 				
 				if(fresh_log_data_load == false && this.logs_data != null){
@@ -6320,6 +6352,7 @@
 		
 		async render_log(log_viz_container_el=null,log_id=null,force_redraw=false,generate_bar_chart=true){
 			//console.log("in render_log.  log_id,force_redraw,generate_bar_chart: ", log_id,force_redraw,generate_bar_chart);
+			generate_bar_chart = false;
 			
 			if(log_viz_container_el == null){
 				console.error('dashboard: render_log: no valid log_viz_container_el provided: ', log_viz_container_el);
@@ -6343,6 +6376,7 @@
 				console.error("dashboard: render_log: log_data was empty array, aborting: ", this.logs_data[log_id]);
 				return
 			}
+			
 			let log_thing_id = null;
 			let log_property_id = null;
 			
@@ -6384,7 +6418,13 @@
 			let privacy_button_el = document.createElement('div');
 			privacy_button_el.classList.add('extension-dashboard-logging-property-privacy-button');
 			privacy_button_el.addEventListener('click', () => {
-				console.log("dashboard: clicked on logging privacy settings button");
+				//console.log("dashboard: clicked on logging privacy settings button");
+				if(log_viz_container_el.classList.contains('extension-dashboard-show-widget-log-settings')){
+					log_viz_container_el.classList.remove('extension-dashboard-show-widget-log-settings');
+				}
+				else{
+					log_viz_container_el.classList.add('extension-dashboard-show-widget-log-settings');
+				}
 			});
 			
 			privacy_el.appendChild(last_viewed_time_ago_el);
@@ -6458,6 +6498,8 @@
 			}
 			
 			
+			
+			
 			// Create a copy of the local data, so that the local data isn't modified
 			
 			
@@ -6512,13 +6554,41 @@
 			
 			// GET INFORMATION ABOUT THE WIDGET, INCLUDING IT'S PIXEL DIMENSIONS
 			
-			const thing_id = log_viz_container_el.getAttribute('data-extension-dashboard-log-thing');
-			const property_id = log_viz_container_el.getAttribute('data-extension-dashboard-log-property');
+			let thing_id = log_viz_container_el.getAttribute('data-extension-dashboard-log-thing');
+			let property_id = log_viz_container_el.getAttribute('data-extension-dashboard-log-property');
 			
-			const widget_id = log_viz_container_el.getAttribute('data-extension-dashboard-log-widget_id');
+			if(thing_id == null && typeof log_thing_id == 'string'){
+				thing_id = log_thing_id;
+			}
+			if(property_id == null && typeof log_property_id == 'string'){
+				property_id = log_property_id;
+			}
+			
+			if(typeof thing_id == 'string' && typeof property_id == 'string'){
+				if(typeof this.logging_meta[ thing_id ] == 'undefined'){
+					this.logging_meta[ thing_id ] = {"thing_id": thing_id, "properties":{}}
+				}
+				if(typeof this.logging_meta[ thing_id ]['properties'] == 'undefined'){
+					this.logging_meta[ thing_id ]['properties'] = {};
+				}
+				
+				if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
+					this.logging_meta[ thing_id ]['properties'][ property_id ] = {}
+				}
+			}
+			
+			
+			let widget_id = log_viz_container_el.getAttribute('data-extension-dashboard-log-widget_id');
+			if(widget_id == null){
+				widget_id = 'logging';
+			}
 			const what_log_id_needed = log_viz_container_el.getAttribute('data-extension-dashboard-log-what_log_id_needed');
+			
 			if(this.debug){
+				console.warn("dashboard debug: log: thing_id: ", thing_id);
+				console.warn("dashboard debug: log: property_id: ", property_id);
 				console.warn("dashboard debug: log: widget ID: ", widget_id);
+				console.warn("dashboard debug: log: what_log_id_needed: ", what_log_id_needed);
 			}
 			//console.log("what_log_id_needed: ", what_log_id_needed);
 			
@@ -6856,7 +6926,7 @@
 				let min_max_lines_would_be_nice = false; // would it even make sense to display the minimum and maximum values spotted during the hour?
 				let last_averaged_dp = log_data.length - 1;
 				
-				
+				let gave_oldness_warning = false;
 				
 				for(let dp = log_data.length - 1; dp >= 0; dp--){
 					//console.log("dp: ", log_property_id, dp);
@@ -6866,6 +6936,17 @@
 					}
 					const this_date_stamp = log_data[dp]['d'].getTime();
 					const this_value = log_data[dp]['v'];
+					
+					
+					if(this_date_stamp < Date.now() - (7 * 24 * 3600000)){
+						if(gave_oldness_warning == false){
+							gave_oldness_warning = true;
+							//console.warn("this log_data datapoint is more than a week old: " + this_date_stamp + " (" + log_data[dp]['d'] + ").  index: ", dp, " of log_data.length: ", log_data.length, " for thing_id,property_id: ", thing_id, property_id);
+						}
+						
+						continue
+					}
+					
 					
 					if(this_value == null){
 						console.error("while looping over log data, this_value was null.  dp, log_data[dp], ", dp, log_data[dp]);
@@ -6892,33 +6973,33 @@
 						if(this.debug){
 							console.warn("\ndashboard debug: log averages:\n\n\nDONGGGGG\n\nShifting to an earlier hour for: ", log_property_id, "\n\n - hours_into_the_past: ", hours_into_the_past);
 						}
-					
-					
-					
+						
+						
+						
 						//
 						// CALCULATE HOUR AVERAGES
 						//
-					
-						if(is_boolean_log == false){
 						
+						if(is_boolean_log == false){
+							
 							if(this.debug){
 								console.warn("\n\n\ndashboard debug: CALCULATING NUMERIC AVERAGES FOR THE HOUR THAT IS NOW COMPLETE: " + start_of_this_hour + " of " + log_property_id + "\n\n\n");
 								console.log("dashboard debug: values_to_average: ", hours_data[hours_into_the_past]['values_to_average'].length);
 							}
 							let nuanced_values = [];
-						
+							
 							let total_score = 0; // millis * average of each two adjoining points, all added up
-						
+							
 							// for completeness, remember what datapoint ended the hour loop. This will be useful to calculate averages later that take into account how the value was changing over time
 							hours_data[hours_into_the_past]['beyond_start_value'] = {'t':this_date_stamp, 'v':this_value};
-					
-							if(hours_data[hours_into_the_past]['values_to_average']){
 							
+							if(hours_data[hours_into_the_past]['values_to_average']){
+								
 								let raw_nuance = [];
 								let total_millis_accounted_for = 0;
 								let hypothetical_value_at_end_of_hour = null;
 								let hypothetical_value_at_start_of_hour = null;
-							
+								
 								// calculate the slope between the most futuristic datapoint inside the hour, and a futuristic datapoint outside of the that hour;
 								if(hours_data[hours_into_the_past]['beyond_end_value'] != null && hours_data[hours_into_the_past]['values_to_average'].length){
 								
@@ -7106,7 +7187,7 @@
 						
 						hours_data[hours_into_the_past]['start'] = start_of_this_hour;
 						hours_data[hours_into_the_past]['end'] = end_of_this_hour;
-					
+						
 						// Similar to the beyond_start_value, we keep track of the value outside of the hour that will be useful later to calculate averages
 						if(is_boolean_log == false && next_date_stamp != null && next_value != null){
 							//console.log("adding beyond_end_value into the numeric hour that is now complete");
@@ -7250,6 +7331,8 @@
 						//console.log("BOOLEAN hours_data: ", hours_data);
 					
 					}
+					
+					// if it's not a boolean log, add this datapoint to the list of values to average later
 					else{
 						// Update spotted minimum and/or maximum value for this hour
 						//console.log("INSIDE HOUR? ", start_of_this_hour, this_date_stamp, end_of_this_hour);
@@ -7313,21 +7396,22 @@
 				if(last_squished_dp != 0){
 					hourly_log_data.splice(0,last_squished_dp);
 				}
-			
+				
 				if(is_boolean_log){
 					for (let [hour_id, details] of Object.entries(hours_data)) {
 						if(typeof details['above_zero'] == 'number'){
 							//console.log("hour_id: ", hour_id);
-							const alt_log_data_index = 24 - parseInt(hour_id);
+							const alt_log_data_index = hours_to_summarize - parseInt(hour_id);
 							if(typeof alt_log_data_index == 'number' && typeof alt_log_data[ alt_log_data_index ] != 'undefined'){ // && typeof alt_log_data[ alt_log_data_index ]['v'] != 'undefined'
-								alt_log_data[ alt_log_data_index ]['v'] = Math.round(details['above_zero'] / 60000);
+								alt_log_data[ alt_log_data_index ]['v'] = Math.round(details['above_zero'] / 60000) / 60; // the last division by 60 was added
+								//console.log("above zero: ", hour_id, " -> ", alt_log_data[ alt_log_data_index ]['v']);
 							}
 						}
 					}
 					//console.error("\n\n\nboolean alt_log_data: ", log_thing_id, log_property_id, "\n", JSON.stringify(alt_log_data,null,2));
 				}
 				else{
-					//console.error("\n\n\nnumeric alt_log_data: ", log_thing_id, log_property_id, alt_log_data);
+					//console.error("\n\n\nnumeric alt_log_data: ", log_thing_id, log_property_id, "\n", JSON.stringify(alt_log_data,null,2));
 				}
 				
 				
@@ -7453,9 +7537,9 @@
 				
 				
 
-
+				const small_diversion = true;
 				// For a boolean log, we add extra datapoints to create a square-wave shape
-				if(is_boolean_log){
+				if(is_boolean_log && small_diversion == false){
 				
 					log_data = make_square_wave_data(log_data);
 				
@@ -7468,7 +7552,18 @@
 				
 					if(pruned_log_data.length && alt_log_data.length){
 						//console.log("creating optimized log data with square_wave");
-						let square_alt_log_data = make_into_hourly_square_wave_data(alt_log_data);
+						
+						let square_alt_log_data = null;
+						
+						
+						if(is_boolean_log){
+							//console.log("turning boolean log data into square wave");
+							square_alt_log_data = make_square_wave_data(log_data);
+						}
+						else{
+							//console.log("turning hourly numeric log data into quare wave");
+							square_alt_log_data = make_into_hourly_square_wave_data(alt_log_data);
+						}
 						//console.log("square_wave: square_alt_log_data: ", square_alt_log_data);
 					
 						let square_cut_off_point = 0;
@@ -7490,6 +7585,7 @@
 							}
 						}
 						//console.log("square_wave square_cut_off_point: ", square_cut_off_point);
+						
 						// get the log data that is the most light weight square-wave shape. This will form the base onto which the detailed and squished pruned parts will be added.
 						if(square_cut_off_point){
 							let averaged_log_data = square_alt_log_data.slice(0, square_cut_off_point);
@@ -7558,9 +7654,15 @@
 								//console.log("removed_daily_points: ", removed_daily_points);
 								
 								
-								const first_daily_log_data_timestamp = daily_log_data[0]['d'].getTime();
+								//const first_daily_log_data_timestamp = daily_log_data[0]['d'].getTime();
 								
-								daily_log_data = make_into_hourly_square_wave_data(daily_log_data, 86400000)
+								let first_daily_log_data_timestamp = d3.min(daily_log_data, d => d.d);
+								if(typeof first_daily_log_data_timestamp == 'object' && first_daily_log_data_timestamp != null){
+									first_daily_log_data_timestamp = first_daily_log_data_timestamp.getTime();
+								}
+								//console.log("first timestamp: ", new Date(first_daily_log_data_timestamp));
+								
+								daily_log_data = make_into_hourly_square_wave_data(daily_log_data, 86400000);
 								
 								wrangle_result['detailed_daily_log_data'] = daily_log_data.concat(detailed_log_data);
 								wrangle_result['squished_daily_log_data'] = daily_log_data.concat(squished_log_data);
@@ -7572,8 +7674,13 @@
 								
 								let squish_value_to = null;
 								let removed_daily_points_index = 0;
+								
+								//console.error("removed_daily_points.length: ", removed_daily_points.length);
+								
+								
 								if(removed_daily_points.length){
 									
+									// create a version in which the hourly data is squished flat to fit the dauly data
 									wrangle_result['monthly_log_data'] = structuredClone( wrangle_result['hourly_log_data'] );
 									
 									for(let ml = 0; ml < wrangle_result['monthly_log_data'].length; ml++){
@@ -7589,7 +7696,6 @@
 											
 									}
 									
-									
 								}
 								
 								
@@ -7598,6 +7704,16 @@
 								
 								
 								//console.log("precisions: first_log_data_timestamp: \n", typeof first_daily_log_data_timestamp, first_daily_log_data_timestamp, "\n" + typeof now_timestamp, now_timestamp);
+								
+								if(first_daily_log_data_timestamp < now_timestamp - (3600000 * 3)){
+									precisions['minute'] = now_timestamp - (3600000 * 3);
+									precisions['hour'] = first_daily_log_data_timestamp;
+								}
+								
+								if(first_daily_log_data_timestamp < now_timestamp - (86400000 * 1)){
+									precisions['hour'] = now_timestamp - (86400000 * 1);
+									precisions['week'] = first_daily_log_data_timestamp;
+								}
 								
 								if(first_daily_log_data_timestamp < now_timestamp - (86400000 * 7)){
 									precisions['week'] = now_timestamp - (86400000 * 7);
@@ -7910,7 +8026,7 @@
 			if(pruned_log_data.length && typeof pruned_log_data[0]['d'] != 'undefined'){
 				oldest = pruned_log_data[0]['d'];
 			}
-			precisions['minute'] = oldest;
+			//precisions['minute'] = oldest;
 			let oldest_timestamp = oldest.getTime();
 			// over-ride the oldest time if the log we're comparing with is older
 			if(comparison){ //  && comparison_highest != null && comparison_lowest != null
@@ -8057,7 +8173,15 @@
 				.attr("viewBox", [0, 0, rect.width, rect.height])
 				//.attr("style", "max-width: 100%; height: auto;");
 
-			log_viz_el.appendChild(svg.node());
+			let svg_container_el = log_viz_container_el.querySelector('extension-dashboard-widget-log-svg-container');
+			if(svg_container_el == null){
+				svg_container_el = document.createElement('div');
+				svg_container_el.classList.add('extension-dashboard-widget-log-svg-container');
+				log_viz_el.appendChild(svg_container_el);
+			}
+				
+			
+			svg_container_el.appendChild(svg.node());
 
 
 
@@ -8096,7 +8220,7 @@
 				log_viz_el.appendChild(time_delta_description_el);
 	
 			}
-
+			
 			
 			if(comparison_requires_second_y_axis){
 				margin['right'] += 40;
@@ -8222,19 +8346,168 @@
 			
 			
 			
-			// ADD CLIP PATH
-			const clip_path_id = "extension-dashboard-widget-" + this.current_grid_id + "-" + widget_id + "-clip";
 			
-			svg.append("defs").append("clipPath")
+			// ADD CLIP PATH
+			
+			let rect1 = {'left':margin.left,'top':margin.top,'width':(rect.width - margin.left) - margin.right,'height':(rect.height - margin.bottom) - margin.top};
+			let rect2 = {'left':margin.left,'top':margin.top,'width':(rect.width - margin.left) - margin.right,'height':0};
+			
+			
+			
+			
+			
+			
+			
+			const clip_path_id = "extension-dashboard-widget-" + this.current_grid_id + "-" + widget_id + "-clip" + this.clip_path_counter++;
+			
+			const svg_overflow_mask1 = svg.append("defs").append("clipPath")
 		    .attr("class", "extension-dashboard-widget-log-svg-clip")
 			.attr("id", clip_path_id)
-		    .append("rect")
-		    .attr("width", (rect.width - margin.left) - margin.right)
-		    .attr("height", (rect.height - margin.bottom) - margin.top)
-			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			.append("rect")
+		    .attr("width", rect1.width)
+			.attr("height", rect1.height)
+			.attr("class", "extension-dashboard-widget-log-svg-clip-path1")
+			.attr("transform", "translate(" + rect1.left + "," + rect1.top + ")");
+		    
+			//console.log("svg_overflow_mask: ", svg_overflow_mask.node());
 			
-
-
+			const svg_overflow_mask2 = svg.select(".extension-dashboard-widget-log-svg-clip").append("rect")
+		    .attr("width", "0")
+			.attr("height", "0")
+			.attr("class", "extension-dashboard-widget-log-svg-clip-path2")
+			.attr("style", "display:none;")
+			.attr("transform", "translate(" + rect2.left + "," + rect2.top + ")");
+			
+			//console.log("svg_overflow_mask2: ", svg_overflow_mask2.node());
+			
+			
+			
+			const apply_privacy_mask = () => {
+				//console.log("in apply_privacy_mask");
+				
+				if(typeof thing_id == 'string' && typeof property_id == 'string'){
+					if(typeof this.logging_meta[ thing_id ] == 'undefined'){
+						this.logging_meta[ thing_id ] = {"thing_id": thing_id, "properties":{}}
+					}
+					if(typeof this.logging_meta[ thing_id ]['properties'] == 'undefined'){
+						this.logging_meta[ thing_id ]['properties'] = {};
+					}
+				
+					if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
+						this.logging_meta[ thing_id ]['properties'][ property_id ] = {}
+					}
+				
+					if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] == 'string'){
+						
+						if( this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] == 'show_all'){
+							rect1 = {'left':margin.left,'top':margin.top,'width':(rect.width - margin.left) - margin.right,'height':(rect.height - margin.bottom) - margin.top}
+							rect2 = {'left':margin.left,'top':margin.top,'width':0,'height':0}
+							
+							svg_overflow_mask2
+							.attr("style", "display:none")
+							.attr("width", rect2.width)
+							.attr("height", rect2.height)
+							.attr("transform", "translate(" + rect2.left + "," + rect2.top + ")");
+							
+						}
+						else if( this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] == 'hide_between'){
+							if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'] == 'number' && typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'] == 'number' && this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'] < this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above']){
+								//rect1.top = yScale(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above']);
+								rect1.top = margin.top;
+								rect1.height = yScale(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above']) - rect1.top;
+								//console.log(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'], "rect1: ", rect1);
+								
+								rect2.top = yScale(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below']);
+								rect2.height = (rect.height - yScale(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'])) - margin.bottom;
+								//console.log("hide_between:  rect2: \n", JSON.stringify(rect2,null,2));
+								
+								if(rect2.height < 0){
+									console.error("rect2.height was smaller than 0: " + rect2.height);
+									rect2.height = 0;
+								}
+		
+								svg_overflow_mask2
+								.attr("style", "")
+								.attr("width", rect2.width)
+								.attr("height", rect2.height)
+								.attr("transform", "translate(" + rect2.left + "," + rect2.top + ")");
+								
+		
+		
+		
+		
+		
+							}
+						}
+						else{
+							
+							svg_overflow_mask2
+								.attr("style", "display:none")
+								.attr("width", "0")
+								.attr("height", "0")
+								.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+							
+							
+							if( this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] == 'hide_above'){
+								if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'] == 'number'){
+									rect1.top = yScale(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above']);
+									rect1.height = (rect.height - margin.bottom) - rect1.top;
+									//console.log(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'], "rect1: ", rect1);
+							
+								}
+							}
+							else if( this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] == 'hide_below'){
+								if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'] == 'number'){
+									rect1.top = margin.top;
+									rect1.height = yScale(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below']) - rect1.top;
+									//console.log(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'], "rect1: ", rect1);
+							
+								}
+							}
+							else if( this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] == 'hide_above_and_below'){
+								//console.log("attempting to mask above and below with: \n", JSON.stringify(this.logging_meta[ thing_id ]['properties'][ property_id ],null,4));
+								
+								if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'] == 'number' && typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'] == 'number'){
+									
+									let above_limit = this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'];
+									let below_limit = this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'];
+									if(above_limit < below_limit){
+										const old_above = above_limit;
+										above_limit = below_limit;
+										below_limit = old_above;
+										console.warn("had to swap above and below values:  below_limit,above_limit: ", below_limit,above_limit);
+									}
+									 
+									if(above_limit > below_limit + 1){
+										rect1.top = yScale(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above']);
+										rect1.height = yScale(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below']) - rect1.top;
+										//console.log(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'], "rect1: ", rect1);
+									}
+								}
+							}
+						}
+						
+						
+						if(rect1.height < 0){
+							console.error("rect1.height was smaller than 0: " + rect1.height);
+							rect1.height = 0;
+						}
+						
+						
+						svg_overflow_mask1
+						.attr("width", rect1.width)
+						.attr("height", rect1.height)
+						.attr("transform", "translate(" + rect1.left + "," + rect1.top + ")");
+						
+					}
+				
+					//((rect.height - margin.bottom) - 50)
+				}
+			}
+			
+			apply_privacy_mask();
+			
+			//console.log("this.clip_path_counter is now: ", this.clip_path_counter);
 			
 
 
@@ -8254,7 +8527,7 @@
 	        	.attr('fill', 'none')
 	        	.attr('stroke', 'currentColor')
 				.attr('class', 'extension-dashboard-widget-log-line')
-				.attr('style','clip-path: url("#' + clip_path_id +'"')
+				.attr('style','clip-path: url("#' + (clip_path_id) + '"')
 	        	.attr('stroke-width', 1.5)
 	        	.attr('d', line);
 
@@ -8363,12 +8636,62 @@
 			let tooltip_container_g = null;
 			//console.log("pruned_log_data: ", pruned_log_data);
 			if(pruned_log_data.length){
+				
+				let masked_and_pruned_log_data = structuredClone(pruned_log_data);
+				
+				if(typeof thing_id == 'string' && typeof property_id == 'string'){
+					
+					if(this.logging_meta[ thing_id ] && this.logging_meta[ thing_id ]['properties'] && this.logging_meta[ thing_id ]['properties'][ property_id ] ){
+						if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] == 'string'){
+							const masking_type = this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'];
+							
+							if((masking_type == 'hide_above' || masking_type == 'hide_above_and_below') && typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'] == 'number'){
+								const initial_masked_and_pruned_log_data_length = masked_and_pruned_log_data.length;
+								for(let mp = initial_masked_and_pruned_log_data_length - 1; mp >= 0; mp--){
+									if( typeof masked_and_pruned_log_data[mp]['v'] == 'number'){
+										if(masked_and_pruned_log_data[mp]['v'] > this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above']){
+											masked_and_pruned_log_data.splice(mp,1);
+										}
+									}
+								}
+								//console.log("masked and pruned log data: pruned ABOVE.   length went from: ", initial_masked_and_pruned_log_data_length, " to ", masked_and_pruned_log_data.length);
+							}
+							if((masking_type == 'hide_below' || masking_type == 'hide_above_and_below') && typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'] == 'number'){
+								const initial_masked_and_pruned_log_data_length = masked_and_pruned_log_data.length;
+								for(let mp = initial_masked_and_pruned_log_data_length - 1; mp >= 0; mp--){
+									if( typeof masked_and_pruned_log_data[mp]['v'] == 'number'){
+										if(masked_and_pruned_log_data[mp]['v'] < this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below']){
+											masked_and_pruned_log_data.splice(mp,1);
+										}
+									}
+								}
+								//console.log("masked and pruned log data: pruned BELOW.  length went from: ", initial_masked_and_pruned_log_data_length, " to ", masked_and_pruned_log_data.length);
+							}
+							if((masking_type == 'hide_betweens') && typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'] == 'number' && typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'] == 'number'){
+								const initial_masked_and_pruned_log_data_length = masked_and_pruned_log_data.length;
+								for(let mp = initial_masked_and_pruned_log_data_length - 1; mp >= 0; mp--){
+									if( typeof masked_and_pruned_log_data[mp]['v'] == 'number'){
+										if(masked_and_pruned_log_data[mp]['v'] > this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'] && masked_and_pruned_log_data[mp]['v'] < this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above']){
+											masked_and_pruned_log_data.splice(mp,1);
+										}
+									}
+								}
+								//console.log("masked and pruned log data: pruned BETWEEN.  length went from: ", initial_masked_and_pruned_log_data_length, " to ", masked_and_pruned_log_data.length);
+							}
+							
+						}
+					}
+				}
+				
+				
+				
+				
 				// Adds lots of vertical boxes which trigger a mouse-over state to show a tooltip
 				tooltip_container_g = svg.append("g")
 				.attr("fill", "#fff")
 				.attr("class", "extension-dashboard-log-tooltip-data-container")
 				.selectAll()
-				.data(pruned_log_data)
+				.data(masked_and_pruned_log_data)
 				.join("rect")
 		        .attr("x", (d) => xScale(d.d))
 		        .attr("y", (d) => yScale(d.v))
@@ -8812,12 +9135,13 @@
 			const change_precision = (provided_precision=null,transition=true) => {
 				//console.log("in change_precision.  current_precision,provided_precision: ", current_precision, provided_precision);
 				
+				/*
 				if(typeof tooltip_container_g == 'undefined' || tooltip_container_g == null){
 					console.error("change_procision: tooltip_container_g was undefined or null. Aborting.");
 					return
 				}
 				const tooltip_container_node = tooltip_container_g.node()
-				
+				*/
 				//console.log("tooltip_container_node", tooltip_container_node, tooltip_container_node.classList);
 				
 				// for now, just switch between these two precisions
@@ -8914,11 +9238,6 @@
 						this.locally_saved_values[this.current_grid_id][widget_id]['viz']['precision'] = current_precision;
 					}
 					
-					/*
-					if(tooltip_container_node){
-						tooltip_container_node.classList.remove('extension-dashboard-hidden');
-					}
-					*/
 				}
 				else if(current_precision == 'hour'){
 					timeFormat = d3.timeFormat("%H"); // tick on whole hours
@@ -8976,14 +9295,6 @@
 						tooltip_container_g.attr('class','extension-dashboard-log-tooltip-data-container extension-dashboard-hidden');
 					}
 					
-					
-					
-					/*
-					if(tooltip_container_node){
-						console.log("adding hidden to tooltip container")
-						tooltip_container_node.classList.add('extension-dashboard-hidden');
-					}
-					*/
 				}
 				
 				
@@ -9024,39 +9335,28 @@
 							}
 						}
 					}
-					/*
-					if(hours_into_the_past){
-						horizontal_tick_count = hours_into_the_past;
-					}
-					*/
-					horizontal_tick_count = 7;
 					
-					//log_viz_container_el.setAttribute('class', initial_log_viz_container_class_attribute + " extension-dashboard-log-precision-" + current_precision);
-					//log_viz_container_el.classList.remove('extension-dashboard-log-precision-minute');
-					//log_viz_container_el.classList.add('extension-dashboard-log-precision-hour');
+					horizontal_tick_count = 7;
 					
 					if(tooltip_container_g){
 						tooltip_container_g.attr('class','extension-dashboard-log-tooltip-data-container extension-dashboard-hidden');
 					}
 					
-					
-					
-					/*
-					if(tooltip_container_node){
-						console.log("adding hidden to tooltip container")
-						tooltip_container_node.classList.add('extension-dashboard-hidden');
-					}
-					*/
 				}
 				
 				else{
 					if(current_precision == 'month'){
 						timeFormat = d3.timeFormat("%b %d"); // tick on weeks
 					}
+					/*
 					else if(current_precision == 'quarter' && wideness_hint_number > 4){
 						timeFormat = d3.timeFormat("%b %d"); // tick on weeks
 					}
-					else if(current_precision == 'quarter' || current_precision == 'year'){
+					*/
+					else if(current_precision == 'quarter'){
+						timeFormat = d3.timeFormat("%b %d"); // tick on weeks
+					} 
+					else if(current_precision == 'year'){
 						timeFormat = d3.utcFormat("%B") // tick on months
 					}
 					else{
@@ -9132,29 +9432,14 @@
 							}
 						}
 					}
-					/*
-					if(hours_into_the_past){
-						horizontal_tick_count = hours_into_the_past;
-					}
-					*/
-					horizontal_tick_count = 7;
 					
-					//log_viz_container_el.setAttribute('class', initial_log_viz_container_class_attribute + " extension-dashboard-log-precision-" + current_precision);
-					//log_viz_container_el.classList.remove('extension-dashboard-log-precision-minute');
-					//log_viz_container_el.classList.add('extension-dashboard-log-precision-hour');
+					horizontal_tick_count = 7;
 					
 					if(tooltip_container_g){
 						tooltip_container_g.attr('class','extension-dashboard-log-tooltip-data-container extension-dashboard-hidden');
 					}
 					
 					
-					
-					/*
-					if(tooltip_container_node){
-						console.log("adding hidden to tooltip container")
-						tooltip_container_node.classList.add('extension-dashboard-hidden');
-					}
-					*/
 				}
 				
 				//console.log("horizontal_tick_count: ", horizontal_tick_count);
@@ -9173,9 +9458,6 @@
 					.interrupt()
 					.call(d3.axisBottom(xScale).tickSizeOuter(0).ticks(horizontal_tick_count).tickPadding(5).tickFormat(timeFormat))
 				}
-				
-		        //.attr("transform", `translate(0,${rect.height - margin.bottom})`)
-		        //.call(d3.axisBottom(xScale).tickSizeOuter(0).ticks(horizontal_tick_count).tickPadding(5).tickFormat(timeFormat))
 				
 				if(x_axis){
 					x_axis
@@ -9214,6 +9496,610 @@
 			}
 			
 			log_viz_el.appendChild(precision_buttons_container_el);
+			
+			
+			
+			
+			
+			//
+			//  LOG PRIVACY SETTINGS
+			//
+			
+			
+			if(this.at_logging){
+				let log_viz_settings_container_el = log_viz_container_el.querySelector('.extension-dashboard-widget-log-settings-container');
+				if(log_viz_settings_container_el == null){
+					log_viz_settings_container_el = document.createElement('div');
+					log_viz_settings_container_el.classList.add('extension-dashboard-widget-log-settings-container');
+					
+					if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] != 'undefined'){
+						//console.warn("intial this.logging_meta[ thing_id ]['properties'][ property_id ]: ", JSON.stringify(this.logging_meta[ thing_id ]['properties'][ property_id ],null,2));
+					}
+					
+					const log_viz_settings_el = document.createElement('div');
+					log_viz_settings_el.classList.add('extension-dashboard-widget-log-settings');
+				
+					const log_viz_settings_title_el = document.createElement('h2');
+					log_viz_settings_title_el.textContent = 'Data minimization';
+					log_viz_settings_el.appendChild(log_viz_settings_title_el);
+						
+					//console.log("privacy settings: thing_id: ", thing_id);
+					//console.log("privacy settings: property_id: ", property_id);
+					
+					
+					
+					//console.log("this.logging_meta[ thing_id ]: ", thing_id,  this.logging_meta[ thing_id ])
+					
+					
+					const log_viz_masking_settings_el = document.createElement('div');
+					log_viz_masking_settings_el.classList.add('extension-dashboard-widget-log-masking-settings');
+					log_viz_masking_settings_el.classList.add('extension-dashboard-flex');
+					
+					
+					const mask_type_select_el = document.createElement('select');
+					
+					const no_masking_option = document.createElement('option');
+					no_masking_option.textContent = 'Show all values';
+					no_masking_option.value = 'show_all';
+					
+					const hide_above_masking_option = document.createElement('option');
+					hide_above_masking_option.textContent = 'Hide values above';
+					hide_above_masking_option.value = 'hide_above';
+					
+					const hide_below_masking_option = document.createElement('option');
+					hide_below_masking_option.textContent = 'Hide values below';
+					hide_below_masking_option.value = 'hide_below';
+					
+					const hide_above_and_below_masking_option = document.createElement('option');
+					hide_above_and_below_masking_option.textContent = 'Hide values above and below';
+					hide_above_and_below_masking_option.value = 'hide_above_and_below';
+					
+					const hide_between_masking_option = document.createElement('option');
+					hide_between_masking_option.textContent = 'Hide values between';
+					hide_between_masking_option.value = 'hide_between';
+					
+					mask_type_select_el.appendChild(no_masking_option);
+					mask_type_select_el.appendChild(hide_above_masking_option);
+					mask_type_select_el.appendChild(hide_below_masking_option);
+					mask_type_select_el.appendChild(hide_above_and_below_masking_option);
+					mask_type_select_el.appendChild(hide_between_masking_option);
+					
+					
+					log_viz_masking_settings_el.appendChild(mask_type_select_el);
+					
+					
+					function update_masking(){
+						console.log("in update_masking.   thing_id, property_id: ", thing_id, property_id);
+					}
+					
+					let masking_inputs_container_el = document.createElement('div');
+					masking_inputs_container_el.classList.add('extension-dashboard-flex-column');
+					
+					// masking inputs
+					let masking_above_input_el = document.createElement('input');
+					masking_above_input_el.setAttribute('type','number');
+					masking_above_input_el.classList.add('extension-dashboard-logging-privacy-settings-above-input');
+					if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'] == 'number'){
+						masking_above_input_el.value = this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'];
+					}
+					else{
+						if( ('' + highest).indexOf(".") != -1){
+							masking_above_input_el.value = Math.round((highest * 100)/100);
+						}
+						else{
+							masking_above_input_el.value = highest;
+						}
+					}
+					masking_above_input_el.addEventListener('change', () => {
+						//console.log("masking above value changed");
+						this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'] = parseFloat(masking_above_input_el.value);
+						apply_privacy_mask();
+						update_drag_line_positions();
+						//svg_overflow_mask1.attr('y', yScale(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above']));
+						this.save_logging_meta(thing_id);
+						//console.log("masking values are now: ", JSON.stringify(this.logging_meta[ thing_id ]['properties'][ property_id ],null,4));
+						
+					});
+					masking_inputs_container_el.appendChild(masking_above_input_el);
+					
+					
+					
+					let masking_below_input_el = document.createElement('input');
+					masking_below_input_el.setAttribute('type','number');
+					masking_below_input_el.classList.add('extension-dashboard-logging-privacy-settings-below-input');
+					
+					
+					
+					
+					if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'] == 'number'){
+						masking_below_input_el.value = this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'];
+					}
+					else{
+						if( ('' + lowest).indexOf(".") != -1){
+							masking_below_input_el.value = Math.round((lowest * 100)/100);
+						}
+						else{
+							masking_below_input_el.value = lowest;
+						}
+					}
+					masking_below_input_el.addEventListener('change', () => {
+						//console.log("masking: below value changed");
+						this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'] = parseFloat(masking_below_input_el.value);
+						apply_privacy_mask();
+						update_drag_line_positions();
+						//svg_overflow_mask2.attr('y', yScale(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below']));
+						
+						
+						/*
+						const new_below_drag_line_y = yScale(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below']);
+						console.log("masking: new_below_drag_line_y: ", new_below_drag_line_y);
+						if(svg_overflow_mask2){
+							svg_overflow_mask2.attr('y', new_below_drag_line_y);
+						}
+						else{
+							console.error("masking: no svg_overflow_mask2?");
+						}
+						*/
+						
+						//svg_overflow_mask2.attr("transform", "translate(" + rect2.left + "," + new_below_drag_line_y + ")");
+						this.save_logging_meta(thing_id);
+						//console.log("masking: values are now: ", JSON.stringify(this.logging_meta[ thing_id ]['properties'][ property_id ],null,4));
+					});
+					
+					
+					masking_inputs_container_el.appendChild(masking_below_input_el);
+					
+					log_viz_masking_settings_el.appendChild(masking_inputs_container_el);
+					
+					
+					log_viz_settings_el.appendChild(log_viz_masking_settings_el);
+					
+					
+					
+					function show_or_hide_masking_inputs(masking_type=null){
+						//console.log("in show_or_hide_masking_inputs:  masking_type: ", masking_type);
+						if(masking_type == 'show_all'){
+							log_viz_container_el.classList.add('extension-dashboard-logging-privacy-settings-hide-above-input');
+							log_viz_container_el.classList.add('extension-dashboard-logging-privacy-settings-hide-below-input');
+						}
+						else if(masking_type == 'hide_below'){
+							log_viz_container_el.classList.add('extension-dashboard-logging-privacy-settings-hide-above-input');
+							log_viz_container_el.classList.remove('extension-dashboard-logging-privacy-settings-hide-below-input');
+						}
+						else if(masking_type == 'hide_above'){
+							log_viz_container_el.classList.add('extension-dashboard-logging-privacy-settings-hide-below-input');
+							log_viz_container_el.classList.remove('extension-dashboard-logging-privacy-settings-hide-above-input');
+						}
+						else{
+							log_viz_container_el.classList.remove('extension-dashboard-logging-privacy-settings-hide-above-input');
+							log_viz_container_el.classList.remove('extension-dashboard-logging-privacy-settings-hide-below-input');
+						}
+					}
+					
+					if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] == 'string'){
+						mask_type_select_el.value = this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'];
+						show_or_hide_masking_inputs(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type']);
+					}
+					else{
+						show_or_hide_masking_inputs('show_all');
+					}
+					
+					mask_type_select_el.addEventListener('change', () => {
+						//console.log("masking_type changed to: ", mask_type_select_el.value);
+						this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] = mask_type_select_el.value;
+						show_or_hide_masking_inputs(mask_type_select_el.value);
+						this.save_logging_meta(thing_id);
+						apply_privacy_mask();
+					});
+					
+					
+					/*
+					let svg_mask_el = svg_container_el.querySelector('.extension-dashboard-widget-log-svg-privacy-mask');
+					if(svg_mask_el == null){
+						console.error("could not find privacy mask in SVG");
+					}
+					*/
+					
+					let current_y_position = {}; //{'extension-dashboard-logging-svg-drag-line1':margin.top,'extension-dashboard-logging-svg-drag-line2':rect.height - margin.bottom};
+					let drag_start_y = {'extension-dashboard-logging-svg-drag-line1':margin.top,'extension-dashboard-logging-svg-drag-line2':rect.height - margin.bottom};
+					
+					current_y_position["extension-dashboard-logging-svg-drag-line1"] = margin.top;
+					current_y_position["extension-dashboard-logging-svg-drag-line2"] = rect.height - margin.bottom;
+					
+					let drag_start_target_el_class = null;
+					
+					const dragStart = (d) => {
+						//console.log("drag start!  d: ", d);
+						
+						//console.log("d.sourceEvent.target: ", d.sourceEvent.target);
+						//console.log("d.sourceEvent.target.classList: ", d.sourceEvent.target.classList);
+						//console.log("d.sourceEvent.target.classList[0]: ", d.sourceEvent.target.classList[0]);
+						drag_start_target_el_class = d.sourceEvent.target.classList[0];
+						
+						//console.log("drag_start_target_el_class: ", drag_start_target_el_class);
+						
+						//drag_start_y = d.y
+						
+						if(typeof drag_start_target_el_class == 'string'){
+							drag_start_y[drag_start_target_el_class] = d.y;
+						}
+						else{
+							currently_dragging_el_class = null;
+						}
+						
+						
+						
+						//console.log("drag_start_target_el_class d.sourceEvent: ", d.sourceEvent);
+						//console.log("drag_start_target_el_class d.sourceEvent.srcElement.classList: ", d.sourceEvent.srcElement.classList);
+						//console.log("drag_start_target_el_class d.sourceEvent.target.classList: ", d.sourceEvent.target.classList);
+						/*
+						d3.select(nodes[i])
+						.style("stroke", "red")
+						*/
+					}
+		       
+					const dragging = (d) => {
+						//console.log("dragging!  d: ", d);
+						
+						update_drag_line(d);
+						
+						
+						/*
+						let dragging_y = (current_y_position + (d.y - drag_start_y));
+						if(dragging_y > 0){
+							drag_line1.attr("y", dragging_y);
+							const value_at_y = Math.round(yScale.invert(dragging_y) * 10) / 10;
+							masking_above_input_el.value = value_at_y
+							
+							this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'] = value_at_y;
+							apply_privacy_mask();
+						}
+						*/
+						
+						
+						/*
+				    	var width = 850
+						var height = 800
+						var xCoor = d3.pointer(event)[0]
+						var yCoor = d3.pointer(event)[1]
+
+						// d3.select(nodes[i])
+						//   .attr("transform", "translate(" + (xCoor - 200) + "," + (yCoor - 300) + ")")
+
+						d3.select(nodes[i])
+						.attr("x", xCoor)
+						.attr("y", yCoor)
+						*/
+						
+						//drag_line1.attr("y", drag_line1.attr("y") + Math.round(drag_delta_y);
+						//drag_line1.attr("transform", "translate(0," + (current_y_position + (d.y - drag_start_y)) + ")")
+					}
+					
+					const dragEnd = (d) => {
+						//console.log("drag end!  d: ", d);
+						//console.log("drag end:  drag_start_target_el_class: " + drag_start_target_el_class);
+						update_drag_line(d,true);
+						
+						drag_start_target_el_class = null;
+						/*
+						var mousePosition = d3.pointer(d);
+						console.log("D3 mousePosition: ", mousePosition);
+						var xValue = mousePosition[0];
+						var yValue = mousePosition[1];
+						console.log("yValue: ", yValue );
+						*/
+						
+						//drag_line1.attr("transform", "translate(0,0)");
+						
+						
+						
+						
+						
+						//drag_line1.attr("y", );
+						
+						/*
+						d3.select(nodes[i])
+						.style("stroke", "black")
+						*/
+					}
+					
+					const update_drag_line = (d,save=false) => {
+						
+						//console.log("update_drag_line: drag_start_target_el_class: ", drag_start_target_el_class);
+						if(typeof drag_start_target_el_class == 'string'){
+							
+							//console.log("update_drag_line: d.y: ", d.y);
+							//console.log("update_drag_line: current_y_position[drag_start_target_el_class] before: ", current_y_position[drag_start_target_el_class]);
+							//console.log("update_drag_line: drag_start_y[drag_start_target_el_class]: ", drag_start_y[drag_start_target_el_class]);
+							
+							let drag_delta_y = Math.round(d.y - drag_start_y[drag_start_target_el_class]);
+							//console.log("update_drag_line: drag_delta_y: ", drag_delta_y);
+							
+							current_y_position[drag_start_target_el_class] = drag_start_y[drag_start_target_el_class] + drag_delta_y;
+							//console.log("dragged to current_y_position: ", drag_start_target_el_class, current_y_position[drag_start_target_el_class]);
+							if(current_y_position[drag_start_target_el_class] < 0){
+								current_y_position[drag_start_target_el_class] = 0;
+							}
+						
+							
+							//.attr("transform", "translate(0,0)");
+						
+							let value_at_y = yScale.invert(current_y_position[drag_start_target_el_class])
+							//console.log("value_at_y: ", value_at_y);
+							value_at_y = Math.round(value_at_y * 10) / 10;
+							
+							
+							
+							if(drag_start_target_el_class == "extension-dashboard-logging-svg-drag-line1"){
+								
+								if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] == 'string' && this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] != 'hide_above' && this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] != 'show_all' && typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'] == 'number'){
+									if(value_at_y < this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'] + 1){
+										value_at_y = this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'] + 1;
+									}
+								}
+								//drag_line1.attr("y", current_y_position[drag_start_target_el_class]);
+								drag_line1.attr("y", yScale(value_at_y));
+								drag_line1.attr("style", "transform: translate 0 " + yScale(value_at_y));
+								masking_above_input_el.value = value_at_y;
+								this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'] = value_at_y;
+								if(save==true){
+									drag_start_y[drag_start_target_el_class] = d.y;
+									this.save_logging_meta(thing_id);
+								}
+								apply_privacy_mask();
+								
+							}
+							else if(drag_start_target_el_class == "extension-dashboard-logging-svg-drag-line2"){
+								if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] == 'string' && this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] != 'hide_below' && this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] != 'show_all' && typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'] == 'number'){
+									if(value_at_y > this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'] - 1){
+										value_at_y = this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'] - 1;
+									}
+								}
+								//drag_line2.attr("y", current_y_position[drag_start_target_el_class]);
+								drag_line2.attr("y", yScale(value_at_y));
+								masking_below_input_el.value = value_at_y;
+								this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'] = value_at_y;
+								if(save==true){
+									drag_start_y[drag_start_target_el_class] = d.y;
+									this.save_logging_meta(thing_id);
+								}
+								apply_privacy_mask();
+								
+							}
+							else{
+								console.error("drag_start_target_el_class was not valid: ", drag_start_target_el_class);
+							}
+							
+							
+						}
+					}
+					
+					
+					
+					let drag_rect = {'left':margin.left,'top':margin.top,'width':(rect.width - margin.left) - margin.right,'height':40}
+					
+					/*
+					const drag_line1 = svg.append("g")
+					.attr("width",drag_rect.width)
+					.attr("height", drag_rect.height)
+	            	.attr("x", margin.left)
+	            	.attr("y", margin.top)
+					.attr("class", "extension-dashboard-logging-svg-drag-line1")
+					*/
+					
+					const drag_line1 = svg.append("rect")
+	            	.attr("width",drag_rect.width)
+	            	.attr("height", drag_rect.height)
+	            	.attr("x", margin.left)
+	            	.attr("y", margin.top)
+					.attr("fill","#ff0000")
+					.attr("stroke", "black")
+					.attr("stroke-width", 0.5)
+					.attr("cursor", "move")
+					.attr("class", "extension-dashboard-logging-svg-drag-line1")
+					.call(d3.drag()
+						.on('start', dragStart)
+						.on('drag', dragging)
+						.on('end', dragEnd)
+            		)
+					
+					/*
+					drag_line1.append("rect")
+	            	.attr("width","30")
+	            	.attr("height","30")
+	            	.attr("x", margin.left)
+	            	.attr("y", margin.top)
+					.attr("fill","#ff0000")
+					.attr("class", "extension-dashboard-logging-svg-drag-line1")
+					.call(d3.drag()
+						.on('start', dragStart)
+						.on('drag', dragging)
+						.on('end', dragEnd)
+	            	)
+					*/
+					
+					const drag_line2 = svg.append("rect")
+            		.attr("width",drag_rect.width)
+            		.attr("height", drag_rect.height)
+            		.attr("x", margin.left)
+            		.attr("y", (rect.height - margin.bottom) - margin.top)
+					.attr("class", "extension-dashboard-logging-svg-drag-line2")
+					.attr("fill","#0000ff")
+					.attr("stroke", "black")
+					.attr("stroke-width", 0.5)
+					.attr("cursor", "move")
+					.call(d3.drag()
+						.on('start', dragStart)
+						.on('drag', dragging)
+						.on('end', dragEnd)
+            		)
+					
+					
+					
+					
+					
+					const update_drag_line_positions = () => {
+						//console.log("in update_drag_line_positions");
+						
+			  		  	if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'] == 'number'){
+							const scaled_y = yScale(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above']);
+							current_y_position["extension-dashboard-logging-svg-drag-line1"] = scaled_y;
+							if(scaled_y > margin.top && scaled_y < rect.height - margin.bottom){
+								drag_line1
+								.attr("y", scaled_y);
+							}
+						
+			  		  	}
+			  		  	if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'] == 'number'){
+							const scaled_y = yScale(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below']);
+							current_y_position["extension-dashboard-logging-svg-drag-line2"] = scaled_y;
+							if(scaled_y > margin.top && scaled_y < rect.height - margin.bottom){
+								drag_line2
+								.attr("y", scaled_y);
+							}
+			  		  	}
+						
+					}
+          
+		  		  	update_drag_line_positions();
+						
+					
+					
+					
+					
+					//
+					//   PRIVACY -> LIMIT PRECISION
+					//
+					
+					let precision_settings_container_el = document.createElement('div');
+					precision_settings_container_el.classList.add('extension-dashboard-widget-log-precision-settings');
+					
+					let precision_settings_title_el = document.createElement('h3');
+					precision_settings_title_el.textContent = 'Precision';
+					precision_settings_container_el.appendChild(precision_settings_title_el);
+					
+					let precision_settings_inputs_container_el = document.createElement('div');
+					precision_settings_inputs_container_el.classList.add('extension-dashboard-flex');
+					
+					let precision_settings_slider_value_el = document.createElement('input');
+					
+					let precision_settings_slider_el = document.createElement('input');
+					precision_settings_slider_el.setAttribute('type','range');
+					precision_settings_slider_el.setAttribute('min','0.1');
+					precision_settings_slider_el.setAttribute('max','10');
+					precision_settings_slider_el.setAttribute('step','0.1');
+					
+					if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['precision'] == 'number'){
+						precision_settings_slider_el.value = this.logging_meta[ thing_id ]['properties'][ property_id ]['precision'];
+						
+						
+						//background-image: repeating-linear-gradient(#00ff04 0 1px, #ff010114 1px 100%), repeating-linear-gradient(90deg, #ccc 0 1px, transparent 1px 100%);
+						//    background-size: 71px 71px;
+						//    background-position: 0 15px;
+						
+						
+					}
+					else{
+						precision_settings_slider_el.value = 1;
+					}
+					
+					precision_settings_slider_el.addEventListener('change', () => {
+						//console.log("precision slider changed to: ", precision_settings_slider_el.value);
+						this.logging_meta[ thing_id ]['properties'][ property_id ]['precision'] = parseFloat(precision_settings_slider_el.value);
+						precision_settings_slider_value_el.value = this.logging_meta[ thing_id ]['properties'][ property_id ]['precision'];
+						this.save_logging_meta();
+						limit_precision();
+					});
+					
+					
+					
+					precision_settings_slider_value_el.setAttribute('type','number');
+					precision_settings_slider_value_el.classList.add('extension-dashboard-logging-log-precision-slider-value-input');
+					
+					if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['precision'] == 'number'){
+						precision_settings_slider_value_el.value = this.logging_meta[ thing_id ]['properties'][ property_id ]['precision'];
+					}
+					else{
+						precision_settings_slider_value_el.value = 1;
+					}
+					
+					precision_settings_slider_value_el.addEventListener('change', () => {
+						//console.log("precision slider value input changed to: ", precision_settings_slider_value_el.value);
+						let manual_precision_value = parseFloat(precision_settings_slider_value_el.value);
+						if(manual_precision_value < 0.1){
+							manual_precision_value = 0.1;
+						}
+						this.logging_meta[ thing_id ]['properties'][ property_id ]['precision'] = manual_precision_value;
+						precision_settings_slider_el.value = this.logging_meta[ thing_id ]['properties'][ property_id ]['precision'];
+						this.save_logging_meta();
+						limit_precision();
+					});
+					
+					
+					precision_settings_inputs_container_el.appendChild(precision_settings_slider_el);
+					precision_settings_inputs_container_el.appendChild(precision_settings_slider_value_el);
+					
+					precision_settings_container_el.appendChild(precision_settings_inputs_container_el)
+					
+					
+					log_viz_settings_el.appendChild(precision_settings_container_el);
+			
+					
+					
+					log_viz_settings_container_el.appendChild(log_viz_settings_el);
+					log_viz_el.appendChild(log_viz_settings_container_el);
+					
+					
+					const limit_precision = () => {
+						
+						let new_precision_log_data = [];
+						const intended_precision = this.logging_meta[ thing_id ]['properties'][ property_id ]['precision'];
+						//console.log("limit_precision:  intended_precision: ", intended_precision);
+						
+						//console.log("limit_precision: log_data: ", log_data);
+						if(log_data.length){
+							
+							new_precision_log_data = structuredClone(log_data);
+							//console.log("new_precision_log_data.length: ", new_precision_log_data.length);
+							
+							for(let pld = 0; pld < new_precision_log_data.length; pld++){
+								if(typeof new_precision_log_data[pld]['v'] == 'number'){
+									const limited_precision_value = Math.round( new_precision_log_data[pld]['v'] / intended_precision ) * intended_precision;
+									//console.log(pld + ". limit precision: ", new_precision_log_data[pld]['v'], " -> ", limited_precision_value);
+									new_precision_log_data[pld]['v'] = limited_precision_value;
+								}
+							}
+							
+							if(new_precision_log_data.length){
+								//console.log("limit_precision: updating path");
+								path
+								.interrupt()
+								.datum(new_precision_log_data)
+								.attr('d', line);
+								
+								let background_grid_size = Math.abs(yScale(this.logging_meta[ thing_id ]['properties'][ property_id ]['precision']) - yScale(0))
+								//console.log("initial background_grid_size: ", background_grid_size);
+								while(background_grid_size < 2){
+									background_grid_size = background_grid_size * 2;
+								}
+								//console.log("final background_grid_size: ", background_grid_size);
+								svg_container_el.classList.add('extension-dashboard-show-svg-grid-lines');
+								svg_container_el.style.backgroundSize = background_grid_size + 'px ' + background_grid_size + 'px';
+								svg_container_el.style.backgroundPosition = margin.left + 'px ' + margin.top + 'px';
+								
+							}
+							
+						}
+						
+					}
+					
+				
+				}
+			}
+			
+			
+			
+			
 									
 		}
 		
@@ -9758,6 +10644,7 @@
 				console.log("this.logging_files: ", this.logging_files);
 			}
 			
+			this.current_grid_id = 'logging';
 			
 			let force_loading_log_data = null;
 			if(this.logs){
@@ -9876,9 +10763,15 @@
 					log_container_el.classList.add('extension-dashboard-logging-log-thing-container');
 					this.logging_content_el.appendChild(log_container_el);
 					
+					let log_container_title_link_el = document.createElement('a');
+					log_container_title_link_el.setAttribute('href','/things/' + thing_id);
+					
 					let log_container_title_el = document.createElement('h3');
 					log_container_title_el.textContent = thing_title;
-					log_container_el.appendChild(log_container_title_el);
+					
+					log_container_title_link_el.appendChild(log_container_title_el);
+					
+					log_container_el.appendChild(log_container_title_link_el);
 					
 					//let property_keys = Object.propertiesthis.logging_meta[ 
 					//for(let pr = 0; pr < )
@@ -10050,9 +10943,13 @@ const sequentialFn = async () => {
 		
 		
 		
-		save_logging_meta(){
+		save_logging_meta(additional_thing_id_to_save=null){
 			if(this.debug){
 				console.log("dashboard logging debug: in save_logging_meta.  this.should_save_logging_meta: ", this.should_save_logging_meta);
+			}
+			
+			if(typeof additional_thing_id_to_save == 'string' && additional_thing_id_to_save.length && this.should_save_logging_meta.indexOf(additional_thing_id_to_save) == -1){
+				this.should_save_logging_meta.push(additional_thing_id_to_save);
 			}
 			
 			if(this.should_save_logging_meta.length){

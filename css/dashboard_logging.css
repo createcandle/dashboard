@@ -39,6 +39,13 @@
 	transition:all 1s ease;
 }
 
+.extension-dashboard-logging-log-property-container.extension-dashboard-show-widget-log-settings .extension-dashboard-widget-log-svg-container.extension-dashboard-show-svg-grid-lines{
+    background-image: repeating-linear-gradient(#fff 0 1px, rgba(0,0,0,0) 1px 100%); /*, repeating-linear-gradient(90deg, #fff 0 1px, transparent 1px 100%);*/
+    background-size: 100px 100px;
+    background-position: 0 calc(100% - 30px);
+}
+
+
 #extension-dashboard-logging-content .extension-dashboard-logging-log-property-container.extension-dashboard-logging-unblur svg{
 	filter: blur(0);
 }
@@ -112,13 +119,93 @@
 }
 
 
+.extension-dashboard-widget-log-settings-container{
+	margin:1.5rem 0;
+	
+}
+
+
+.extension-dashboard-widget-log-settings{
+	padding:1.5rem;
+	background-color:rgba(0,0,0,.1);
+	border-radius:1rem;
+}
+
+.extension-dashboard-widget-log-settings-container{
+	max-height:0;
+	overflow:hidden;
+	transition: max-height 1s ease-out;
+}
+
+.extension-dashboard-show-widget-log-settings .extension-dashboard-widget-log-settings-container{
+	max-height:60vh;
+	transition: max-height 1s ease-out;
+}
 
 
 
+#extension-dashboard-view .extension-dashboard-widget-log-masking-settings input{
+	max-width:150px;
+	padding:1rem;
+	font-size:1.6rem;
+	margin:.5rem 1rem;
+}
+
+#extension-dashboard-view .extension-dashboard-widget-log-masking-settings select{
+	margin: auto 1rem auto 0;
+	padding:1rem;
+	border-radius:.5rem;
+	font-size: 1.6rem;
+}
+
+
+.extension-dashboard-logging-svg-drag-line1,
+.extension-dashboard-logging-svg-drag-line2{
+	fill:var(--extension-dashboard-widget-editable-text-color);
+	opacity:.6;
+}
+
+
+.extension-dashboard-logging-svg-drag-line1{
+	/*clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 86%, 24% 86%, 24% 0);
+	clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 86%, 4% 86%, 4% 0);*/
+	clip-path: polygon(0 0, 100% 0, 100% 8%, 58% 8%, 58% 100%, 53% 100%, 53% 8%, 0 8%);
+}
+
+.extension-dashboard-logging-svg-drag-line2{
+	clip-path: polygon(0 0, 100% 0, 100% 8%, 50% 8%, 50% 100%, 45% 100%, 45% 8%, 0 8%);
+}
+
+
+/*
+.extension-dashboard-logging-svg-drag-line1::after{
+	content:"x";
+	width:30px;
+	height:30px;
+	position:relative;
+	right:-30px;
+	background-color:red;
+}
+*/
+
+
+.extension-dashboard-logging-log-property-container.extension-dashboard-show-widget-log-settings .extension-dashboard-log-tooltip-data-container,
+.extension-dashboard-logging-log-property-container:not(.extension-dashboard-show-widget-log-settings) .extension-dashboard-logging-svg-drag-line1,
+.extension-dashboard-logging-log-property-container:not(.extension-dashboard-show-widget-log-settings) .extension-dashboard-logging-svg-drag-line2,
+.extension-dashboard-logging-privacy-settings-hide-above-input .extension-dashboard-logging-svg-drag-line1,
+.extension-dashboard-logging-privacy-settings-hide-below-input .extension-dashboard-logging-svg-drag-line2,
+.extension-dashboard-logging-privacy-settings-hide-above-input .extension-dashboard-logging-privacy-settings-above-input,
+.extension-dashboard-logging-privacy-settings-hide-below-input .extension-dashboard-logging-privacy-settings-below-input{
+	display:none;
+}
 
 
 
-
-
-
+input[type='number'].extension-dashboard-logging-log-precision-slider-value-input{
+	text-align:center;
+	margin-left:1rem;
+	max-width:8rem;
+	border-radius:2rem;
+	padding:1rem 1.5rem;
+}
 

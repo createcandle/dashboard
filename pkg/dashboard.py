@@ -690,7 +690,9 @@ class DashboardAPIHandler(APIHandler):
                                 if 'log_ids' in request.body:
                                     try:
                                         log_ids = request.body['log_ids'];
-                                        #print("log_ids: ", log_ids)
+                                        if self.DEBUG:
+                                            print("get_logs_data: log_ids: ", log_ids)
+                                        
                                         
                                         if len(log_ids) and os.path.exists(self.logs_db_path):
                                             
@@ -709,6 +711,9 @@ class DashboardAPIHandler(APIHandler):
                                                     epoch_time = from_timestamp
                                                     
                                                 
+                                            if self.DEBUG:
+                                                print("get_logs_data: getting date newer than: " + str(epoch_time))
+                                            
                                             
                                             #print("get_log_data: log_ids: ", log_ids);
                                             #print("get_log_data: 24 hours ago milliseconds timestamp: ", epoch_time);

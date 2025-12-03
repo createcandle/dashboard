@@ -2206,7 +2206,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 .extension-dashboard-widget-property-switch input[type="checkbox"][data-extension-dashboard-update-property] + label strong,
 .extension-dashboard-widget-property-slider input[type="checkbox"][data-extension-dashboard-update-property] + label strong,
 .extension-dashboard-widget-property-color input[type="checkbox"][data-extension-dashboard-update-property] + label strong{
-	width: calc(100% - 65px);
+	width: calc(100% - 55px);
 }
 
 .extension-dashboard-widget-property-slider input[type="checkbox"][data-extension-dashboard-update-property] + label strong:not(:empty){
