@@ -3403,6 +3403,7 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 	font-size: 80%;
 	font-style:italic;
 	text-align:center;
+	display:none;
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w="3"]) .extension-dashboard-widget-log-time-description{
@@ -3508,18 +3509,31 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 
 g.extension-dashboard-log-tooltip-data-container{
 	opacity:0;
-	transition-delay: 3s;
-	transition: opacity .2s linear;
+	/*transition-delay: 3s;
+	transition: opacity .2s linear;*/
 }
 
+.extension-dashboard-log-precision-years g.extension-dashboard-log-tooltip-data-container,
+.extension-dashboard-log-precision-two-years g.extension-dashboard-log-tooltip-data-container,
+.extension-dashboard-log-precision-year g.extension-dashboard-log-tooltip-data-container,
+.extension-dashboard-log-precision-quarter g.extension-dashboard-log-tooltip-data-container,
+.extension-dashboard-log-precision-month g.extension-dashboard-log-tooltip-data-container,
+.extension-dashboard-log-precision-week g.extension-dashboard-log-tooltip-data-container,
+.extension-dashboard-log-precision-day g.extension-dashboard-log-tooltip-data-container,
+.extension-dashboard-log-precision-hour g.extension-dashboard-log-tooltip-data-container,
+.extension-dashboard-log-precision-hours g.extension-dashboard-log-tooltip-data-container,
 .extension-dashboard-log-precision-minute g.extension-dashboard-log-tooltip-data-container{
 	opacity:1;
 	transition-delay: 3s;
+	/*transition: opacity .5s linear;*/
 }
 
 
 g.extension-dashboard-log-tooltip-data-container > rect{
-	opacity:.1;
+	opacity:0;
+}
+.extension-dashboard-logging-unblur g.extension-dashboard-log-tooltip-data-container > rect{
+	opacity:.2;
 }
 
 
@@ -3533,14 +3547,17 @@ g.extension-dashboard-log-tooltip-data-container > rect{
 .extension-dashboard-widget-log-change-buttons-container{
 	height:50px;
 	width:100%;
-	/*position:absolute;*/
-	bottom:0;
-	left:0;
 	background-color:transparent;
 	cursor:pointer;
 	display:flex;
 	justify-content: flex-end;
 	z-index:2;
+}
+
+.grid-stack-item .extension-dashboard-widget-log-change-buttons-container{
+	position:absolute;
+	bottom:0;
+	left:0;
 }
 
 
@@ -3564,19 +3581,38 @@ g.extension-dashboard-log-tooltip-data-container > rect{
 }
 
 
+.extension-dashboard-log-precision-years .extension-dashboard-widget-log-change-button-years,
+.extension-dashboard-log-precision-two-years .extension-dashboard-widget-log-change-button-two-years,
+.extension-dashboard-log-precision-year .extension-dashboard-widget-log-change-button-year,
+.extension-dashboard-log-precision-quarter .extension-dashboard-widget-log-change-button-quarter,
+.extension-dashboard-log-precision-month .extension-dashboard-widget-log-change-button-month,
+.extension-dashboard-log-precision-week .extension-dashboard-widget-log-change-button-week,
+.extension-dashboard-log-precision-day .extension-dashboard-widget-log-change-button-day,
+.extension-dashboard-log-precision-hour .extension-dashboard-widget-log-change-button-hour,
+.extension-dashboard-log-precision-hours .extension-dashboard-widget-log-change-button-hours,
+.extension-dashboard-log-precision-minute .extension-dashboard-widget-log-change-button-minute,
+.extension-dashboard-log-precision-now .extension-dashboard-widget-log-change-button-now{
+	background-color:rgba(0,0,0,.5);
+	color:white;
+}
+
+
+
+
+
 /*
 .extension-dashboard-log-tooltip-data-container > .extension-dashboard-log-tooltip-data-container{
 	opacity:1;
 }
 */
-.extension-dashboard-log-tooltip-data-container > rect:hover,
-.extension-dashboard-log-tooltip-data:hover{
+/*.extension-dashboard-log-tooltip-data-container > rect:hover,*/
+.extension-dashboard-logging-unblur .extension-dashboard-log-tooltip-data:hover{
 	opacity:1;
 	cursor: crosshair;
 }
 
 #extension-dashboard-log-tooltip{
-	position:absolute;
+	position:fixed;
 	z-index:3;
 	background-color:white;
 	padding:5px;

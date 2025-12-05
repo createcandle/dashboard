@@ -154,7 +154,7 @@
 #extension-dashboard-view .extension-dashboard-widget-log-masking-settings select{
 	margin: auto 1rem auto 0;
 	padding:1rem;
-	border-radius:.5rem;
+	border-radius:1rem;
 	font-size: 1.6rem;
 }
 
@@ -201,6 +201,70 @@
 
 
 
+/*  TEMPORAL SETTINGS  */
+
+.extension-dashboard-logging-temporal-limit-line{
+	display:none;
+}
+.extension-dashboard-show-widget-log-settings .extension-dashboard-logging-temporal-limit-line{
+	display:initial;
+}
+
+.extension-dashboard-widget-log-temporal-settings{
+	margin:2rem 0;
+}
+
+.extension-dashboard-widget-log-temporal-settings > div{
+	margin:1rem 0;
+	align-items:center;
+}
+
+#extension-dashboard-view .extension-dashboard-widget-log-temporal-settings input{
+	margin-left:1rem;
+	max-width:6rem;
+	text-align:center;
+	padding:1rem;
+	font-size:1.6rem;
+}
+
+#extension-dashboard-view input.extension-dashboard-widget-log-temporal-settings-recent-input{
+	border-left:3px solid orange;
+}
+#extension-dashboard-view input.extension-dashboard-widget-log-temporal-settings-ancient-input{
+	border-left:3px solid purple;
+}
+
+#extension-dashboard-view .extension-dashboard-widget-log-temporal-settings select{
+	margin-right:1rem;
+	padding:1rem;
+	font-size:1.6rem;
+}
+
+
+
+
+/*  PRECISION SETTING  */
+
+.extension-dashboard-widget-log-precision-settings{
+	max-width:70rem;
+}
+
+.extension-dashboard-widget-log-precision-settings h3{
+	margin-top:3rem;
+	margin-bottom:1rem;
+}
+
+.extension-dashboard-logging-settings-precision-preset-buttons-container{
+	max-width:60%;
+}
+
+.extension-dashboard-logging-settings-precision-preset-buttons-container > li{
+	background-color:rgba(255,255,255,.3);
+	border-radius:1.5rem;
+	padding:.5rem 1rem;
+	cursor:pointer;
+}
+
 input[type='number'].extension-dashboard-logging-log-precision-slider-value-input{
 	text-align:center;
 	margin-left:1rem;
@@ -209,3 +273,23 @@ input[type='number'].extension-dashboard-logging-log-precision-slider-value-inpu
 	padding:1rem 1.5rem;
 }
 
+
+.extension-dashboard-logging-settings-help{
+	font-size:80%;
+	font-style:italic;
+	margin:4rem 0 1rem 0;
+	padding:0 3rem;
+	position:relative;
+	display: flex;
+	align-items: center;
+}
+
+.extension-dashboard-logging-settings-help:not(:empty):before{
+	content:"ⓘ";
+	font-style:initial;
+	position:absolute;
+	left:0;
+	/*top: -0.2rem;*/
+	font-weight:bold;
+	font-size: 2rem;
+}
