@@ -9971,7 +9971,7 @@
 					console.log("dashboard debug: log: current_precision is now: ", current_precision);
 				}
 				
-				if(typeof widget_id == 'string' && typeof this.locally_saved_values[this.current_grid_id][widget_id] != 'undefined' && this.locally_saved_values[this.current_grid_id][widget_id]['viz'] != 'undefined'){
+				if(typeof widget_id == 'string' && typeof this.locally_saved_values[this.current_grid_id][widget_id] != 'undefined' && typeof this.locally_saved_values[this.current_grid_id][widget_id]['viz'] != 'undefined'){
 					this.locally_saved_values[this.current_grid_id][widget_id]['viz']['precision'] = current_precision;
 				}
 				localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
