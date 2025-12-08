@@ -152,6 +152,7 @@
 
 #extension-dashboard-content a{
 	text-decoration:none;
+	color:inherit;
 }
 #extension-dashboard-content ul{
 	list-style: none;
@@ -476,6 +477,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	opacity:.5;
 }
 
+#extension-dashboard-logging-add-log-modal button,
 #extension-dashboard-widget-modal button,
 #extension-dashboard-settings-modal button{
 	padding: 1rem 1.5rem;
@@ -497,12 +499,14 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	border-radius:.5rem;
 }
 
+#extension-dashboard-logging-add-log-modal #extension-dashboard-logging-add-log-modal-save-button,
 #extension-dashboard-settings-modal #extension-dashboard-settings-modal-done-button,
 #extension-dashboard-widget-modal #extension-dashboard-widget-modal-save-button{
 	background-color: #378c19;
 	letter-spacing:0.7px;
 }
 
+#extension-dashboard-logging-add-log-modal-cancel-button,
 #extension-dashboard-settings-modal-reset-button,
 #extension-dashboard-widget-modal-cancel-button{
 	letter-spacing:0.7px;
@@ -585,14 +589,17 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 /*  WIDGET AND SETTINGS MODAL  */
 
+#extension-dashboard-logging-add-log-modal,
 #extension-dashboard-widget-modal{
 	z-index:4;
 	border-radius:1rem;
-	height:90%;
 	max-height:90vh;
 	border:none;
 	background-color: #0d3b5c;
 	max-width:90vw;
+}
+#extension-dashboard-widget-modal{
+	height:90%;
 }
 
 #extension-dashboard-widget-modal::backdrop{
@@ -613,6 +620,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	box-sizing: border-box;
 }
 
+#extension-dashboard-logging-add-log-modal-title,
 #extension-dashboard-widget-modal-ui-container,
 #extension-dashboard-widget-modal-title{
 	color:#eee;
@@ -672,6 +680,12 @@ body.kiosk #extension-dashboard-widget-modal-ui-container:not(:empty){
 	background-color:white;
 	width: calc(100% - 2rem);
 }
+
+#extension-dashboard-logging-add-log-modal select{
+	width:100%;
+}
+
+
 
 
 
@@ -3424,6 +3438,7 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 .extension-dashboard-widget-log-viz{
 	height:100%;
 	flex-grow:1;
+	flex-shrink:1;
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w] .extension-dashboard-widget-log-viz > svg{
@@ -3445,8 +3460,8 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 	stroke:var(--extension-dashboard-widget-text-color);
 }
 
-.grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-y-tick{
-	font-size:1.6rem;
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w] .extension-dashboard-y-tick{
+	font-size:1.4rem;
 	font-weight: 100;
 }
 
@@ -3463,7 +3478,7 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w="5"] .extension-dashboard-x-tick,
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="7"] .extension-dashboard-x-tick,
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="8"] .extension-dashboard-x-tick{
-	font-size:2rem;
+	font-size:1.6rem;
 }
 
 
@@ -3560,6 +3575,12 @@ g.extension-dashboard-log-tooltip-data-container > rect{
 	left:0;
 }
 
+#extension-dashboard-content:not(.extension-dashboard-editing) .grid-stack-item .extension-dashboard-widget-log-change-buttons-container{
+	display:none;
+}
+
+
+
 
 .extension-dashboard-widget-log-change-button{
 	margin: .5rem;
@@ -3576,10 +3597,46 @@ g.extension-dashboard-log-tooltip-data-container > rect{
 	background-color: rgba(0, 0, 0, .3);
 }
 
+.grid-stack-item .extension-dashboard-widget-log-change-button{
+	padding:.5rem 1rem;
+}
+
+.grid-stack-item .extension-dashboard-widget-log-change-buttons-container{
+	padding-right:.5rem;
+	height:auto;
+	bottom:30px;
+}
+
+/*
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-log-change-buttons-container{
+	bottom:30px;
+}
+*/
+
+#extension-dashboard-content .grid-stack-item .extension-dashboard-logging-privacy-container{
+	height:50px;
+	padding-right:1rem;
+}
+#extension-dashboard-content .grid-stack-item .extension-dashboard-logging-property-privacy-button{
+	height:25px;
+	width:25px;
+	display:none;
+}
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"] .extension-dashboard-logging-last-viewed-time::before,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="4"] .extension-dashboard-logging-last-viewed-time::before,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="5"] .extension-dashboard-logging-last-viewed-time::before{
+	content:"👁️ ";
+}
+
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="6"] .extension-dashboard-logging-last-viewed-time::before,
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="7"] .extension-dashboard-logging-last-viewed-time::before{
+	content:"Last viewed: ";
+}
+
+
 .extension-dashboard-widget-log-change-button:hover ~ svg .extension-dashboard-x-tick{
 	font-weight:bold;
 }
-
 
 .extension-dashboard-log-precision-years .extension-dashboard-widget-log-change-button-years,
 .extension-dashboard-log-precision-two-years .extension-dashboard-widget-log-change-button-two-years,
@@ -3703,7 +3760,7 @@ g.extension-dashboard-log-tooltip-data-container > rect{
 .extension-dashboard-widget-thermostat-setpoint-buttons > div{
 	display:flex;
 	align-items:center;
-	justift-content:center;
+	justify-content:center;
 }
 .extension-dashboard-widget-thermostat-setpoint-buttons{
 	font-size:150%;
@@ -3921,6 +3978,10 @@ g.extension-dashboard-log-tooltip-data-container > rect{
 	z-index:5;
 	cursor:pointer;
 }
+#extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-thermostat-setpoint-buttons > div{
+	padding:1px;
+}
+
 .extension-dashboard-widget-thermostat-setpoint-buttons > div > div{
 	width:45px;
 	height:45px;

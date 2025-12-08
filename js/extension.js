@@ -18,7 +18,7 @@
             this.debug = false;
 			this.developer = false;
 			
-            //console.log(window.API);
+           	//console.log("window.API: ", window.API);
             this.content = '';
 			this.get_init_error_counter = 0; // set to a higher number if the slow update failed
 			this.poll_fail_count = 0; // set to a higher number if the voco actions update failed
@@ -183,6 +183,7 @@
 			this.websockets = {};
 			this.websockets_lookup = {}; // quick lookup which properties of which things are represented in the dashboard
 			this.currently_relevant_thing_ids = [];
+			this.websocket_before_unload_added = false;
 			
 			this.recent_events = {};
 			
@@ -242,6 +243,7 @@
 									
 								}
 								else{
+									this.close_all_websockets();
 									this.content_el.classList.add('extension-dashboard-show-logging');
 								}
 							});
@@ -916,6 +918,7 @@
 			});
 			
 			
+			
 			document.getElementById('extension-dashboard-widget-modal-save-button').addEventListener('click', () => {
 				//console.log("clicked on widget modal save button");
 				//console.log("this.modal_el: ", this.modal_el);
@@ -1068,6 +1071,87 @@
 			
 			
 			
+			//
+			//   ADD LOG MODAL
+			//
+			
+			this.add_log_modal_el = document.getElementById('extension-dashboard-logging-add-log-modal');
+			
+			document.getElementById('extension-dashboard-logging-add-log-modal-cancel-button').addEventListener('click', () => {
+				if(!this.add_log_modal_el){
+					this.add_log_modal_el = document.getElementById('extension-dashboard-logging-add-log-modal');
+				}
+				this.add_log_modal_el.close();
+			});
+			
+			document.getElementById('extension-dashboard-logging-add-log-modal-save-button').addEventListener('click', () => {
+				if(!this.add_log_modal_el){
+					this.add_log_modal_el = document.getElementById('extension-dashboard-logging-add-log-modal');
+				}
+				
+				const add_log_thing_select_el = this.add_log_modal_el.querySelector('select.extension-dashboard-modal-thing-select');
+				if(add_log_thing_select_el){
+					//console.log("dashboard debug: add log: thing select was found. it's value: ", add_log_thing_select_el.value);
+					
+					let add_log_property_select_el = this.add_log_modal_el.querySelector('select.extension-dashboard-modal-property-select');
+					if(add_log_property_select_el && add_log_property_select_el.value != '' && add_log_thing_select_el.value != ''){
+						
+						
+						// Check if this log doesn't already exist
+						const thing_id = add_log_thing_select_el.value;
+						const property_id = add_log_property_select_el.value;
+						
+						//console.log("dashboard debug: add log: a thing and property are selected.  thing_id, property_id: ", thing_id, property_id);
+						
+						if(thing_id.length && property_id.length){
+							if(this.logs){
+								for(let lx = 0; lx < this.logs.length; lx++){
+									if(this.logs[lx] && typeof this.logs[lx]['thing'] == 'string' && this.logs[lx]['thing'] == thing_id && typeof this.logs[lx]['property'] == 'string' && this.logs[lx]['property'] == property_id){
+										//console.error("That log already exists");
+									
+										const existing_logging_property_container_el = this.view.querySelector('.extension-dashboard-logging-log-property-container[extension-dashboard-logging-log-property-container-thing_id="' + thing_id + '"][extension-dashboard-logging-log-property-container-property_id="' + property_id + '"]');
+										if(existing_logging_property_container_el){
+											existing_logging_property_container_el.scrollIntoView({behavior: "smooth", block: "center"});
+										}
+										return
+									}
+								}
+							}
+							else{
+								if(this.debug){
+									console.warn("dashboard logging debug: add log modal: save: this.logs did not exist yet?", this.logs);
+								}
+							}
+						
+							//console.log("calling this.add_new_log with thing_id, property_id: ", thing_id, property_id);
+							
+							this.add_new_log(thing_id,property_id)
+							.then((log_created_succesfully) => {
+								//console.log("log was succesfully added?: ", log_created_succesfully);
+								this.show_logging(true); // force updating log data
+							})
+							.catch((err) => {
+								console.error("dashboard: add_new_log was rejected: ", err);
+							})
+						}
+						
+					}
+				}
+				else{
+					console.error("dashboard: add log: save: could not find add log modal thing select el");
+				}
+				
+				this.add_log_modal_el.close();
+			});
+			
+			document.getElementById('extension-dashboard-logging-show-add-log-modal-button').addEventListener('click', () => {
+				if(!this.add_log_modal_el){
+					this.add_log_modal_el = document.getElementById('extension-dashboard-logging-add-log-modal');
+				}
+				this.populate_add_log_modal();
+				this.add_log_modal_el.showModal();
+				
+			});
 			
 		} // end of show function
 
@@ -1145,6 +1229,36 @@
 			*/
 
         }
+
+		close_all_websockets(){
+			for (const [websocket_thing_id, websocket_client] of Object.entries( this.websockets )) {
+				if(websocket_client){
+					websocket_client.close(websocket_thing_id);
+				}
+			}
+			
+		}
+
+		add_websocket_on_before_unload(){
+			if(this.websocket_before_unload_added == false){
+				this.websocket_before_unload_added = true;
+				window.addEventListener("beforeunload", (event) => {
+					this.close_all_websockets();
+				    //event.preventDefault();
+				    //event.returnValue = ''; // This triggers the confirmation dialog
+				});
+				
+				if(this.debug){
+					console.log("dashboard debug: added websocket before_unload event listener");
+				}
+				
+			}
+			
+		}
+
+
+
+
 
 
 		modify_css(selector, cssProp, cssVal){
@@ -2384,6 +2498,7 @@
 				  }
 
 				  connect() {
+					  this.reconnect_scheduled = false;
 					  //console.error("websocket client: in connect().  this.thing_id: ", this.thing_id);
 					  if(this.connecting == true){
 						  console.error("websocket client: already busy connecting!  this.thing_id: ", this.thing_id);
@@ -2455,17 +2570,19 @@
 				      //console.log(`dashboard: WebSocket closed: ${event.code} - ${event.reason}`, event);
 				      this.isConnected = false;
 					  this.connecting = false;
+					  this.reconnect_scheduled = false;
 				      this.stopHeartbeat();
 
 					  event['thing_id'] = this.thing_id;
 				      // Trigger custom close handlers
 				      this.trigger('close', event);
-
+					  /*
 				      // Attempt to reconnect if not a normal closure
 				      if (event.code !== 1000 && event.code !== 1001) {
-						//console.warn("websocket client: unexpected connection closure");
+						console.warn("websocket client: unexpected connection closure. scheduling reconnect.");
 				        this.scheduleReconnect();
 				      }
+					  */
 				    };
 				  }
 
@@ -2482,6 +2599,7 @@
 				  }
 
 				  startHeartbeat() {
+					  return
 				    this.stopHeartbeat();
 				    this.heartbeatTimer = setInterval(() => {
 				      if (this.ws.readyState === WebSocket.OPEN) {
@@ -2500,6 +2618,7 @@
 				  }
 
 				  stopHeartbeat() {
+					  return
 				    if (this.heartbeatTimer) {
 				      clearInterval(this.heartbeatTimer);
 				      this.heartbeatTimer = null;
@@ -2507,8 +2626,16 @@
 				  }
 
 				  scheduleReconnect() {
+					  if(this.connecting){
+						  console.error("dashboard: websocket client: in scheduleReconnect, it seems the client is busy reconnecting? Aborting.");
+						  return
+					  }
+					  if(this.reconnect_scheduled){
+						  console.error("dashboard: websocket client: in scheduleReconnect, but a reconnect was already scheduled. Aborting.");
+						  return
+					  }
 				    if (this.reconnectAttempts >= this.options.maxReconnectAttempts) {
-				      //console.error('Dashboard: wesocket max reconnection attempts reached');
+				      console.error('Dashboard: websocket max reconnection attempts reached (50)');
 				      this.trigger('maxReconnectAttemptsReached');
 				      return;
 				    }
@@ -2516,9 +2643,10 @@
 				    this.reconnectAttempts++;
 				    const delay =
 				      this.options.reconnectInterval * Math.pow(2, this.reconnectAttempts - 1);
-					  //console.warn(`Dashboard: websocket reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})...`);
+					  console.warn(`Dashboard: websocket reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})...`);
 
 				    setTimeout(() => {
+						this.reconnect_scheduled = true;
 				      this.connect();
 				    }, delay);
 				  }
@@ -3405,6 +3533,9 @@
 				
 				//console.log("connect_websockets: this.websockets is now: ", this.websockets);
 				
+				if(this.websocket_before_unload_added == false){
+					this.add_websocket_on_before_unload();
+				}
 			}
 		}
 
@@ -5582,12 +5713,14 @@
 		        	grid_id = this.current_grid_id;
 		        }
 			
+				/*
 				if(widget_id == null){
 					if(this.debug){
 						console.error("dashboard: generate_thing_selector: no widget_id provided! aborting");
 					}
 					reject(null);
 				}
+				*/
 				
 				//console.log("generate_thing_selector: available dashboard data: ", this.dashboards[grid_id]['widgets'][widget_id]);
 			
@@ -5719,7 +5852,7 @@
 							console.log("dashboard debug: change_to_thing_id: ", change_to_thing_id);
 						}
 						if(change_to_thing_id == ''){
-							
+						
 							/*
 							console.log("user deselected a thing.  But which property/action should be removed? property_select_el: ", property_select_el);
 							console.log("- what_property_is_needed: ", what_property_is_needed);
@@ -5749,13 +5882,13 @@
 								if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['action_id'] == 'string'){
 									delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['action_id'];
 								}
-							
+						
 								//console.warn("dashboard data for need_type is now: ", need_type, this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed])
 							}
-							
+						
 						}
 						else{
-							
+						
 							property_select_el = this.generate_property_select(grid_id,widget_id,change_to_thing_id,null,what_property_is_needed,need_type);
 							if(property_select_el){
 								thing_select_property_container_el.innerHTML = '';
@@ -5767,8 +5900,8 @@
 								}
 								thing_select_property_container_el.innerHTML = '?';
 							}
-							
-							
+						
+						
 							// Try to pre-select this thing for the other thing-property selectors if they don't have a selection yet
 							const update_root_el = thing_select_el.closest('.extension-dashboard-widget-ui-update-container');
 							if(update_root_el){
@@ -5784,16 +5917,18 @@
 											var event = new Event('change');
 											all_thing_selectors[ts].dispatchEvent(event);
 										}
-									
+								
 									}
 								}
 							}
-							
-							
+						
 						}
-						
-						
+					
                 	});
+	                	
+					
+					
+                	
 					
 					thing_select_thing_container_el.appendChild(thing_select_el);	
 				
@@ -5872,6 +6007,7 @@
 								if(typeof things[key][attribute] != 'undefined' && Object.keys(things[key][attribute]).length){
 									
 									let property_select_el = document.createElement('select');
+									property_select_el.classList.add('extension-dashboard-modal-property-select');
 									let properties = things[key][attribute];
 									
 									let empty_property_option_el = document.createElement('option');
@@ -5904,8 +6040,33 @@
 										}
 										
 										if(typeof property_title == 'string'){
-						
+											
 											let property_option_el = document.createElement('option');
+											
+											
+											if (grid_id == 'logging' && properties[prop].type !== 'boolean' && properties[prop].type !== 'number' && properties[prop].type !== 'integer') {
+												if(this.debug){
+													console.log("dashboard debug: generate_property_select: logging: skipping a property that cannot currently be logged: ",  thing_id, property_id, properties[prop] );
+												}
+												continue;
+											}
+											
+											
+											if(this.logs){
+												for(let lx = 0; lx < this.logs.length; lx++){
+													if(this.logs[lx] && typeof this.logs[lx]['thing'] == 'string' && this.logs[lx]['thing'] == thing_id && typeof this.logs[lx]['property'] == 'string' && this.logs[lx]['property'] == property_id){
+														if(this.debug){
+															console.log("dashboard debug: generate_property_select: a log already exists for thing_id, property_id: ",  thing_id, property_id );
+														}
+														property_title = '📈 ' + property_title;
+														property_option_el.setAttribute('data-already-has-log', this.logs[lx]['id']);
+														break
+													}
+												}
+											}
+						
+						
+											
 											property_option_el.value = property_id;
 											property_option_el.textContent = property_title;
 						
@@ -5924,150 +6085,152 @@
 										empty_property_option_el.setAttribute('selected','selected');
 									}
 				
-				
-									property_select_el.addEventListener("change", () => {
+									if(typeof widget_id == 'string'){
+										property_select_el.addEventListener("change", () => {
 					
-										const property_id = property_select_el.value;
-										if(this.debug){
-											console.log("dashboard debug: switched to property/action with ID: ", property_id);
-										}
+											const property_id = property_select_el.value;
+											if(this.debug){
+												console.log("dashboard debug: switched to property/action with ID: ", property_id);
+											}
 										
-										if(typeof property_id == 'string' && typeof properties[property_id] != 'undefined'){
+											if(typeof property_id == 'string' && typeof properties[property_id] != 'undefined'){
 											
-											if(typeof this.dashboards[grid_id]['widgets'] == 'undefined'){
-												this.dashboards[grid_id]['widgets'] = {};
-											}
-											if(typeof this.dashboards[grid_id]['widgets'][widget_id] == 'undefined'){
-												this.dashboards[grid_id]['widgets'][widget_id] = {};
-											}
-											
-											if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'] == 'undefined'){
-												this.dashboards[grid_id]['widgets'][widget_id]['needs'] = {};
-											}
-											if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type] == 'undefined'){
-												this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type] = {};
-											}
-											if(typeof what_property_is_needed == 'string'){
-												if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed] == 'undefined'){
-													this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed] = {};
+												if(typeof this.dashboards[grid_id]['widgets'] == 'undefined'){
+													this.dashboards[grid_id]['widgets'] = {};
 												}
-											}
-											
-											
-											if(property_id == ''){
-												
-												if(this.debug){
-													console.log("dashboard debug: de-selected the property");
+												if(typeof this.dashboards[grid_id]['widgets'][widget_id] == 'undefined'){
+													this.dashboards[grid_id]['widgets'][widget_id] = {};
 												}
-												
-												// switched to unselected
+											
+												if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'] == 'undefined'){
+													this.dashboards[grid_id]['widgets'][widget_id]['needs'] = {};
+												}
+												if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type] == 'undefined'){
+													this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type] = {};
+												}
 												if(typeof what_property_is_needed == 'string'){
-													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_id'] == 'string'){
-														if(this.debug){
-															console.log("removed connection to previously linked thing: " + this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_id']);
-														}
-														delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_id'];
+													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed] == 'undefined'){
+														this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed] = {};
 													}
-													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_title'] == 'string'){
-														delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_title'];
-													}
-													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_id'] == 'string'){
-														delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_id'];
-													}
-													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_title'] == 'string'){
-														delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_title'];
-													}
-													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_details'] != 'undefined'){
-														delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_details'];
-													}
-													if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['action_id'] != 'undefined'){
-														delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['action_id'];
-													}
-												}
-											}
-											else{
-												var property_title = "Unnamed";
-												if( properties[property_id].hasOwnProperty('title') ){
-													property_title = properties[property_id]['title'];
-												}
-												else if( properties[property_id].hasOwnProperty('label') ){
-													property_title = properties[property_id]['label'];
-												}
-												else {
-													property_title = property_id;
-												}
-												
-												if(this.debug){
-													console.log("dashboard debug: selected the property: ", property_title, ", for what_property_is_needed: ", what_property_is_needed);
 												}
 											
-												if(typeof what_property_is_needed == 'string'){
-													this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_id'] = thing_id;
-													this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_title'] = thing_title;
-													this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_id'] = property_id;
-													this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['action_id'] = property_id;
-													this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_title'] = property_title;
-													if(typeof properties[property_id] != 'undefined'){
-														this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_details'] = properties[property_id];
+											
+												if(property_id == ''){
+												
+													if(this.debug){
+														console.log("dashboard debug: de-selected the property");
 													}
-													
-													const suggested_names_container_el = this.view.querySelector('#extension-dashboard-widget-suggested-names-container');
-													if(suggested_names_container_el){
-														let existing_suggestions = [];
-														if(suggested_names_container_el.children.length < 10){
-															for(let es = 0; es < suggested_names_container_el.children.length; es++){
-																existing_suggestions.push(suggested_names_container_el.children[es].textContent);
+												
+													// switched to unselected
+													if(typeof what_property_is_needed == 'string'){
+														if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_id'] == 'string'){
+															if(this.debug){
+																console.log("removed connection to previously linked thing: " + this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_id']);
 															}
-															console.log("existing_suggestions: ", existing_suggestions);
-														
-															if(typeof thing_title == 'string' && thing_title.length){
-																if(existing_suggestions.indexOf(thing_title) == -1){
-																	let title_suggestion_el = document.createElement('li');
-																	title_suggestion_el.classList.add('extension-dashboard-list-selector-item');
-																	title_suggestion_el.textContent = thing_title;
-																	suggested_names_container_el.appendChild(title_suggestion_el);
-																}
-															}
-														
-															if(typeof property_title == 'string' && property_title.length){
-																if(existing_suggestions.indexOf(property_title) == -1){
-																	let property_suggestion_el = document.createElement('li');
-																	property_suggestion_el.classList.add('extension-dashboard-list-selector-item');
-																	property_suggestion_el.textContent = property_title;
-																	suggested_names_container_el.appendChild(property_suggestion_el);
-																}
-															}
-														
-															if(typeof thing_title == 'string' && thing_title.length && typeof property_title == 'string' && property_title.length){
-																const thing_property_title = thing_title + ' ' + property_title;
-																if(existing_suggestions.indexOf(thing_property_title) == -1){
-																	let thing_property_suggestion_el = document.createElement('li');
-																	thing_property_suggestion_el.classList.add('extension-dashboard-list-selector-item');
-																	thing_property_suggestion_el.textContent = thing_property_title;
-																	suggested_names_container_el.appendChild(thing_property_suggestion_el);
-																}
-															}
+															delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_id'];
 														}
-														
+														if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_title'] == 'string'){
+															delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_title'];
+														}
+														if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_id'] == 'string'){
+															delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_id'];
+														}
+														if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_title'] == 'string'){
+															delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_title'];
+														}
+														if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_details'] != 'undefined'){
+															delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_details'];
+														}
+														if(typeof this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['action_id'] != 'undefined'){
+															delete this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['action_id'];
+														}
 													}
-													
-													
 												}
 												else{
+													var property_title = "Unnamed";
+													if( properties[property_id].hasOwnProperty('title') ){
+														property_title = properties[property_id]['title'];
+													}
+													else if( properties[property_id].hasOwnProperty('label') ){
+														property_title = properties[property_id]['label'];
+													}
+													else {
+														property_title = property_id;
+													}
+												
 													if(this.debug){
-														console.error("dashboard debug: property_select changed, but what_property_is_needed is not a string?");
+														console.log("dashboard debug: selected the property: ", property_title, ", for what_property_is_needed: ", what_property_is_needed);
+													}
+											
+													if(typeof what_property_is_needed == 'string'){
+														this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_id'] = thing_id;
+														this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['thing_title'] = thing_title;
+														this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_id'] = property_id;
+														this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['action_id'] = property_id;
+														this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_title'] = property_title;
+														if(typeof properties[property_id] != 'undefined'){
+															this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]['property_details'] = properties[property_id];
+														}
+													
+														const suggested_names_container_el = this.view.querySelector('#extension-dashboard-widget-suggested-names-container');
+														if(suggested_names_container_el){
+															let existing_suggestions = [];
+															if(suggested_names_container_el.children.length < 10){
+																for(let es = 0; es < suggested_names_container_el.children.length; es++){
+																	existing_suggestions.push(suggested_names_container_el.children[es].textContent);
+																}
+																console.log("existing_suggestions: ", existing_suggestions);
+														
+																if(typeof thing_title == 'string' && thing_title.length){
+																	if(existing_suggestions.indexOf(thing_title) == -1){
+																		let title_suggestion_el = document.createElement('li');
+																		title_suggestion_el.classList.add('extension-dashboard-list-selector-item');
+																		title_suggestion_el.textContent = thing_title;
+																		suggested_names_container_el.appendChild(title_suggestion_el);
+																	}
+																}
+														
+																if(typeof property_title == 'string' && property_title.length){
+																	if(existing_suggestions.indexOf(property_title) == -1){
+																		let property_suggestion_el = document.createElement('li');
+																		property_suggestion_el.classList.add('extension-dashboard-list-selector-item');
+																		property_suggestion_el.textContent = property_title;
+																		suggested_names_container_el.appendChild(property_suggestion_el);
+																	}
+																}
+														
+																if(typeof thing_title == 'string' && thing_title.length && typeof property_title == 'string' && property_title.length){
+																	const thing_property_title = thing_title + ' ' + property_title;
+																	if(existing_suggestions.indexOf(thing_property_title) == -1){
+																		let thing_property_suggestion_el = document.createElement('li');
+																		thing_property_suggestion_el.classList.add('extension-dashboard-list-selector-item');
+																		thing_property_suggestion_el.textContent = thing_property_title;
+																		suggested_names_container_el.appendChild(thing_property_suggestion_el);
+																	}
+																}
+															}
+														
+														}
+													
+													
+													}
+													else{
+														if(this.debug){
+															console.error("dashboard debug: property_select changed, but what_property_is_needed is not a string?");
+														}
+													}
+													if(this.debug){
+														console.log("dashboard debug: after select change, needs details is now: ", this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]);
 													}
 												}
-												if(this.debug){
-													console.log("dashboard debug: after select change, needs details is now: ", this.dashboards[grid_id]['widgets'][widget_id]['needs'][need_type][what_property_is_needed]);
-												}
+											
+											
+											
 											}
-											
-											
-											
-										}
 					
-									});
+										});
+									}
+									
 							
 									//var fake_change_event = new Event('candle');
 									//property_select_el.dispatchEvent(fake_change_event);
@@ -6389,7 +6552,7 @@
 				if(this.debug){
 					console.error("dashboard debug: render_log: log_data was empty array, aborting: ", this.logs_data[log_id]);
 				}
-				return
+				//return
 			}
 			
 			let log_thing_id = null;
@@ -6463,6 +6626,12 @@
 			
 			const second_id = log_viz_container_el.getAttribute('data-extension-dashboard-log-second_id');
 			
+			const does_log_el_exist = log_viz_container_el.querySelector('div[data-extension-dashboard-log-id="' + log_id + '"]');
+			
+			
+			if(does_log_el_exist == null){
+				force_redraw = true;
+			}
 			
 			// ONLY RE-RENDER IS THERE IS FRESH DATA, OR IF fresh_log_data_load WAS SET TO TRUE
 			if(force_redraw == false && typeof this.newest_log_points[log_id] != 'undefined' && typeof this.newest_log_points[log_id]['d'] != 'undefined' && log_data.length && typeof log_data[log_data.length-1]['d'] != 'undefined' && this.newest_log_points[log_id]['d'].getTime() == log_data[log_data.length-1]['d'].getTime()){
@@ -6631,7 +6800,8 @@
 				if(typeof this.locally_saved_values[this.current_grid_id][widget_id]['viz'] == 'undefined'){
 					this.locally_saved_values[this.current_grid_id][widget_id]['viz'] = {};
 				}
-				if(typeof this.locally_saved_values[this.current_grid_id][widget_id]['viz']['precision'] == 'string'){
+				
+				if(typeof this.locally_saved_values[this.current_grid_id] != 'undefined' && typeof this.locally_saved_values[this.current_grid_id][widget_id] != 'undefined' && typeof this.locally_saved_values[this.current_grid_id][widget_id]['viz'] != 'undefined' && typeof this.locally_saved_values[this.current_grid_id][widget_id]['viz']['precision'] == 'string'){
 					current_precision = this.locally_saved_values[this.current_grid_id][widget_id]['viz']['precision'];
 					if(this.debug){
 						console.warn("dashboard debug: log: got current_precision from locally_saved_values: ", current_precision);
@@ -6794,13 +6964,49 @@
 			// clean up bad datapoints
 			function prune_bad_values(suspicious_log_data){
 				
-				if(suspicious_log_data && suspicious_log_data.length){
+				if(suspicious_log_data && Array.isArray(suspicious_log_data) && suspicious_log_data.length){
 					
 					for(let x = suspicious_log_data.length - 1; x >= 0; x--){
+						
+						if(typeof suspicious_log_data[x] == 'undefined'){
+							console.error("prune_bad_values: the entire datapoint was undefined! x: ", x);
+							suspicious_log_data.splice(x,1);
+							continue
+						}
+						
 						if(typeof suspicious_log_data[x]['v'] == 'undefined' || suspicious_log_data[x]['v'] == null || isNaN(suspicious_log_data[x]['v']) ){
 							//console.log("prune_bad_values: spotted a bad value, removing datapoint " + JSON.stringify(suspicious_log_data[x]));
 							suspicious_log_data.splice(x,1);
+							continue
 						}
+						if(typeof suspicious_log_data[x]['d'] == 'number'){
+							if(!isNaN(suspicious_log_data[x]['d'])){
+								console.error("prune_bad_values: data point's date was still a number? Fixing.." + JSON.stringify(suspicious_log_data[x]));
+								suspicious_log_data[x]['d'] = new Date(suspicious_log_data[x]['d']);
+							}
+							else{
+								console.error("prune_bad_values: data point's date was Not A Number? " + JSON.stringify(suspicious_log_data[x]));
+							}
+						}
+						
+						
+						//console.log("prune_bad_values: typeof suspicious_log_data[x]['d']: ", typeof suspicious_log_data[x]['d']);
+						
+						if(typeof suspicious_log_data[x]['d'] == 'undefined' || suspicious_log_data[x]['d'] == null || typeof suspicious_log_data[x]['d'] != 'object' ){
+							console.log("prune_bad_values: spotted a bad date, removing datapoint " + JSON.stringify(suspicious_log_data[x]));
+							suspicious_log_data.splice(x,1);
+							continue
+						}
+						
+						if(typeof suspicious_log_data[x]['millis_into_the_past'] != 'undefined'){
+							delete suspicious_log_data[x]['millis_into_the_past'];
+						}
+						
+						if(typeof suspicious_log_data[x]['h'] != 'undefined'){
+							delete suspicious_log_data[x]['h'];
+						}
+						
+						
 					}
 				}
 				return suspicious_log_data;
@@ -6808,6 +7014,55 @@
 			
 			
 			
+			
+			
+			
+			const get_optimal_log_data = (log_seniority='first') => {
+				
+				if(typeof log_datum[log_seniority] != 'undefined'){
+					
+					//console.log("in get_optimal_log_data.  current_precision, first keys: ", current_precision, Object.keys(log_datum['first']));
+					//console.warn("full log_datum: ", log_datum[log_seniority]);
+					
+					if(current_precision == 'hours' && typeof log_datum[log_seniority]['log_data'] != 'undefined'){
+						//console.log("get_optimal_log_data: returning log_data");
+						return log_datum[log_seniority]['log_data'];
+					}
+					else if( (current_precision == 'day' || current_precision == 'week') && typeof log_datum[log_seniority]['pancaked_log_data'] != 'undefined'){
+						//console.log("get_optimal_log_data: returning pancaked_log_data");
+						return log_datum[log_seniority]['pancaked_log_data'];
+					}
+					else if(typeof log_datum[log_seniority]['montly_log_data'] != 'undefined'){
+						//console.log("get_optimal_log_data: returning monthly_log_data");
+						return log_datum[log_seniority]['montly_log_data'];
+					}
+					else if(typeof log_datum[log_seniority]['pancaked_log_data'] != 'undefined'){
+						if(this.debug){
+							console.warn("dashboard debug: render_log: get_optimal_log_data: falling back to pancaked_log_data for current_precision: ", current_precision);
+						}
+						return log_datum[log_seniority]['pancaked_log_data'];
+					}
+					else if(typeof log_datum[log_seniority]['log_data'] != 'undefined'){
+						if(this.debug){
+							console.warn("dashboard debug: render_log: get_optimal_log_data: falling back to log_data for current_precision: ", current_precision);
+						}
+						return log_datum[log_seniority]['log_data'];
+					}
+					
+					if(this.debug){
+						console.error("dashboard debug: render_log: get_optimal_log_data fell through.  current_precision, log_datum['first']: ", current_precision, typeof log_datum['first']);
+					}
+				}
+				else{
+					if(this.debug && log_seniority != 'second'){
+						console.error("dashboard debug: render_log: get_optimal_log_data: no log_datum['" + log_seniority + "']?  log_seniority,log_datum: ", log_datum);
+					}
+				}
+				if(this.debug && log_seniority != 'second'){
+					console.error("dashboard debug: render_log: get_optimal_log_data fell through. returning empty array.  log_seniority: ", log_seniority);
+				}
+				return [];
+			}
 			
 			
 			
@@ -6832,7 +7087,7 @@
 				let wrangle_result = {};
 				
 				let pancaked_log_data = structuredClone(log_data);
-				
+				//console.log("initial pancaked_log_data.length: ", pancaked_log_data);
 			
 				
 				// Find out some information about the length of time we have data for
@@ -6869,18 +7124,19 @@
 				// Check if the data is for a boolean
 				let is_boolean_log = true;
 				let spotted_a_one = false;
-				for(let dp = 0; dp < log_data.length; dp++){
-					if(typeof log_data[dp]['v'] != 'number' || typeof log_data[dp]['d'] == 'undefined'){
+				//console.log('checking if boolean log. log_data.length: ', log_data.length);
+				for(let dpe = 0; dpe < log_data.length; dpe++){
+					if(typeof log_data[dpe]['v'] != 'number' || typeof log_data[dpe]['d'] == 'undefined'){
 						if(this.debug){
-							console.error("SKIPPING LOG! unexpected/missing value in log datapoint: ", log_data[dp]);
+							console.error("SKIPPING LOG! unexpected/missing value in log datapoint: ", log_data[dpe]);
 						}
 						continue
 					}
-					if(log_data[dp]['v'] === 1){
+					if(log_data[dpe]['v'] === 1){
 						spotted_a_one = true;
 					}
 				
-					if(log_data[dp]['v'] != 1 && log_data[dp]['v'] != 0){
+					if(log_data[dpe]['v'] != 1 && log_data[dpe]['v'] != 0){
 						is_boolean_log = false;
 						break
 					}
@@ -6969,10 +7225,14 @@
 				
 				let gave_oldness_warning = false;
 				
+				//console.log('about to squish? log_data.length: ', log_data.length);
+				
 				for(let dp = log_data.length - 1; dp >= 0; dp--){
 					//console.log("dp: ", log_property_id, dp);
 					if(typeof log_data[dp] == 'undefined'){
-						console.error("undefined entry while looping over log data. dp: ", dp);
+						if(this.debug){
+							console.error("dashboard debug: render_log: undefined entry while looping over log data. dp: ", dp);
+						}
 						continue
 					}
 					const this_date_stamp = log_data[dp]['d'].getTime();
@@ -6982,7 +7242,9 @@
 					if(this_date_stamp < Date.now() - (7 * 24 * 3600000)){
 						if(gave_oldness_warning == false){
 							gave_oldness_warning = true;
-							//console.warn("this log_data datapoint is more than a week old: " + this_date_stamp + " (" + log_data[dp]['d'] + ").  index: ", dp, " of log_data.length: ", log_data.length, " for thing_id,property_id: ", thing_id, property_id);
+							if(this.debug){
+								console.warn("dashboard debug: render_log: this log_data datapoint is more than a week old: " + this_date_stamp + " (" + log_data[dp]['d'] + ").  index: ", dp, " of log_data.length: ", log_data.length, " for thing_id,property_id: ", thing_id, property_id);
+							}
 						}
 						
 						continue
@@ -7162,25 +7424,33 @@
 								hours_data[hours_into_the_past]['average'] = final_average;
 							
 								if(typeof alt_log_data[ ((alt_log_data.length - 1) - hours_into_the_past) ] == 'undefined'){
-									console.error("dashboard debug:  log: missing index in alt_log_data: ", (alt_log_data.length - hours_into_the_past));
+									if(this.debug){
+										console.error("dashboard debug:  log: missing index in alt_log_data: ", (alt_log_data.length - hours_into_the_past));
+									}
 								}
 								else if(final_average != null){
 									alt_log_data[ ( (alt_log_data.length - 1) - hours_into_the_past) ]['v'] = final_average;
 								}
 								
-								//console.log("squishing datapoints: ", dp + 1, " to ", last_squished_dp);
+								//console.log(dp, ". pancaked_log_data: squishing datapoints: ", dp + 1, " up to ", last_squished_dp);
 								for(let hl = dp + 1; hl < last_squished_dp; hl++){
+									//console.log(hl, ". squish! " + pancaked_log_data[hl]['v'] + " -> " + final_average);
 									pancaked_log_data[hl]['v'] = final_average;
 								}
 								last_squished_dp = dp + 1;
 								if(dp == 0){
-									pancaked_log_data[0]['v'] = final_average;
-									last_squished_dp = 0;
-									//console.log("fully squished the hourly averaged version of the log data.  pancaked_log_data: ", pancaked_log_data);
-									
+									//console.log("done squishin'.  final_average: ", final_average);
 									if(final_average != null){
+										
+										pancaked_log_data[0]['v'] = final_average;
+										last_squished_dp = 0;
+										//console.log("squishin'.  fully squished the hourly averaged version of the log data.  pancaked_log_data: ", pancaked_log_data);
+										//console.log("squishin'.  alt_log_data before setting the last index: ", JSON.stringify(alt_log_data,null,2));
+										//console.log("squishin'.  also setting alt_log_data to the final_average at index: ", ( (alt_log_data.length - 1) - hours_into_the_past), alt_log_data[ ( (alt_log_data.length - 1) - hours_into_the_past) ])
+										
 										alt_log_data[ ( (alt_log_data.length - 1) - hours_into_the_past) ]['v'] = final_average;
 									}
+									
 								}
 								
 							}
@@ -7404,9 +7674,6 @@
 				
 				
 					
-				
-				
-					
 					if(is_boolean_log == false && min_max_lines_would_be_nice == false && hours_data[hours_into_the_past]['minimum'] != null && hours_data[hours_into_the_past]['maximum'] != null){
 						if(hours_data[hours_into_the_past]['minimum'] != hours_data[hours_into_the_past]['maximum']){
 							if(hours_data[hours_into_the_past]['minimum'] > hours_data[hours_into_the_past]['maximum']){
@@ -7443,7 +7710,9 @@
 				//console.log("last_squished_dp: ", last_squished_dp);
 				if(last_squished_dp != 0){
 					pancaked_log_data.splice(0,last_squished_dp); // it's pretty certain that the average for the oldest day can't be calculated because some early datapoints that day may not be retrieved from the database. So that day is trimmed from the dataset.
+					log_data.splice(0,last_squished_dp);
 				}
+				//console.log("pancaked_log_data after removing all datapoints up to last_squished_dp: ", last_squished_dp, pancaked_log_data);
 				
 				/*
 				if(is_boolean_log){
@@ -7475,7 +7744,7 @@
 			
 				// cleaning invalid values first
 				//console.log("cleaning up log_data")
-				log_data = prune_bad_values(log_data);
+				//log_data = prune_bad_values(log_data);
 				//console.log("cleaning up alt_log_data")
 				alt_log_data = prune_bad_values(alt_log_data);
 				
@@ -7505,12 +7774,14 @@
 				else{
 					for(let pr = log_data.length - 1; pr >= 0; pr-- ){
 						
-						if(typeof log_data[pr] != 'undefined' && typeof log_data[pr]['v'] != 'undefined' && log_data[pr]['v'] != null && typeof log_data[pr]['d'] != 'undefined'){
-							
+						if(typeof log_data[pr] != 'undefined' && typeof log_data[pr]['v'] != 'undefined' && log_data[pr]['v'] != null && !isNaN(log_data[pr]['v']) && typeof log_data[pr]['d'] != 'undefined'){
+							/*
 							if(log_data[pr]['d'].getTime() > now_timestamp - (60 * 60 * 1000)){
 								pruned_log_data.unshift(log_data[pr]);
 							}
-							else if(pruned_log_data.length < 50 && log_data[pr]['d'].getTime() > now_timestamp - (3 * 60 * 60 * 1000)){
+							else 
+							*/
+							if(pruned_log_data.length < 50 && log_data[pr]['d'].getTime() > now_timestamp - (3 * 60 * 60 * 1000)){
 								pruned_log_data.unshift(log_data[pr]);
 							}
 							
@@ -7523,16 +7794,20 @@
 					console.log("pruned_log_data.length, pruned_log_data: ", pruned_log_data.length, pruned_log_data);
 				}
 				
+				let newest_pruned_timestamp = null;
+				let oldest_pruned_timestamp = null;
+				
 				if(pruned_log_data.length == 0){
 					if(this.debug){
 						console.error("pruned_log_data.length was 0 - no log data for the past week?  thing_id,property_id: ", thing_id, property_id);
 					}
-					
 				}
 				else{
-					const oldest_pruned_timestamp = pruned_log_data[0]['d'].getTime();
-					if(oldest_pruned_timestamp > now_timestamp - (24 * 3600000)){
-						precisions['hours'] = oldest_pruned_timestamp
+					pruned_log_data = prune_bad_values(pruned_log_data);
+					newest_pruned_timestamp = d3.max(pruned_log_data, d => d.d);
+					oldest_pruned_timestamp = d3.min(pruned_log_data, d => d.d);
+					if(oldest_pruned_timestamp > now_timestamp - (3 * 24 * 3600000) && newest_pruned_timestamp > oldest_pruned_timestamp){ // || newest_pruned_timestamp > now_timestamp - (24 * 3600000)
+						precisions['hours'] = oldest_pruned_timestamp;
 					}
 				}
 				
@@ -7540,82 +7815,89 @@
 				
 			
 				function make_square_wave_data(old_data=[], is_boolean=true){
+					//return old_data;
 					let new_log_data = [];
 					let previous_value = null;
 					let previous_date = null;
 				
-					old_data = prune_bad_values(old_data);
+					//old_data = prune_bad_values(old_data);
 					//console.log("make_square_wave_data: old_data before: \n", JSON.stringify(old_data,null,2));
 				
 				
 					//console.log("dashboard debug: square_wave: old_data.length before adding boolean sawtooth datapoints: ", old_data.length);
 				
-				
-					for(let dp = 0; dp < old_data.length; dp++){
+					if(old_data.length){
+						for(let dp = 0; dp < old_data.length - 1; dp++){
 						
-						if(typeof old_data[dp]['d'] == 'number'){
-							//console.warn("make_square_wave_data: ['d'] was a timestamp and not a date object");
-							old_data[dp]['d'] = new Date(old_data[dp]['d']);
-						}
+							if(typeof old_data[dp]['d'] == 'number'){
+								//console.warn("make_square_wave_data: ['d'] was a timestamp and not a date object");
+								old_data[dp]['d'] = new Date(old_data[dp]['d']);
+							}
 					
-						if(old_data[dp]['v'] == null){
-							if(this.debug){
-								console.error('dashboard debug: make_square_wave_data: spotted null value in provided log data at positon', dp);
+							if(typeof old_data[dp]['v'] == 'undefined' || old_data[dp]['v'] == null || isNaN(old_data[dp]['v'])){
+								if(this.debug){
+									console.error('dashboard debug: make_square_wave_data: spotted null value in provided log data at positon', dp);
+								}
+								//previous_value = null;
+								//previous_date = null;
+								continue
 							}
-							//previous_value = null;
-							//previous_date = null;
-							continue
-						}
-						/*
-						if(previous_value == null && old_data[dp]['v'] != null){
-							previous_value = old_data[dp]['v'];
-							previous_date = old_data[dp]['d'];
-							//console.log("typeof log_data[dp]['d']: ", typeof log_data[dp]['d'], log_data[dp]['d']);
-						}
-						*/
 						
-						if(previous_value != null && previous_date != null && old_data[dp]['v'] != previous_value){
+						
+						
+						
+							if(previous_value != null && previous_date != null && old_data[dp]['v'] != previous_value && old_data[dp]['v'] != null){
 							
+								let datapoint_timestamp = old_data[dp]['d'].getTime();
+								let previous_datapoint_timestamp = previous_date.getTime();
+								//console.log("datapoint_timestamp: ", datapoint_timestamp);
+								//console.log("previous_datapoint_timestamp: ", previous_datapoint_timestamp);
+								//console.log(" -> delta: ", datapoint_timestamp - previous_datapoint_timestamp)
 							
-							let datapoint_timestamp = old_data[dp]['d'].getTime();
-							let previous_datapoint_timestamp = previous_date.getTime();
-							//console.log("datapoint_timestamp: ", datapoint_timestamp);
-							//console.log("previous_datapoint_timestamp: ", previous_datapoint_timestamp);
-							//console.log(" -> delta: ", datapoint_timestamp - previous_datapoint_timestamp)
+								if(datapoint_timestamp > previous_datapoint_timestamp + 1 ){
+									datapoint_timestamp = datapoint_timestamp - 1;
+								}
+								/*
+								if(previous_date != null && old_data[dp]['d'].getTime() - 1 > previous_date.getTime()){
+									new_log_data.push({'v':previous_value,"d":old_data[dp]['d'].setDate( (old_data[dp]['d'].getTime() - 1) )});
+									console.log("square_wave: moved extra datapoint a millisecond to the past");
+								}
+								else{
+									new_log_data.push({'v':previous_value,"d":old_data[dp]['d']});
+									console.warn("square_wave: forced to keep extra datapoint's date the same");
+								}
+								*/
+								const extra_datapoint = {"d":new Date(datapoint_timestamp), 'v':previous_value};
+								//console.log("extra_datapoint: ", JSON.stringify(extra_datapoint,null,2));
+								new_log_data.push(extra_datapoint);
 							
-							if(datapoint_timestamp > previous_datapoint_timestamp + 1 ){
-								datapoint_timestamp = datapoint_timestamp - 1;
+								previous_value = old_data[dp]['v'];
+								previous_date = old_data[dp]['d'];
+							
+								//console.log("adjusted old_data[dp]['d']: ", typeof old_data[dp]['d'], old_data[dp]['d']);
+						
 							}
+							new_log_data.push(old_data[dp]);
 							/*
-							if(previous_date != null && old_data[dp]['d'].getTime() - 1 > previous_date.getTime()){
-								new_log_data.push({'v':previous_value,"d":old_data[dp]['d'].setDate( (old_data[dp]['d'].getTime() - 1) )});
-								console.log("square_wave: moved extra datapoint a millisecond to the past");
-							}
-							else{
-								new_log_data.push({'v':previous_value,"d":old_data[dp]['d']});
-								console.warn("square_wave: forced to keep extra datapoint's date the same");
+							if(dp > 1 && previous_value == null && old_data[dp]['v'] != null){
+								previous_value = old_data[dp]['v'];
+								previous_date = old_data[dp]['d'];
+								//console.log("typeof log_data[dp]['d']: ", typeof log_data[dp]['d'], log_data[dp]['d']);
 							}
 							*/
-							const extra_datapoint = {"d":new Date(datapoint_timestamp), 'v':previous_value};
-							//console.log("extra_datapoint: ", JSON.stringify(extra_datapoint,null,2));
-							new_log_data.push(extra_datapoint);
-							
-							previous_value = old_data[dp]['v'];
-							previous_date = old_data[dp]['d'];
-							
-							//console.log("adjusted old_data[dp]['d']: ", typeof old_data[dp]['d'], old_data[dp]['d']);
+						
+							// dp > 1 && 
+							if(previous_value == null && old_data[dp]['v'] != null){
+								previous_value = old_data[dp]['v'];
+								previous_date = old_data[dp]['d'];
+								//console.log("typeof log_data[dp]['d']: ", typeof log_data[dp]['d'], log_data[dp]['d']);
+							}
+						
 						
 						}
-						new_log_data.push(old_data[dp]);
-						
-						if(dp > 1 && previous_value == null && old_data[dp]['v'] != null){
-							previous_value = old_data[dp]['v'];
-							previous_date = old_data[dp]['d'];
-							//console.log("typeof log_data[dp]['d']: ", typeof log_data[dp]['d'], log_data[dp]['d']);
-						}
-						
 					}
-					//console.log("make_square_wave_data: new_log_data.length, new_log_data: ", new_log_data.length, new_log_data);
+					
+					//console.log("make_square_wave_data: new_log_data.length: ", new_log_data.length);
 					return new_log_data;
 				}
 			
@@ -7623,7 +7905,6 @@
 				function make_into_square_wave_data(old_data, desired_duration=3600000){
 					let new_log_data = [];
 					//console.log("dashboard debug: square_wave: old_data.length before adding extra datapoints an hour after each provided one: ", old_data.length);
-				
 				
 					for(let dp = 0; dp < old_data.length; dp++){
 					
@@ -7634,7 +7915,7 @@
 							}
 							
 							if(typeof old_data[dp]['v'] != 'number'){
-								console.warn("make_into_square_wave_data:  old_data[dp]['v'] was not a number: ", typeof old_data[dp]['v'], old_data[dp]['v']);
+								//console.warn("make_into_square_wave_data:  old_data[dp]['v'] was not a number: ", typeof old_data[dp]['v'], old_data[dp]['v']);
 							}
 							
 							new_log_data.push(old_data[dp]);
@@ -7649,7 +7930,7 @@
 					return new_log_data;
 				}
 				
-				
+				let pruned_data_first_date_stamp = null;
 				
 				const small_diversion = true;
 				// For a boolean log, we add extra datapoints to create a square-wave shape
@@ -7665,13 +7946,23 @@
 				else{
 				
 					if(is_boolean_log && pruned_log_data.length){
-						//console.error("wrangling: pruned_log_data.length before square_wave: ", pruned_log_data.length);
+						//console.error("wrangling: pruned_log_data.length and pancaked_log_data.length before square_wave: ", pruned_log_data.length, pancaked_log_data.length);
+						if(pancaked_log_data.length){
+							pancaked_log_data = make_square_wave_data(pancaked_log_data);
+						}
 						pruned_log_data = make_square_wave_data(pruned_log_data);
-						//console.error("wrangling: pruned_log_data.length after square_wave: ", pruned_log_data.length);
+						//console.error("wrangling: pruned_log_data.length and pancaked_log_data.length after square_wave: ", pruned_log_data.length, pancaked_log_data.length);
 						//pruned_log_data = make_into_square_wave_data(pruned_log_data)
 					}
 				
-					if(alt_log_data.length){
+					
+				
+					if(alt_log_data.length == 0){
+						//console.error("alt_log_data.length was zero");
+						//console.log("pancaked_log_data.length: ", pancaked_log_data.length);
+						
+					}
+					else{
 						//console.log("creating optimized log data with square_wave");
 						
 						/*
@@ -7704,22 +7995,30 @@
 						
 						let square_cut_off_point = 0;
 						if(pruned_log_data.length){
-							const pruned_data_first_date_stamp = d3.min(pruned_log_data, d => d.d).getTime();  // pruned_log_data[0]['d'] // todo get real oldest
-							//console.log("square_wave: pruned_data_first_date_stamp: ", typeof pruned_data_first_date_stamp, pruned_data_first_date_stamp);
-					
+							pruned_data_first_date_stamp = d3.min(pruned_log_data, d => d.d).getTime();  // pruned_log_data[0]['d'] // todo get real oldest
+							//console.log("pruned_data_first_date_stamp: ", typeof pruned_data_first_date_stamp, pruned_data_first_date_stamp);
+							/*
 							for(let sdp = 0; sdp < square_alt_log_data.length; sdp++){
 								if(square_alt_log_data[sdp]['d'].getTime() >= pruned_data_first_date_stamp - 1){
-									//console.log("square_wave data caught up with pruned_log_data at datapoint sdp #: ", sdp);
+									console.log("square_wave data caught up with pruned_log_data at datapoint sdp #: ", sdp);
 									if(sdp > 0){
 										square_cut_off_point = sdp - 1;
 										if(sdp > 1){
 											if( square_alt_log_data[sdp - 2]['d'].getTime() >= square_alt_log_data[sdp - 1]['d'].getTime() - 1){ // if we just happened to land on a square-wave added point, then we need to go back 2 points.
-												//console.log("square_wave: making square_cut_off_point slightly earlier");
+												console.log("square_wave: making square_cut_off_point slightly earlier");
 												square_cut_off_point = sdp - 2;
 											}
 										}
 										break
 									}
+								}
+							}
+							*/
+							
+							for(let sal = square_alt_log_data.length - 1; sal >= 0; sal--){
+								if(typeof square_alt_log_data[sal] != 'undefined' && square_alt_log_data[sal]['d'].getTime() >= pruned_data_first_date_stamp - 1){
+									//console.log("removing datapoint that overlaps with pruned_log_data from square_alt_log_data at index: ", sal);
+									square_alt_log_data.splice(sal);
 								}
 							}
 						}
@@ -7729,7 +8028,7 @@
 						
 						
 						//console.log("\n\n\nsquare_wave square_cut_off_point: ", square_cut_off_point);
-						
+						/*
 						if(is_boolean_log && square_cut_off_point > 2){
 							square_cut_off_point = square_cut_off_point - 2;
 						}
@@ -7741,28 +8040,41 @@
 							
 							square_alt_log_data.splice(square_cut_off_point);
 						
-							square_alt_log_data = make_square_wave_data(square_alt_log_data);
-							
 							//averaged_log_data = square_alt_log_data.slice(0, square_cut_off_point);
 						}
+						*/
+						
+						square_alt_log_data = make_square_wave_data(square_alt_log_data);
 						let averaged_log_data = square_alt_log_data;
+						
+						for(let salx = averaged_log_data.length - 1; salx >= 0; salx--){
+							if(typeof averaged_log_data[salx] != 'undefined' && averaged_log_data[salx]['d'].getTime() >= pruned_data_first_date_stamp - 1){
+								if(this.debug){
+									console.log("dashboard debug: render_log: wrangle: removing datapoint that overlaps with pruned_log_data from averaged_log_data at index: ", salx);
+								}
+								averaged_log_data.splice(salx);
+							}
+						}
+						
 						
 						// averaged_log_data is the first part of square_alt_log_data, which has the hourly averages
 						// to this, we can either glue the more recent datapoints that still have all their detail, or have been squished to 'fake' being a flat horizontal line, for animation purposes
 						
 						// for the detailed_log_data, we append the still relatively detailed pruned_log_data
-						let detailed_log_data = averaged_log_data;
-						if(pruned_log_data.length){
-							detailed_log_data = averaged_log_data.concat(pruned_log_data);
-						}
-						//else if
-							//console.warn('square_wave averaged_log_data: ', averaged_log_data.length, averaged_log_data );
-							//let detailed_log_data = averaged_log_data.concat(pruned_log_data);
-						
-						
 						// pancaked_log_data is the squished version of log_data
 						// for the squished logo data, we append the newest datapoints from pancaked_log_data instead
-						let squished_log_data = averaged_log_data.concat(pancaked_log_data.slice(pancaked_log_data.length - pruned_log_data.length));
+						let squished_log_data = averaged_log_data;
+						let detailed_log_data = averaged_log_data;
+						
+						//console.log("  ?  THE SAME? pancaked_log_data.length, pruned_log_data.length: ", pancaked_log_data.length, pruned_log_data.length);
+						
+						if(pruned_log_data.length){
+							detailed_log_data = averaged_log_data.concat(pruned_log_data); // not flattened
+							let pancaked_at_same_length_as_pruned = pancaked_log_data.slice((pancaked_log_data.length) - pruned_log_data.length);
+							//console.log("pancaked_at_same_length_as_pruned? ", pancaked_at_same_length_as_pruned.length, pruned_log_data.length);
+							//console.log("pancaked_at_same_length_as_pruned vs pruned_log_data: ", pancaked_at_same_length_as_pruned, pruned_log_data);
+							squished_log_data = averaged_log_data.concat(pancaked_at_same_length_as_pruned); // flattened
+						} 
 							
 						//console.warn("square_wave detailed_log_data: ", detailed_log_data.length, detailed_log_data);
 						//console.warn("square_wave squished_log_data: ", squished_log_data.length, squished_log_data);
@@ -7848,15 +8160,15 @@
 								}
 								//console.log("first timestamp: ", new Date(first_daily_log_data_timestamp));
 							
-								daily_log_data = make_into_square_wave_data(daily_log_data, 86400000);
+								//daily_log_data = make_into_square_wave_data(daily_log_data, 86400000);
 							
 								//wrangle_result['detailed_daily_log_data'] = daily_log_data.concat(detailed_log_data);
 								//wrangle_result['squished_daily_log_data'] = daily_log_data.concat(squished_log_data);
 							
 								//console.log("data length differences: ", wrangle_result['detailed_daily_log_data'].length, squished_log_data.length)
 							
-								wrangle_result['log_data'] = prune_bad_values(daily_log_data.concat(detailed_log_data)); //wrangle_result['detailed_daily_log_data'];
-								wrangle_result['pancaked_log_data'] = prune_bad_values(daily_log_data.concat(squished_log_data)); //wrangle_result['squished_daily_log_data'];
+								wrangle_result['log_data'] = daily_log_data.concat(detailed_log_data); //wrangle_result['detailed_daily_log_data'];
+								wrangle_result['pancaked_log_data'] = daily_log_data.concat(squished_log_data); //wrangle_result['squished_daily_log_data'];
 							
 								let squish_value_to = null;
 								let removed_daily_points_index = 0;
@@ -7883,6 +8195,14 @@
 										
 									}
 								
+								}
+								else{
+									// create a version in which the hourly data is squished flat to fit the daily data. This is used to animate the line flattening itself.
+									//wrangle_result['log_data'] = daily_log_data;
+									//wrangle_result['monthly_log_data'] = daily_log_data;
+									precisions['hourly'] = null;
+									precisions['day'] = null;
+									
 								}
 								
 							}
@@ -7990,6 +8310,85 @@
 				return wrangle_result;
 				
 			}
+			
+			
+			const temporal_prune = (provided_log_data) => {
+				//console.log("in temporal_prune.  provided_log_data.length before: ", provided_log_data.length);
+				
+				if(Array.isArray(provided_log_data) && provided_log_data.length){
+					
+					const provided_log_data_length_before = provided_log_data.length;
+				
+					if(typeof this.logging_meta[ thing_id ] != 'undefined' && typeof this.logging_meta[ thing_id ]['properties'] != 'undefined' && typeof this.logging_meta[ thing_id ]['properties'][ property_id ] != 'undefined'){
+						if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_recent_unit'] == 'number' && typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_recent_duration'] == 'number' && this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_recent_duration'] > 0){
+					
+							const recent_limit_timestamp = now_timestamp - (this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_recent_unit'] * this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_recent_duration']);
+					
+							provided_log_data = provided_log_data.filter(function(d){ 
+				
+								if(d['d'] && typeof d['d'] == 'number' && d['d'] < recent_limit_timestamp){
+									return true
+								}
+								else if(d['d'] && d['d'].getTime() < recent_limit_timestamp){
+									return true
+								}
+								//console.log("temporal_prune: filtering a datapoint that is too fresh");
+								return false
+							})
+					
+							temporal_recent_limit_line.transition().duration(3000).attr("x", xScale(new Date(recent_limit_timestamp)))
+					
+					
+						}
+				
+						if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_ancient_unit'] == 'number' && typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_ancient_duration'] == 'number' && this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_ancient_duration'] > 0){
+					
+							const ancient_limit_timestamp = now_timestamp - (this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_ancient_unit'] * this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_ancient_duration']);
+					
+							provided_log_data = provided_log_data.filter(function(d){ 
+				
+								if(d['d'] && typeof d['d'] == 'number' && d['d'] < ancient_limit_timestamp){
+									//console.log("filtering a datapoint (with a timestamp instead of a date object!) that is too ancient");
+									return false
+								}
+								else if(d['d'] && d['d'].getTime() < ancient_limit_timestamp){
+									//console.log("filtering a datapoint that is too ancient");
+									return false
+								}
+								return true
+							})
+					
+							temporal_ancient_limit_line.transition().duration(3000).attr("x", xScale(new Date(ancient_limit_timestamp)))
+						}
+					}
+				
+					
+				
+					if(this.debug){
+						console.log("dashboard debug: render_log: temporal_prune before and after: ", provided_log_data_length_before, provided_log_data.length);
+					}
+					
+				}
+				else{
+					if(this.debug){
+						console.error("dashboard debug: temporal_prune: invalid or zero length provided_log_data: ", typeof provided_log_data, provided_log_data);
+					}
+				}
+				
+				/*
+				if(provided_log_data.length != provided_log_data_length_before){
+					
+				}
+				*/
+				
+				provided_log_data = prune_bad_values(provided_log_data);
+				
+				return provided_log_data;
+			}
+			
+			
+			
+			
 			
 			
 			//let is_boolean_log = false;
@@ -8150,7 +8549,11 @@
 			*/
 			
 			if(typeof log_datum['first'] != 'undefined' && typeof log_datum['first']['log_data'] != 'undefined'){
-				log_data = prune_bad_values(log_datum['first']['log_data']);
+				//log_data = prune_bad_values(log_datum['first']['log_data']);
+				
+				//console.warn("getting optimal log data the first time around.  current_precision: ", current_precision);
+				log_data = []; //temporal_prune(get_optimal_log_data('first'));
+				
 				/*
 				if(typeof log_datum['first']['detailed_daily_log_data'] != 'undefined'){
 					//console.log("using detailed_daily_log_data");
@@ -8158,6 +8561,10 @@
 				}
 				*/
 			}
+			
+			
+			
+			
 			
 			
 			
@@ -8217,8 +8624,9 @@
 			
 			
 			if(pruned_log_data.length && typeof pruned_log_data[0]['d'] != 'undefined'){
-				oldest = pruned_log_data[0]['d'];
-				if(oldest.getTime() < oldest_timestamp){
+				//oldest = pruned_log_data[0]['d'];
+				oldest = d3.min(pruned_log_data, d => d.d);
+				if(oldest && oldest.getTime() < oldest_timestamp){
 					if(this.debug){
 						console.log("spotted an even older timestamp in pruned_log_data, so oldest_timestamp was replaced by the first datapoint from pruned_log_data");
 					}
@@ -8281,8 +8689,6 @@
 			// SHOULD THE Y AXIS START AT ZERO?
 			
 			let log_should_start_at_zero = false;
-			
-			
 			
 			if(comparison_highest != null && comparison_lowest != null){
 				if(comparison_lowest > 1 && comparison_lowest - comparison_highest < -1){
@@ -8472,7 +8878,7 @@
 					svg.append("text")
 				    .attr("class", "extension-dashboard-y-axis-label")
 				    .attr("text-anchor", "end")
-				    .attr("y", 0)
+				    .attr("y", 15)
 				    //.attr("dy", ".75em")
 				    .attr("transform", "translate(0," + margin.top + "), rotate(-90)")
 				    .text(first_log_name);
@@ -8483,7 +8889,7 @@
 					svg.append("text")
 				    .attr("class", "extension-dashboard-y-axis-label extension-dashboard-second-y-axis-label")
 				    .attr("text-anchor", "end")
-				    .attr("y", rect.width)
+				    .attr("y", rect.width - 5)
 				    //.attr("dy", ".75em")
 				    .attr("transform", "translate(0," + margin.top + "), rotate(-90)")
 				    .text(second_log_name);
@@ -8728,12 +9134,15 @@
 			//
 
 			// Add the actual graph line
-			let line = d3.line()
+			var line = d3.line()
 				.x(d => xScale(d.d))
 				.y(d => yScale(d.v))
 				//.curve(d3.curveCatmullRom.alpha(0.5));
 
-			//console.warn("log_data: ", log_data);
+			//console.warn("drawing initial line with log_data: ", log_data);
+
+			//console.warn("svg size: " + JSON.stringify(log_viz_container_el.getBoundingClientRect(svg),null,2));
+			
 
 			let path = svg.append('path')
 	        	.datum(log_data)
@@ -8745,11 +9154,11 @@
 	        	.attr('d', line);
 
 
-
+			
 
 			// COMPARISON: ADD SECOND LINE
 			
-			if(second_y_axis){
+			if(second_y_axis && second_log_data){
 				
 				second_y_axis
 				.selectAll(".tick")
@@ -8767,25 +9176,39 @@
 				.y(d => second_yScale(d.v));
 
 
+				//const second_line_data = []; //temporal_prune(get_optimal_log_data('second'));
+				//console.log("second_y_axis exists. second_log_data: ", second_log_data);
+				
+				
 				second_path = svg.append('path')
-	        	.datum(temporal_prune(get_optimal_log_data('second')))
+	        	.datum(second_log_data)
 	        	.attr('fill', 'none')
 	        	.attr('stroke', 'red')
 				.attr('class', 'extension-dashboard-widget-second-log-line')
 				.attr('style','clip-path: url("#' + clip_path_id +'"')
-	        	//.attr('stroke-width', 1.5)
+	        	.attr('stroke-width', 1.5)
 	        	.attr('d', second_line);
 				
 			}
 			else if(comparison){
 				
-				const second_path = svg.append('path')
-	        	.datum(temporal_prune(get_optimal_log_data('second')))
-	        	.attr('fill', 'none')
-	        	.attr('stroke', 'red')
-				.attr('class', 'extension-dashboard-widget-second-log-line')
-	        	//.attr('stroke-width', 1.5)
-	        	.attr('d', line);
+				const second_line_data = temporal_prune(get_optimal_log_data('second'));
+				//console.log("comparison second_line_data: ", second_line_data);
+				if(second_line_data){
+					const second_path = svg.append('path')
+		        	.datum(second_line_data)
+		        	.attr('fill', 'none')
+		        	.attr('stroke', 'red')
+					.attr('class', 'extension-dashboard-widget-second-log-line')
+		        	.attr('stroke-width', 1.5)
+		        	.attr('d', line);
+				}
+				else{
+					if(this.debug){
+						console.error("dashboard debug: invalid second_line_data: ", typeof second_line_data, second_line_data);
+					}
+				}
+				
 				
 			}
 
@@ -8961,9 +9384,9 @@
 
 					function onMouseOut(d){
 
-					    tooltip.transition()        
-					          .duration(500)      
-					          .style("opacity", 0);  
+					    tooltip.transition()
+					          .duration(500)
+					          .style("opacity", 0);
 					}
 					
 					
@@ -9176,63 +9599,6 @@
 			
 			
 			
-			const temporal_prune = (provided_log_data) => {
-				//console.log("in temporal_prune.  provided_log_data.length before: ", provided_log_data.length);
-				
-				const provided_log_data_length_before = provided_log_data.length;
-				
-				if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_recent_unit'] == 'number' && typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_recent_duration'] == 'number' && this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_recent_duration'] > 0){
-					
-					const recent_limit_timestamp = now_timestamp - (this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_recent_unit'] * this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_recent_duration']);
-					
-					provided_log_data = provided_log_data.filter(function(d){ 
-				
-						if(d['d'] && typeof d['d'] == 'number' && d['d'] < recent_limit_timestamp){
-							return true
-						}
-						else if(d['d'] && d['d'].getTime() < recent_limit_timestamp){
-							return true
-						}
-						//console.log("filtering a datapoint that is too fresh");
-						return false
-					})
-					
-					temporal_recent_limit_line.transition().duration(3000).attr("x", xScale(new Date(recent_limit_timestamp)))
-					
-					
-				}
-				
-				if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_ancient_unit'] == 'number' && typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_ancient_duration'] == 'number' && this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_ancient_duration'] > 0){
-					
-					const ancient_limit_timestamp = now_timestamp - (this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_ancient_unit'] * this.logging_meta[ thing_id ]['properties'][ property_id ]['temporal_ancient_duration']);
-					
-					provided_log_data = provided_log_data.filter(function(d){ 
-				
-						if(d['d'] && typeof d['d'] == 'number' && d['d'] < ancient_limit_timestamp){
-							//console.log("filtering a datapoint (with a timestamp instead of a date object!) that is too ancient");
-							return false
-						}
-						else if(d['d'] && d['d'].getTime() < ancient_limit_timestamp){
-							//console.log("filtering a datapoint that is too ancient");
-							return false
-						}
-						return true
-					})
-					
-					temporal_ancient_limit_line.transition().duration(3000).attr("x", xScale(new Date(ancient_limit_timestamp)))
-				}
-				
-				if(this.debug){
-					console.log("dashboard debug: render_log: temporal_prune before and after: ", provided_log_data_length_before, provided_log_data.length);
-				}
-				/*
-				if(provided_log_data.length != provided_log_data_length_before){
-					
-				}
-				*/
-				
-				return provided_log_data;
-			}
 			
 			
 			
@@ -9240,48 +9606,8 @@
 			
 			
 			
-			const get_optimal_log_data = (log_seniority='first') => {
-				
-				if(typeof log_datum[log_seniority] != 'undefined'){
-					
-					//console.log("in get_optimal_log_data.  current_precision, first keys: ", current_precision, Object.keys(log_datum['first']));
-					
-					if(current_precision == 'hours' && typeof log_datum[log_seniority]['log_data'] != 'undefined'){
-						return log_datum[log_seniority]['log_data'];
-					}
-					else if( (current_precision == 'day' || current_precision == 'week') && typeof log_datum[log_seniority]['pancaked_log_data'] != 'undefined'){
-						return log_datum[log_seniority]['pancaked_log_data'];
-					}
-					else if(typeof log_datum[log_seniority]['montly_log_data'] != 'undefined'){
-						return log_datum[log_seniority]['montly_log_data'];
-					}
-					else if(typeof log_datum[log_seniority]['pancaked_log_data'] != 'undefined'){
-						if(this.debug){
-							console.warn("dashboard debug: render_log: get_optimal_log_data: falling back to pancaked_log_data for current_precision: ", current_precision);
-						}
-						return log_datum[log_seniority]['pancaked_log_data'];
-					}
-					else if(typeof log_datum[log_seniority]['log_data'] != 'undefined'){
-						if(this.debug){
-							console.warn("dashboard debug: render_log: get_optimal_log_data: falling back to log_data for current_precision: ", current_precision);
-						}
-						return log_datum[log_seniority]['log_data'];
-					}
-					
-					if(this.debug){
-						console.error("dashboard debug: render_log: get_optimal_log_data fell through.  current_precision, log_datum['first']: ", current_precision, typeof log_datum['first']);
-					}
-				}
-				else{
-					if(this.debug){
-						console.error("dashboard debug: render_log: get_optimal_log_data: no log_datum['" + log_seniority + "']?  log_seniority,log_datum: ", log_datum);
-					}
-				}
-				if(this.debug){
-					console.error("dashboard debug: render_log: get_optimal_log_data fell through. returning empty array.  log_seniority: ", log_seniority);
-				}
-				return [];
-			}
+			
+			
 
 
 
@@ -9645,7 +9971,7 @@
 					console.log("dashboard debug: log: current_precision is now: ", current_precision);
 				}
 				
-				if(typeof widget_id == 'string'){
+				if(typeof widget_id == 'string' && typeof this.locally_saved_values[this.current_grid_id][widget_id] != 'undefined' && this.locally_saved_values[this.current_grid_id][widget_id]['viz'] != 'undefined'){
 					this.locally_saved_values[this.current_grid_id][widget_id]['viz']['precision'] = current_precision;
 				}
 				localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
@@ -9817,7 +10143,7 @@
 				const first_optimal_log_data = temporal_prune(get_optimal_log_data('first'));
 				const second_optimal_log_data = temporal_prune(get_optimal_log_data('second'));
 				
-				if(first_optimal_log_data){
+				if(first_optimal_log_data && Array.isArray(first_optimal_log_data) && first_optimal_log_data.length > 1){
 					if(transition){
 						path
 						.interrupt()
@@ -9826,7 +10152,10 @@
 						.duration(3000)
 						.attr('d', line);
 					
-						if(second_log_data && second_path){
+						if(second_optimal_log_data && second_path && Array.isArray(second_optimal_log_data) && second_optimal_log_data.length){
+							
+							//console.log("animating second_optimal_log_data: ", second_optimal_log_data);
+							
 							second_path
 							.interrupt()
 							.datum(second_optimal_log_data)
@@ -9838,17 +10167,32 @@
 		
 					}
 					else{
+						
+						//console.log("no transition. first_optimal_log_data: ", first_optimal_log_data);
+						//console.log("line: ", line);
+						
 						path
 						.interrupt()
 						.datum(first_optimal_log_data)
+						.transition()
+						.duration(100)
 						.attr('d', line);
-					
-						if(second_log_data && second_path){
+						
+						
+						if(second_optimal_log_data && second_path && Array.isArray(second_optimal_log_data) && second_optimal_log_data.length){
+							
+							//console.log("instant change to second_optimal_log_data: ", second_optimal_log_data);
+							
 							second_path
 							.interrupt()
 							.datum(second_optimal_log_data)
+							.transition()
+							.duration(100)
 							.attr('d', second_line);
+							
 						}
+						
+						
 					}
 				}
 				
@@ -9882,8 +10226,10 @@
 				
 			}
 
+			setTimeout(() => {
+				change_precision(current_precision,false); // no transition
+			},1000)
 			
-			change_precision(current_precision,false); // no transition
 			
 			
 			let precision_buttons_container_el = document.createElement('div');
@@ -9902,6 +10248,7 @@
 					precision_button_el.classList.add('extension-dashboard-widget-log-change-button-' + precision_name.replaceAll(' ','-'));
 					precision_button_el.textContent = precision_name;
 					precision_button_el.addEventListener('click', () => {
+						log_viz_container_el.classList.add('extension-dashboard-logging-unblur');
 						change_precision(precision_name);
 					});
 					precision_buttons_container_el.prepend(precision_button_el);
@@ -10509,7 +10856,7 @@
 					let precision_settings_container_el = document.createElement('div');
 					precision_settings_container_el.classList.add('extension-dashboard-widget-log-precision-settings');
 					
-					let precision_settings_title_el = document.createElement('h3');
+					let precision_settings_title_el = document.createElement('h4');
 					precision_settings_title_el.textContent = 'Precision';
 					precision_settings_container_el.appendChild(precision_settings_title_el);
 					
@@ -10673,20 +11020,45 @@
 							svg_container_el.classList.remove('extension-dashboard-show-svg-grid-lines');
 						}
 						
-						
 					}
 					
 					const log_viz_settings_help_el = document.createElement('p');
 					log_viz_settings_help_el.classList.add('extension-dashboard-logging-settings-help');
-					log_viz_settings_help_el.textContent = "These settings do not affect the original data, only it's visualization.";
+					log_viz_settings_help_el.textContent = "The above settings do not affect the original data, only it's visualization.";
 					log_viz_settings_el.appendChild(log_viz_settings_help_el);
+					
+					const log_viz_settings_footer_container_el = document.createElement('div');
+					log_viz_settings_footer_container_el.classList.add('extension-dashboard-logging-settings-footer-container');
+					
+					const log_viz_settings_delete_button_el = document.createElement('button');
+					log_viz_settings_delete_button_el.classList.add('text-button');
+					log_viz_settings_delete_button_el.classList.add('extension-dashboard-logging-settings-delete-button');
+					log_viz_settings_delete_button_el.textContent = 'Delete';
+					//log_viz_settings_delete_button_el.setAttribute('data-l10n-id','remove);
+					
+					log_viz_settings_delete_button_el.addEventListener('click', () => {
+						if(confirm("Are you sure you want to permanently delete this log?")){
+							if(this.debug){
+								console.warn("dashboard logging debug: calling this.delete_log with: thing_id, property_id: ", thing_id, property_id);
+							}
+							this.delete_log(thing_id,property_id)
+							.then((success) => {
+								log_viz_settings_delete_button_el.remove();
+								log_viz_container_el.innerHTML = '';
+							})
+							.catch((err) => {
+								console.error("caught error from this.delete_log: ", err);
+							})
+						}
+					});
+					
+					log_viz_settings_footer_container_el.appendChild(log_viz_settings_delete_button_el);
+					
+					log_viz_settings_el.appendChild(log_viz_settings_footer_container_el);
 					
 				
 				}
 			}
-			
-			
-			
 			
 									
 		}
@@ -11226,7 +11598,7 @@
 		
 		
 		
-		show_logging(){
+		show_logging(force_loading_log_data=null){
 			if(this.debug){
 				console.log("dashboard logging debug:\n\n\n\n\nin show_logging\nthis.logs: ", this.logs); // \n\n\n\nwindow.API: ", window.API,
 				console.log("dashboard logging debug: this.logging_files: ", this.logging_files);
@@ -11234,7 +11606,6 @@
 			
 			this.current_grid_id = 'logging';
 			
-			let force_loading_log_data = null;
 			if(this.logs){
 				for(let lx = 0; lx < this.logs.length; lx++){
 					if(this.logs[lx] && this.logs[lx]['id'] && this.current_logs.indexOf( this.logs[lx]['id'] ) == -1){
@@ -11288,6 +11659,7 @@
 			if(this.logs && this.logging_content_el){
 				
 				
+				// prepare to sort logging display by thing titles
 				
 				let thing_titles = {};
 				//for (const [websocket_thing_id, websocket_client] of Object.entries( this.websockets )) {
@@ -11401,6 +11773,10 @@
 								let log_property_container_el = document.createElement('div');
 								log_property_container_el.classList.add('extension-dashboard-logging-log-property-container');
 								
+								log_property_container_el.setAttribute('extension-dashboard-logging-log-property-container-thing_id', thing_id);
+								log_property_container_el.setAttribute('extension-dashboard-logging-log-property-container-property_id', property_id);
+								
+								
 								let property_container_title_el = document.createElement('h4');
 								property_container_title_el.textContent = this.get_property_title_by_ids(thing_id, property_id);
 								
@@ -11436,6 +11812,11 @@
 													setTimeout(() => {
 														if(this.in_viewport(svg_el)){
 															//console.warn("two seconds later this log SVG is fully in the viewport.  thing_id,property_id: ", thing_id, property_id);
+															
+															if(typeof this.logging_meta[ thing_id ] == 'undefined'){
+																this.logging_meta[ thing_id ] = {'properties':{}};
+															}
+															
 															if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
 																this.logging_meta[ thing_id ]['properties'][ property_id ] = {};
 															}
@@ -11486,6 +11867,48 @@
 									}, observerOptions);
 								
 									observer.observe(svg_el);
+								}
+								else{
+									if(this.debug){
+										console.error("dashboard logging: render_log was called, but did not result in an SVG element? log_id: ", log_id);
+									}
+									
+									const privacy_button_el = log_property_container_el.querySelector('.extension-dashboard-logging-property-privacy-button');
+									//let log_viz_settings_footer_container_el = log_property_container_el.querySelector('.extension-dashboard-logging-settings-footer-container');
+									if( privacy_button_el == null){
+										let log_viz_settings_footer_container_el = document.createElement('div');
+										
+										log_viz_settings_footer_container_el.classList.add('extension-dashboard-logging-settings-footer-container');
+					
+										const log_viz_settings_delete_button_el = document.createElement('button');
+										log_viz_settings_delete_button_el.classList.add('text-button');
+										log_viz_settings_delete_button_el.classList.add('extension-dashboard-logging-settings-delete-button');
+										log_viz_settings_delete_button_el.textContent = 'Delete';
+										//log_viz_settings_delete_button_el.setAttribute('data-l10n-id','remove);
+					
+										log_viz_settings_delete_button_el.addEventListener('click', () => {
+											if(confirm("Are you sure you want to permanently delete this log?")){
+												if(this.debug){
+													console.warn("dashboard logging debug: calling this.delete_log with: thing_id, property_id: ", thing_id, property_id);
+												}
+												this.delete_log(thing_id,property_id)
+												.then((success) => {
+													log_viz_settings_delete_button_el.remove();
+													log_property_container_el.innerHTML = '';
+												})
+												.catch((err) => {
+													console.error("caught error from this.delete_log: ", err);
+												})
+											}
+										});
+					
+										log_viz_settings_footer_container_el.appendChild(log_viz_settings_delete_button_el);
+										log_property_container_el.appendChild(log_viz_settings_footer_container_el);
+									
+										log_property_container_el.setAttribute('style','height:auto; min-height:auto');
+										
+									}
+									
 								}
 								
 								
@@ -11653,43 +12076,146 @@ const sequentialFn = async () => {
             });
 		}
 
+
+
+
+
+		async populate_add_log_modal(thing_id=null,property_id=null){
+			
+			const add_log_modal_content_el = document.getElementById('extension-dashboard-logging-add-log-modal-content');
+			
+			add_log_modal_content_el.innerHTML = '';
+			
+			let new_log_selector_el = await this.generate_thing_selector('logging',null,thing_id,property_id);
+			if(new_log_selector_el){
+				//console.log("dashboard logging: populate_add_log_modal: seems to have gotten a customized thing-property selector for the add log modal");
+				add_log_modal_content_el.appendChild(new_log_selector_el);
+			}
+			else{
+				console.error("dashboard: show_modal: generate_thing_selector did not return a thing selector element");
+			}
+			
+		}
+		
+
+
 		
 		add_new_log(thing_id=null,property_id=null,maxAge=957600000){ // two weeks
 			
-			if(typeof thing_id == 'string' && thing_id.length && typeof property_id == 'string' && property_id.length){
-				window.API.addLog({
-					descr: {
-				        type: 'property',
-				        thing: this.createLogDevice.value,
-				        property: this.createLogProperty.value,
-					},
-					maxAge,
-				})
-				.then(([ok, body]) => {
-					if (ok) {
-						console.log("log was created OK");
-			        	return;
-					}
-					
-					if (body) {
-						console.error("Unable to create new log: ", body);
-					} else {
-						console.error("Unable to create new log.");
-					}
-					  
-				});
-			}
+			let promise = new Promise((resolve, reject) => {
 			
-			/*
+				if(typeof thing_id == 'string' && thing_id.length && typeof property_id == 'string' && property_id.length){
+					window.API.addLog({
+						descr: {
+					        type: 'property',
+					        thing: thing_id,
+					        property: property_id,
+						},
+						maxAge,
+					})
+					.then(([ok, body]) => {
+						if (ok) {
+							console.log("log was created OK");
+							resolve(true);
+				        	return;
+						}
+					
+						if (body) {
+							console.error("Unable to create new log: ", body);
+						} else {
+							console.error("Unable to create new log.");
+						}
+						reject(false);
+					  
+					})
+					.catch((err) => {
+						console.error("dashboard logging: caught error from calling window.API.addLog: ", err);
+					})
+				}
+				else{
+					console.error("dashboard: add_new_log: invalid thing_id and/or property_id provided: ", thing_id, property_id);
+					reject(false);
+				}
+			
+				/*
 				
-			descr: {
-				type: 'property',
-       	 		thing: this.createLogDevice.value,
-       	 		property: this.createLogProperty.value,
-      	  	},
-      	  	maxAge,
+				descr: {
+					type: 'property',
+	       	 		thing: this.createLogDevice.value,
+	       	 		property: this.createLogProperty.value,
+	      	  	},
+	      	  	maxAge,
 				
-			*/
+				*/
+			});
+			return promise;
+			
+		}
+		
+		
+		delete_log(thing_id=null,property_id=null){
+			
+			let promise = new Promise((resolve, reject) => {
+			
+				if(typeof thing_id == 'string' && thing_id.length && typeof property_id == 'string' && property_id.length){
+					
+				    window.API.delete(
+				      `/logs/things/${encodeURIComponent(thing_id)}/properties/${encodeURIComponent(property_id)}`
+				    )
+					.then((delete_result) => {
+						console.log("dashboard logging: log delete_result: ", delete_result);
+						resolve(true);
+						
+					})
+					.catch((err) => {
+						console.error("dashboard logging: caught error from calling window.API.delete (for a log): ", err);
+						reject(false);
+					})
+						
+						
+					/*
+					
+					window.API.deleteLog({
+						descr: {
+					        thing: this.createLogDevice.value,
+					        property: this.createLogProperty.value,
+						},
+					})
+					.then(([ok, body]) => {
+						if (ok) {
+							console.log("log was deleted succesfully");
+							resolve(true);
+				        	return;
+						}
+					
+						if (body) {
+							console.error("Unable to create new log: ", body);
+						} else {
+							console.error("Unable to create new log.");
+						}
+						reject(false);
+					  
+					});
+					
+					*/
+				}
+				else{
+					console.error("dashboard: add_new_log: invalid thing_id and/or property_id provided: ", thing_id, property_id);
+					reject(false);
+				}
+			
+				/*
+				
+				descr: {
+					type: 'property',
+	       	 		thing: this.createLogDevice.value,
+	       	 		property: this.createLogProperty.value,
+	      	  	},
+	      	  	maxAge,
+				
+				*/
+			});
+			return promise;
 			
 		}
 

@@ -49,6 +49,45 @@
 #extension-dashboard-logging-content .extension-dashboard-logging-log-property-container.extension-dashboard-logging-unblur svg{
 	filter: blur(0);
 }
+
+.extension-dashboard-widget-log-svg-container{
+	position:relative;
+}
+
+/*
+.extension-dashboard-logging-log-property-container.extension-dashboard-logging-unblur .extension-dashboard-widget-log-svg-container::after{
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	height:100%;
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	opacity:0;
+	pointer-events:none;
+	
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 50% 50%;
+    }
+    100% {
+        background-position: 100% 50%;
+    }
+}
+*/
+
+
+
+#extension-dashboard-logging-content .extension-dashboard-logging-log-property-container.extension-dashboard-logging-unblur .extension-dashboard-widget-log-svg-container::after{
+	opacity:1;
+}
+
 #extension-dashboard-logging-content .extension-dashboard-logging-log-property-container.extension-dashboard-logging-unblur .extension-dashboard-logging-property-privacy-button{
 	background-image: url(../images/privacy-icon-open.svg);
 }
@@ -67,6 +106,14 @@
 	background-color:rgba(255,255,255,.6);
 	padding:1.5rem;
 	margin:3rem 0;
+}
+
+.extension-dashboard-logging-log-thing-container h3{
+	display: inline-block;
+    background-color: rgba(255, 255, 255, .2);
+    padding: 1rem 1.5rem;
+    border-radius: 2rem;
+    margin-bottom: .5rem;
 }
 
 .extension-dashboard-logging-log-property-container{
@@ -95,6 +142,7 @@
 	right:0;
 	display:flex;
 	align-items:center;
+	z-index:3;
 }
 
 .extension-dashboard-logging-last-viewed-time{
@@ -119,14 +167,10 @@
 }
 
 
-.extension-dashboard-widget-log-settings-container{
-	margin:1.5rem 0;
-	
-}
-
 
 .extension-dashboard-widget-log-settings{
 	padding:1.5rem;
+	margin:1.5rem 0;
 	background-color:rgba(0,0,0,.1);
 	border-radius:1rem;
 }
@@ -249,7 +293,7 @@
 	max-width:70rem;
 }
 
-.extension-dashboard-widget-log-precision-settings h3{
+.extension-dashboard-widget-log-precision-settings h4{
 	margin-top:3rem;
 	margin-bottom:1rem;
 }
@@ -293,3 +337,118 @@ input[type='number'].extension-dashboard-logging-log-precision-slider-value-inpu
 	font-weight:bold;
 	font-size: 2rem;
 }
+
+
+
+.extension-dashboard-logging-settings-footer-container{
+	text-align:right;
+}
+
+#extension-dashboard-view .extension-dashboard-logging-settings-delete-button{
+	background-color:#8d0000;
+	color:white;
+}
+#extension-dashboard-view .extension-dashboard-logging-settings-delete-button:hover{
+	background-color:red;
+}
+
+
+
+
+
+
+/*  blinking eye  */
+
+
+      .eye {
+            width: 200px;
+            height: 200px;
+            background: #fff;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%) rotate(45deg);
+            border-radius: 75% 0;
+            overflow: hidden;
+            cursor: pointer;
+            background: radial-gradient(circle at 50%, #333333, #333333 30%, #eeeeee 31%, #666666 75%);
+            
+        
+        }
+
+  .eye::after{
+    width: 300px;
+    height: 160px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    z-index: 999;
+    
+  }
+        
+.eye::before{
+    display:block;
+    width:100%;
+    height:15%;
+    background:#ff6b6b;
+    border-radius: 0 0 60% 60%;
+    transition:0.4s all;
+    -webkit-animation: blink 4s cubic-bezier(0.785, 0.135, 0.15, 0.86) infinite;
+	animation: blink 4s cubic-bezier(0.785, 0.135, 0.15, 0.86) infinite;
+}
+    
+ .eye::before:hover{
+            height:100%;
+        }
+
+
+@keyframes blink {
+  0%, 8% {
+    height: 100%;
+  }
+  10%, 12% {
+    height: 5%;
+  }
+  14%, 100% {
+    height: 100%;
+  }
+}
+@-webkit-keyframes double-blink {
+  0%, 8% {
+    height: 100%;
+  }
+  10%, 12% {
+    height: 15%;
+  }
+  13% {
+    height: 100%;
+  }
+  14%, 16% {
+    height: 0;
+  }
+  18%, 100% {
+    height: 100%;
+  }
+}
+@keyframes double-blink {
+  0%, 8% {
+    height: 100%;
+  }
+  10%, 12% {
+    height: 15%;
+  }
+  13% {
+    height: 100%;
+  }
+  14%, 16% {
+    height: 0%;
+  }
+  18%, 100% {
+    height: 100%;
+  }
+}
+
+
+
+

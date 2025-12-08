@@ -681,11 +681,27 @@
 			<div class="title-bar"><h3 class="logs-header" data-l10n-id="logs">Logs</h3></div>
 			<div id="extension-dashboard-logging-menu"></div>
 			<div id="extension-dashboard-logging-main-page"></div>
-			<button class="create-log-button icon-button" data-l10n-id="add-log" aria-label="Create New Log"></button>
+			<button id="extension-dashboard-logging-show-add-log-modal-button" class="create-log-button icon-button" data-l10n-id="add-log" aria-label="Create New Log"></button>
 			
 			
 		</div>
 	</div>
+	
+	
+	<dialog id="extension-dashboard-logging-add-log-modal">
+		<div class="extension-dashboard-flex-column">
+			<h2 id="extension-dashboard-logging-add-log-modal-title">Add log</h2>
+			
+			<div id="extension-dashboard-logging-add-log-modal-content">
+				
+			</div>
+	
+			<div class="extension-dashboard-flex-between extension-dashboard-button-bar">
+				<button id="extension-dashboard-logging-add-log-modal-cancel-button" class="text-button">Cancel</button>
+				<button id="extension-dashboard-logging-add-log-modal-save-button" class="text-button">Save</button>
+			</div>
+		</div>
+	</dialog>
 	
 	<div id="extension-dashboard-log-tooltip"></div>
 	
