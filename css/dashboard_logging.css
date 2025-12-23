@@ -4,6 +4,9 @@
 	
 */
 
+body:not(.developer) #logs-menu-item{
+   display:none!important;
+}
 
 #extension-dashboard-logging-menu-item{
 	background-image: url(/images/logs-icon.svg);
