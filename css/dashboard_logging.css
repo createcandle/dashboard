@@ -4,7 +4,7 @@
 	
 */
 
-body:not(.developer) #logs-menu-item{
+body:not(.developer) #main-menu > ul > li:nth-child(3){
    display:none!important;
 }
 
