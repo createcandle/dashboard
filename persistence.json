@@ -3,10 +3,52 @@
         "grid0": {
             "widgets": {
                 "widget2": {
+                    "type": "property-switch",
+                    "needs": {
+                        "update": {
+                            "switch_state": {
+                                "restrictions": {
+                                    "element_tag_name": "INPUT",
+                                    "input_type": "checkbox"
+                                },
+                                "thing_id": "webinterface",
+                                "thing_title": "Web interface",
+                                "property_id": "outside-access",
+                                "action_id": "outside-access",
+                                "property_title": "Outside access",
+                                "property_details": {
+                                    "name": "outside-access",
+                                    "value": false,
+                                    "visible": true,
+                                    "@type": "OnOffProperty",
+                                    "title": "Outside access",
+                                    "type": "boolean",
+                                    "readOnly": false,
+                                    "forms": [
+                                        {
+                                            "href": "/things/webinterface/properties/outside-access"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "icon": {
+                            "optional_different_icon_when_on": "/tabler_outline/cloud.svg",
+                            "icon": "/tabler_outline/cloud-off.svg"
+                        },
+                        "rename": {
+                            "name": "Outside access"
+                        }
+                    }
+                },
+                "widget1": {
+                    "needs": {}
+                },
+                "widget0": {
                     "type": "media_player",
                     "needs": {
                         "rename": {
-                            "name": "Internet radio"
+                            "name": "Radio"
                         },
                         "action": {
                             "previous": {},
@@ -68,84 +110,6 @@
                                 "property_id": "artist",
                                 "property_title": "Artist"
                             }
-                        }
-                    }
-                },
-                "widget1": {
-                    "type": "property-switch",
-                    "needs": {
-                        "update": {
-                            "switch_state": {
-                                "restrictions": {
-                                    "element_tag_name": "INPUT",
-                                    "input_type": "checkbox"
-                                },
-                                "thing_id": "bluetoothpairing",
-                                "thing_title": "Bluetooth",
-                                "property_id": "bluetooth_power",
-                                "action_id": "bluetooth_power",
-                                "property_title": "State",
-                                "property_details": {
-                                    "name": "bluetooth_power",
-                                    "value": true,
-                                    "visible": true,
-                                    "@type": "OnOffProperty",
-                                    "title": "State",
-                                    "type": "boolean",
-                                    "readOnly": false,
-                                    "forms": [
-                                        {
-                                            "href": "/things/bluetoothpairing/properties/bluetooth_power"
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        "icon": {
-                            "optional_different_icon_when_on": null,
-                            "icon": "/iconoir_regular/bluetooth.svg"
-                        },
-                        "rename": {
-                            "name": "Bluetooth"
-                        }
-                    }
-                },
-                "widget0": {
-                    "type": "property-switch",
-                    "needs": {
-                        "update": {
-                            "switch_state": {
-                                "restrictions": {
-                                    "element_tag_name": "INPUT",
-                                    "input_type": "checkbox"
-                                },
-                                "thing_id": "webinterface",
-                                "thing_title": "Web interface",
-                                "property_id": "outside-access",
-                                "action_id": "outside-access",
-                                "property_title": "Outside access",
-                                "property_details": {
-                                    "name": "outside-access",
-                                    "value": false,
-                                    "visible": true,
-                                    "@type": "OnOffProperty",
-                                    "title": "Outside access",
-                                    "type": "boolean",
-                                    "readOnly": false,
-                                    "forms": [
-                                        {
-                                            "href": "/things/webinterface/properties/outside-access"
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        "icon": {
-                            "optional_different_icon_when_on": "/tabler_outline/cloud.svg",
-                            "icon": "/tabler_outline/cloud-off.svg"
-                        },
-                        "rename": {
-                            "name": "Outside access"
                         }
                     }
                 }
@@ -224,27 +188,28 @@
                     "subGridDynamic": true
                 },
                 "subGridDynamic": false,
-                "column": 6,
+                "column": 5,
                 "children": [
                     {
                         "x": 0,
                         "y": 0,
-                        "id": "widget2",
-                        "w": 2,
-                        "h": 2
-                    },
-                    {
-                        "x": 0,
-                        "y": 2,
                         "id": "widget1"
                     },
                     {
                         "x": 1,
-                        "y": 2,
-                        "id": "widget0"
+                        "y": 0,
+                        "id": "widget2"
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "id": "widget0",
+                        "w": 2,
+                        "h": 2
                     }
                 ]
             }
         }
     },
     "logging_meta": {}
+}
