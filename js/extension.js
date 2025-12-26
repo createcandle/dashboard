@@ -11883,36 +11883,42 @@
 													setTimeout(() => {
 														if(this.in_viewport(svg_el)){
 															//console.warn("two seconds later this log SVG is fully in the viewport.  thing_id,property_id: ", thing_id, property_id);
-															
-															if(typeof this.logging_meta[ thing_id ] == 'undefined'){
-																this.logging_meta[ thing_id ] = {'properties':{}};
-															}
-															
-															if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
-																this.logging_meta[ thing_id ]['properties'][ property_id ] = {};
+															if(typeof thing_id == 'string'){
+																if(typeof this.logging_meta[ thing_id ] == 'undefined'){
+																	this.logging_meta[ thing_id ] = {'properties':{}};
+																}
+																if(typeof property_id == 'string'){
+																	if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
+																		this.logging_meta[ thing_id ]['properties'][ property_id ] = {};
+																	}
+																}
 															}
 															const new_last_viewed_time = Date.now();
 														
 															log_property_container_el.classList.add('extension-dashboard-logging-unblur');
-														
-															setTimeout(() => {
-																this.logging_meta[ thing_id ]['properties'][ property_id ]['last_viewed'] = new_last_viewed_time;
-																if(this.should_save_logging_meta.indexOf(thing_id) == -1){
-																	this.should_save_logging_meta.push(thing_id);
-																}
-																
-																const last_viewed_el = log_property_container_el.querySelector('.extension-dashboard-logging-' + thing_id + '--x--' + property_id + '-last-viewed-time');
-																if(last_viewed_el){
-																	//console.log("updating last_viewed element");
-																	last_viewed_el.textContent = 'Just now';
-																}
-																else{
-																	if(this.debug){
-																		console.error("dashboard: update_logging: could not find last_viewed_el.  thing_id,property_id: ", thing_id,property_id);
+															if(typeof thing_id == 'string' && typeof property_id == 'string'){
+																setTimeout(() => {
+																	this.logging_meta[ thing_id ]['properties'][ property_id ]['last_viewed'] = new_last_viewed_time;
+																	if(this.should_save_logging_meta.indexOf(thing_id) == -1){
+																		this.should_save_logging_meta.push(thing_id);
 																	}
-																}
-																
-															},10000);
+																	
+																	const last_viewed_el = log_property_container_el.querySelector('.extension-dashboard-logging-' + thing_id + '--x--' + property_id + '-last-viewed-time');
+																	if(last_viewed_el){
+																		//console.log("updating last_viewed element");
+																		last_viewed_el.textContent = 'Just now';
+																	}
+																	else{
+																		if(this.debug){
+																			console.error("dashboard: update_logging: could not find last_viewed_el.  thing_id,property_id: ", thing_id,property_id);
+																		}
+																	}
+																	
+																},10000);
+															}
+															else{
+																console.warn('update_logging: missing thing_id and/or property_id: ', thing_id, property_id);
+															}
 														
 														
 														
@@ -11925,10 +11931,14 @@
 													if(log_property_container_el.classList.contains('extension-dashboard-logging-unblur')){
 														
 														log_property_container_el.classList.remove('extension-dashboard-logging-unblur');
-														
-														this.logging_meta[ thing_id ]['properties'][ property_id ]['last_viewed'] = Date.now();
-														if(this.should_save_logging_meta.indexOf(thing_id) == -1){
-															this.should_save_logging_meta.push(thing_id);
+														if(typeof thing_id == 'string' && typeof property_id == 'string'){
+															this.logging_meta[ thing_id ]['properties'][ property_id ]['last_viewed'] = Date.now();
+															if(this.should_save_logging_meta.indexOf(thing_id) == -1){
+																this.should_save_logging_meta.push(thing_id);
+															}
+														}
+														else{
+															console.warn('update_logging: cannot update last_viewed: missing thing_id and/or property_id: ', thing_id, property_id);
 														}
 													}
 												}
