@@ -11898,6 +11898,17 @@
 															log_property_container_el.classList.add('extension-dashboard-logging-unblur');
 															if(typeof thing_id == 'string' && typeof property_id == 'string'){
 																setTimeout(() => {
+
+																	if(typeof thing_id == 'string'){
+																		if(typeof this.logging_meta[ thing_id ] == 'undefined'){
+																			this.logging_meta[ thing_id ] = {'properties':{}};
+																		}
+																		if(typeof property_id == 'string'){
+																			if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
+																				this.logging_meta[ thing_id ]['properties'][ property_id ] = {};
+																			}
+																		}
+																	}
 																	this.logging_meta[ thing_id ]['properties'][ property_id ]['last_viewed'] = new_last_viewed_time;
 																	if(this.should_save_logging_meta.indexOf(thing_id) == -1){
 																		this.should_save_logging_meta.push(thing_id);
