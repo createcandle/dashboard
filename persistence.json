@@ -1,0 +1,250 @@
+{
+    "dashboards": {
+        "grid0": {
+            "widgets": {
+                "widget2": {
+                    "type": "media_player",
+                    "needs": {
+                        "rename": {
+                            "name": "Internet radio"
+                        },
+                        "action": {
+                            "previous": {},
+                            "next": {}
+                        },
+                        "update": {
+                            "play_pause_button": {
+                                "thing_id": "internet-radio",
+                                "thing_title": "Radio",
+                                "property_id": "power",
+                                "property_title": "Playing"
+                            },
+                            "volume": {
+                                "thing_id": "internet-radio",
+                                "thing_title": "Radio",
+                                "property_id": "volume",
+                                "property_title": "Volume"
+                            },
+                            "stations_list": {
+                                "restrictions": {
+                                    "element_tag_name": "UL"
+                                },
+                                "thing_id": "internet-radio",
+                                "thing_title": "Radio",
+                                "property_id": "station",
+                                "action_id": "station",
+                                "property_title": "Station",
+                                "property_details": {
+                                    "name": "station",
+                                    "value": "FIP",
+                                    "visible": true,
+                                    "title": "Station",
+                                    "type": "string",
+                                    "enum": [
+                                        "FIP"
+                                    ],
+                                    "forms": [
+                                        {
+                                            "href": "/things/internet-radio/properties/station"
+                                        }
+                                    ]
+                                }
+                            },
+                            "source": {
+                                "thing_id": "internet-radio",
+                                "thing_title": "Radio",
+                                "property_id": "station",
+                                "property_title": "Station"
+                            },
+                            "song_title": {
+                                "thing_id": "internet-radio",
+                                "thing_title": "Radio",
+                                "property_id": "song",
+                                "property_title": "Song"
+                            },
+                            "artist": {
+                                "thing_id": "internet-radio",
+                                "thing_title": "Radio",
+                                "property_id": "artist",
+                                "property_title": "Artist"
+                            }
+                        }
+                    }
+                },
+                "widget1": {
+                    "type": "property-switch",
+                    "needs": {
+                        "update": {
+                            "switch_state": {
+                                "restrictions": {
+                                    "element_tag_name": "INPUT",
+                                    "input_type": "checkbox"
+                                },
+                                "thing_id": "bluetoothpairing",
+                                "thing_title": "Bluetooth",
+                                "property_id": "bluetooth_power",
+                                "action_id": "bluetooth_power",
+                                "property_title": "State",
+                                "property_details": {
+                                    "name": "bluetooth_power",
+                                    "value": true,
+                                    "visible": true,
+                                    "@type": "OnOffProperty",
+                                    "title": "State",
+                                    "type": "boolean",
+                                    "readOnly": false,
+                                    "forms": [
+                                        {
+                                            "href": "/things/bluetoothpairing/properties/bluetooth_power"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "icon": {
+                            "optional_different_icon_when_on": null,
+                            "icon": "/iconoir_regular/bluetooth.svg"
+                        },
+                        "rename": {
+                            "name": "Bluetooth"
+                        }
+                    }
+                },
+                "widget0": {
+                    "type": "property-switch",
+                    "needs": {
+                        "update": {
+                            "switch_state": {
+                                "restrictions": {
+                                    "element_tag_name": "INPUT",
+                                    "input_type": "checkbox"
+                                },
+                                "thing_id": "webinterface",
+                                "thing_title": "Web interface",
+                                "property_id": "outside-access",
+                                "action_id": "outside-access",
+                                "property_title": "Outside access",
+                                "property_details": {
+                                    "name": "outside-access",
+                                    "value": false,
+                                    "visible": true,
+                                    "@type": "OnOffProperty",
+                                    "title": "Outside access",
+                                    "type": "boolean",
+                                    "readOnly": false,
+                                    "forms": [
+                                        {
+                                            "href": "/things/webinterface/properties/outside-access"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "icon": {
+                            "optional_different_icon_when_on": "/tabler_outline/cloud.svg",
+                            "icon": "/tabler_outline/cloud-off.svg"
+                        },
+                        "rename": {
+                            "name": "Outside access"
+                        }
+                    }
+                }
+            },
+            "gridstack": {
+                "cellWidth": "auto",
+                "margin": 15,
+                "minRow": 2,
+                "acceptWidgets": true,
+                "removable": "#extension-dashboard-trash",
+                "columnOpts": {
+                    "breakpoints": [
+                        {
+                            "w": 10000,
+                            "c": 10,
+                            "layout": "moveScale"
+                        },
+                        {
+                            "w": 2000,
+                            "c": 9,
+                            "layout": "moveScale"
+                        },
+                        {
+                            "w": 1800,
+                            "c": 8,
+                            "layout": "moveScale"
+                        },
+                        {
+                            "w": 1650,
+                            "c": 7,
+                            "layout": "moveScale"
+                        },
+                        {
+                            "w": 1500,
+                            "c": 6,
+                            "layout": "moveScale"
+                        },
+                        {
+                            "w": 1350,
+                            "c": 6,
+                            "layout": "moveScale"
+                        },
+                        {
+                            "w": 1200,
+                            "c": 6,
+                            "layout": "moveScale"
+                        },
+                        {
+                            "w": 1024,
+                            "c": 5,
+                            "layout": "compact"
+                        },
+                        {
+                            "w": 800,
+                            "c": 4,
+                            "layout": "compact"
+                        },
+                        {
+                            "w": 768,
+                            "c": 3,
+                            "layout": "compact"
+                        },
+                        {
+                            "w": 480,
+                            "c": 2,
+                            "layout": "list"
+                        }
+                    ],
+                    "columnMax": 12
+                },
+                "subGridOpts": {
+                    "cellWidth": "auto",
+                    "column": "auto",
+                    "acceptWidgets": true,
+                    "margin": 15,
+                    "subGridDynamic": true
+                },
+                "subGridDynamic": false,
+                "column": 6,
+                "children": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "id": "widget2",
+                        "w": 2,
+                        "h": 2
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "id": "widget1"
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "id": "widget0"
+                    }
+                ]
+            }
+        }
+    },
+    "logging_meta": {}
