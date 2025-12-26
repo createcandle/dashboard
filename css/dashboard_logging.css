@@ -5,6 +5,11 @@
 */
 
 
+body:not(.developer) #main-menu > ul > li:nth-child(3){
+   display:none!important;
+}
+
+
 #extension-dashboard-logging-menu-item{
 	background-image: url(/images/logs-icon.svg);
 }
@@ -100,6 +105,23 @@
 	margin-bottom:10rem;
 }
 
+#extension-dashboard-logging-main-page{
+	position:relative;
+	min-height:80vh;
+}
+#extension-dashboard-logging-main-page:empty::after{
+	content:'One moment';
+	color:white;
+	font-size:3rem;
+	width:100%;
+	min-height:80vh;
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	position:absolute;
+	top:0;
+	left:0;
+}
 
 .extension-dashboard-logging-log-thing-container{
 	border-radius:1rem;

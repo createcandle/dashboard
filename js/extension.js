@@ -11950,6 +11950,9 @@
 				
 				
 			}
+			else{
+				this.logging_content_el.innerHTML = '<h3>There are no logs to display</h3>';
+			}
 			
 		}
 		
