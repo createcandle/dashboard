@@ -10369,6 +10369,12 @@
 					}
 					masking_above_input_el.addEventListener('change', () => {
 						//console.log("masking above value changed");
+						if(typeof this.logging_meta[ thing_id ]['properties'] == 'undefined'){
+							this.logging_meta[ thing_id ]['properties'] = {}
+						}
+						if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
+							this.logging_meta[ thing_id ]['properties'][ property_id ] = {}
+						}
 						this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'] = parseFloat(masking_above_input_el.value);
 						apply_privacy_mask();
 						update_drag_line_positions();
@@ -10401,6 +10407,12 @@
 					}
 					masking_below_input_el.addEventListener('change', () => {
 						//console.log("masking: below value changed");
+						if(typeof this.logging_meta[ thing_id ]['properties'] == 'undefined'){
+							this.logging_meta[ thing_id ]['properties'] = {}
+						}
+						if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
+							this.logging_meta[ thing_id ]['properties'][ property_id ] = {}
+						}
 						this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'] = parseFloat(masking_below_input_el.value);
 						apply_privacy_mask();
 						update_drag_line_positions();
@@ -10452,7 +10464,13 @@
 							log_viz_container_el.classList.remove('extension-dashboard-logging-privacy-settings-hide-below-input');
 						}
 					}
-					
+
+					if(typeof this.logging_meta[ thing_id ]['properties'] == 'undefined'){
+							this.logging_meta[ thing_id ]['properties'] = {}
+						}
+						if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
+							this.logging_meta[ thing_id ]['properties'][ property_id ] = {}
+						}
 					if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] == 'string'){
 						mask_type_select_el.value = this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'];
 						show_or_hide_masking_inputs(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type']);
@@ -10463,6 +10481,12 @@
 					
 					mask_type_select_el.addEventListener('change', () => {
 						//console.log("masking_type changed to: ", mask_type_select_el.value);
+						if(typeof this.logging_meta[ thing_id ]['properties'] == 'undefined'){
+							this.logging_meta[ thing_id ]['properties'] = {}
+						}
+						if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
+							this.logging_meta[ thing_id ]['properties'][ property_id ] = {}
+						}
 						this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] = mask_type_select_el.value;
 						show_or_hide_masking_inputs(mask_type_select_el.value);
 						this.save_logging_meta(thing_id);
@@ -10585,7 +10609,13 @@
 							
 							
 							if(drag_start_target_el_class == "extension-dashboard-logging-svg-drag-line1"){
-								
+
+								if(typeof this.logging_meta[ thing_id ]['properties'] == 'undefined'){
+									this.logging_meta[ thing_id ]['properties'] = {}
+								}
+								if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
+									this.logging_meta[ thing_id ]['properties'][ property_id ] = {}
+								}
 								if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] == 'string' && this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] != 'hide_above' && this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] != 'show_all' && typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'] == 'number'){
 									if(value_at_y < this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below']){
 										value_at_y = this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_below'];
@@ -10613,6 +10643,12 @@
 								let value_at_y_again = yScale.invert(back_to_y);  // from pixel offset back to value again
 								//console.log("value_at_y_again: ", value_at_y_again);
 								masking_above_input_el.value = value_at_y_again;
+								if(typeof this.logging_meta[ thing_id ]['properties'] == 'undefined'){
+									this.logging_meta[ thing_id ]['properties'] = {}
+								}
+								if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
+									this.logging_meta[ thing_id ]['properties'][ property_id ] = {}
+								}
 								this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'] = value_at_y_again;
 								if(save==true){
 									drag_start_y[drag_start_target_el_class] = d.y; // or set to null?
@@ -10622,6 +10658,12 @@
 								
 							}
 							else if(drag_start_target_el_class == "extension-dashboard-logging-svg-drag-line2"){
+								if(typeof this.logging_meta[ thing_id ]['properties'] == 'undefined'){
+									this.logging_meta[ thing_id ]['properties'] = {}
+								}
+								if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
+									this.logging_meta[ thing_id ]['properties'][ property_id ] = {}
+								}
 								if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] == 'string' && this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] != 'hide_below' && this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_type'] != 'show_all' && typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'] == 'number'){
 									if(value_at_y > this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above']){
 										value_at_y = this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'];
@@ -10738,7 +10780,13 @@
 					
 					const update_drag_line_positions = () => {
 						//console.log("in update_drag_line_positions");
-						
+
+						if(typeof this.logging_meta[ thing_id ]['properties'] == 'undefined'){
+							this.logging_meta[ thing_id ]['properties'] = {}
+						}
+						if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
+							this.logging_meta[ thing_id ]['properties'][ property_id ] = {}
+						}
 			  		  	if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above'] == 'number'){
 							const scaled_y = yScale(this.logging_meta[ thing_id ]['properties'][ property_id ]['masking_above']);
 							current_y_position["extension-dashboard-logging-svg-drag-line1"] = scaled_y;
@@ -10987,6 +11035,12 @@
 					const limit_precision = () => {
 						
 						let new_precision_log_data = [];
+						if(typeof this.logging_meta[ thing_id ]['properties'] == 'undefined'){
+							this.logging_meta[ thing_id ]['properties'] = {}
+						}
+						if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
+							this.logging_meta[ thing_id ]['properties'][ property_id ] = {}
+						}
 						if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ]['precision'] == 'number'){
 							const intended_precision = this.logging_meta[ thing_id ]['properties'][ property_id ]['precision'];
 							//console.log("limit_precision:  intended_precision: ", intended_precision);
@@ -11011,7 +11065,8 @@
 									.interrupt()
 									.datum(new_precision_log_data)
 									.attr('d', line);
-								
+
+									
 									let background_grid_size = Math.abs(yScale(this.logging_meta[ thing_id ]['properties'][ property_id ]['precision']) - yScale(0))
 									//console.log("initial background_grid_size: ", background_grid_size);
 									while(background_grid_size < 2){
