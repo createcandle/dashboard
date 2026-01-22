@@ -168,10 +168,14 @@ class DashboardAPIHandler(APIHandler):
         self.persistent_data = {}
         try:
             if os.path.isfile(self.persistence_file_path):
-                with open(self.persistence_file_path) as f:
-                    self.persistent_data = json.load(f)
-                    if self.DEBUG:
-                        print('self.persistent_data loaded from file.')  #' length: ' + len(str(self.persistent_data)))
+                try:
+                    with open(self.persistence_file_path) as f:
+                        self.persistent_data = json.load(f)
+                        if self.DEBUG:
+                            print('self.persistent_data loaded from file.')  #' length: ' + len(str(self.persistent_data)))
+                except Exception as ex:
+                    print("Caught error loading persistence file: " + str(ex))
+                
                 
         except Exception as ex:
             if self.DEBUG:
