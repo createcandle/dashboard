@@ -443,7 +443,8 @@
                     this.show();
 					
                 }
-                else if(typeof body.start_with_background == 'boolean' && body.start_with_background == true && !window.location.pathname.endsWith("dashboard")){
+                //else if(typeof body.start_with_background == 'boolean' && body.start_with_background == true && !window.location.pathname.endsWith("dashboard")){
+				else if(typeof body.start_with_background == 'boolean' && body.start_with_background == true && window.location.pathname.endsWith("/things")){
 					const dashboard_menu_item = document.getElementById('extension-dashboard-menu-item');
 					if(dashboard_menu_item){
 						this.delay_show_until_after_hide = true;
@@ -525,6 +526,8 @@
 				this.developer = false;
 			}
 			
+			// Sometimes the menu button isn't visible if the addon is set the be shown at the start
+			document.getElementById('menu-button').classList.remove('hidden');
 			
 			
 			

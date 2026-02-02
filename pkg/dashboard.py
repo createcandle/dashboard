@@ -160,6 +160,9 @@ class DashboardAPIHandler(APIHandler):
                     print("Voco is not installed, no need to check voco timers")
                 self.show_voco_timers = False
             
+            # Tutorial
+            self.tutorial_addon_path = os.path.join(self.user_profile['addonsDir'], 'tutorial')
+            self.tutorial_persistent_data_path = os.path.join(self.user_profile['dataDir'], 'tutorial', 'persistence.json')
             
         except Exception as ex:
             print("Failed to make paths: " + str(ex))
@@ -205,15 +208,35 @@ class DashboardAPIHandler(APIHandler):
         
             
         # Respond to gateway version
-        try:
-            if self.DEBUG:
-                print("Gateway version: " + self.gateway_version)
-        except:
-            if self.DEBUG:
-                print("self.gateway_version did not exist")
+        #try:
+        #    if self.DEBUG:
+        #        print("Gateway version: " + self.gateway_version)
+        #except:
+        #    if self.DEBUG:
+        #        print("self.gateway_version did not exist")
         
         
         
+        if self.start_with_dashboard == True:
+            try:
+                if os.path.exists(self.tutorial_addon_path) and os.path.exists(self.tutorial_persistent_data_path):
+                    with open(self.tutorial_persistent_data_path) as f: 
+                        tutorial_persistent_data = json.load(f)
+                        if 'show' in tutorial_persistent_data and bool(tutorial_persistent_data['show']) == False:
+                            # OK, the tutorial is no longer always shown, so dashboard can take that role now
+                            pass
+                        else:
+                            # no show == False in tutorial persistent data settings yet
+                            self.start_with_dashboard = False
+                            
+                elif os.path.exists(self.tutorial_addon_path):
+                    # The tutorial addon is installed, but doesn't have a persistent data file yet. That means it's still being shown as the first page.
+                    self.start_with_dashboard = False
+                    
+            except Exception as ex:
+                print("caught error checking if Tutorial addon is already set to become the first addon to be shown: " + str(ex))
+            
+
         
         self.ready = True
         
