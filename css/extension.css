@@ -238,6 +238,22 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	flex-shrink:0;
 }
 
+@media screen and (max-width: 640px) {
+	#extension-dashboard-content.extension-dashboard-editing #extension-dashboard-tab-menu{
+		/*margin-top:9.6rem;*/
+		padding:0 1rem;
+	}
+	
+	#extension-dashboard-content.extension-dashboard-editing .extension-dashboard-editing-round-buttons-container > div{
+		width:4.6rem;
+		height:4.6rem;
+		margin:2.5rem .5rem;
+	}
+	
+	
+	
+}
+
 @media screen and (max-width: 1025px) {
 
 	#extension-dashboard-content:not(.extension-dashboard-editing) #extension-dashboard-tab-menu.extension-dashboard-wide-menu{
@@ -256,6 +272,19 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 	background-color: rgba(0, 0, 0, .1);
 	flex-wrap:wrap;
 }
+
+/*
+@media screen and (max-width: 640px) {
+	.extension-dashboard-editing #extension-dashboard-tab-menu{
+		
+	}
+	.extension-dashboard-editing #extension-dashboard-tab-menu > .extension-dashboard-flex > div{
+		height: 4.6rem;
+		background-size: 60%;
+		margin: 2.5rem 0.5rem;
+	}
+}
+*/
 
 .extension-dashboard-editing #extension-dashboard-tab-menu:not(.extension-dashboard-wide-menu) > div{
 	margin:0 2rem;
@@ -370,6 +399,7 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 
 #extension-dashboard-tab-buttons-container div.extension-dashboard-tab-button-with-name{
 	font-size:1.6rem;
+	display:inline-block;
 }
 
 #extension-dashboard-tab-menu .extension-dashboard-tab-name-input{

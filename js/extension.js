@@ -1556,6 +1556,7 @@
 				let trash_zone_el = document.createElement('div');
 				trash_zone_el.setAttribute('id','extension-dashboard-trash');
 				trash_zone_el.classList.add('extension-dashboard-trash');
+				trash_zone_el.classList.add('extension-dashboard-editing-round-button');
 				trash_zone_el.classList.add('extension-dashboard-show-if-editing');
 				trash_zone_el.addEventListener('click', () => {
 					if(confirm("Are you sure you want to remove this dashboard?")){
@@ -1604,6 +1605,7 @@
 				
 				let widget_management_container_el = document.createElement('div');
 				widget_management_container_el.classList.add('extension-dashboard-flex');
+				widget_management_container_el.classList.add('extension-dashboard-editing-round-buttons-container');
 				
 				tabs_menu_el.appendChild(trash_zone_el);
 				
@@ -1618,6 +1620,7 @@
 				
 				let add_widget_button_el = document.createElement('div');
 				add_widget_button_el.setAttribute('id','extension-dashboard-add-widget-button');
+				add_widget_button_el.classList.add('extension-dashboard-editing-round-button');
 				add_widget_button_el.classList.add('extension-dashboard-show-if-editing');
 				//add_widget_button_el.textContent = '+';
 				add_widget_button_el.addEventListener('click', () => {
@@ -1631,6 +1634,7 @@
 				
 				let add_dashboard_button_el = document.createElement('div');
 				add_dashboard_button_el.setAttribute('id','extension-dashboard-add-dashboard-button');
+				add_dashboard_button_el.classList.add('extension-dashboard-editing-round-button');
 				add_dashboard_button_el.classList.add('extension-dashboard-show-if-editing');
 				//add_dashboard_button_el.textContent = '+';
 				add_dashboard_button_el.addEventListener('click', () => {
@@ -1654,6 +1658,7 @@
 				
 				let open_settings_button_el = document.createElement('div');
 				open_settings_button_el.setAttribute('id','extension-dashboard-open-settings-button');
+				open_settings_button_el.classList.add('extension-dashboard-editing-round-button');
 				open_settings_button_el.classList.add('extension-dashboard-show-if-editing');
 				open_settings_button_el.addEventListener('click', () => {
 					if(this.settings_modal_el == null){
