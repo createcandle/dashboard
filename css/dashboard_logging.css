@@ -112,8 +112,9 @@ body:not(.developer) #main-menu > ul > li:nth-child(3){
 	position:relative;
 	min-height:80vh;
 }
+
 #extension-dashboard-logging-main-page:empty::after{
-	content:'One moment';
+	content:'One moment...';
 	color:white;
 	font-size:3rem;
 	width:100%;
@@ -125,6 +126,25 @@ body:not(.developer) #main-menu > ul > li:nth-child(3){
 	top:0;
 	left:0;
 }
+
+/* Tutorial */
+
+#extension-dashboard-logging-start-page-explanation{
+	margin: 8rem auto;
+	display: flex;
+	color:#eee;
+    line-height: 160%;
+}
+
+#extension-dashboard-content #extension-dashboard-logging-start-page-explanation ul{
+	list-style:initial;
+}
+
+#extension-dashboard-logging-start-page-explanation li{
+    margin: 1rem 0;
+}
+
+
 
 .extension-dashboard-logging-log-thing-container{
 	border-radius:1rem;
@@ -150,6 +170,10 @@ body:not(.developer) #main-menu > ul > li:nth-child(3){
 	background-color:rgba(255,255,255,.4);
 	margin:.5rem 0;
 	box-sizing:border-box;
+}
+
+.extension-dashboard-logging-log-property-container:empty{
+	display:none;
 }
 
 .extension-dashboard-logging-log-property-container h4{
@@ -309,6 +333,23 @@ body:not(.developer) #main-menu > ul > li:nth-child(3){
 	font-size:1.6rem;
 }
 
+
+.extension-dashboard-logging-item-no-data-yet-hint{
+	margin:2rem auto;
+	font-size:1.6rem;
+	color:black;
+	text-align:center;
+    border-left: 1px solid black;
+    border-bottom: 1px solid black;
+    margin: 3rem;
+    padding: 3rem;
+}
+
+.extension-dashboard-modal-thing-selector-no-options{
+	color:white;
+	text-align:center;
+	padding:1rem;
+}
 
 
 
