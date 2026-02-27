@@ -134,7 +134,30 @@ body:not(.developer) #main-menu > ul > li:nth-child(3){
 	display: flex;
 	color:#eee;
     line-height: 160%;
+	padding: 2rem 4rem;
+	margin-bottom: 3rem;
+	border-radius: 2rem;
+	background-color: rgba(0, 0, 0, .1);
+	max-width:80rem;
+	flex-wrap:wrap;
 }
+
+
+#extension-dashboard-logging-start-page-explanation p:first-of-type {
+    font-size: 2rem;
+	line-height: 160%;
+}
+
+@media screen and (min-width: 801px) {
+	#extension-dashboard-logging-start-page-explanation{
+		flex-wrap:nowrap;
+	}
+	#extension-dashboard-logging-start-page-explanation img{
+		margin-right:4rem;
+	}
+}
+
+
 
 #extension-dashboard-content #extension-dashboard-logging-start-page-explanation ul{
 	list-style:initial;
