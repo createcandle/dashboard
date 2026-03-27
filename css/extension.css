@@ -3945,7 +3945,7 @@ g.extension-dashboard-log-tooltip-data-container > rect{
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w] .extension-dashboard-widget-setpoint-needs-update,
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w] .extension-dashboard-widget-setpoint-container{
 	font-size:4.5rem;
-	font-weight:100;
+	font-weight:bold;
 }
 
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h="3"][gs-w="3"] .extension-dashboard-widget-temperature-value{

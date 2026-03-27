@@ -586,13 +586,13 @@ class DashboardAPIHandler(APIHandler):
                     
                     if request.path == '/ajax':
                         if self.DEBUG:
-                            print("received ajax request")
+                            print("dashboard debug: received ajax request")
                     
                         if 'action' in request.body:
                             
                             action = str(request.body['action'])
                             if self.DEBUG:
-                                print("received ajax request for action: " + action)
+                                print("dashboard debug: received ajax request for action: " + action)
                             
                             if action == 'init':
                                 

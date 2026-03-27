@@ -5539,7 +5539,7 @@
 							// Generate human-readable title for the log selector
 							let log_option_title = log_thing_id.replaceAll('_',' ') + ' ' + log_property_id.replaceAll('_',' ');
 							const target_thing = this.get_thing_by_thing_id(log_thing_id);
-							if(target_thing && typeof target_thing['title'] == 'string' && typeof target_thing['properties'] != 'undefined' && target_thing['properties'][log_property_id] != 'undefined' && typeof target_thing['properties'][log_property_id]['title'] == 'string'){
+							if(target_thing && typeof target_thing['title'] == 'string' && typeof target_thing['properties'] != 'undefined' && typeof target_thing['properties'][log_property_id] != 'undefined' && typeof target_thing['properties'][log_property_id]['title'] == 'string'){
 								log_option_title = target_thing['title'] + " - " + target_thing['properties'][log_property_id]['title'];
 							}
 							log_option_el.textContent = log_option_title;
@@ -7061,8 +7061,8 @@
 				
 				if(typeof log_datum[log_seniority] != 'undefined'){
 					
-					//console.log("in get_optimal_log_data.  current_precision, first keys: ", current_precision, Object.keys(log_datum['first']));
-					//console.warn("full log_datum: ", log_datum[log_seniority]);
+					console.log("in get_optimal_log_data.  current_precision, first keys: ", current_precision, Object.keys(log_datum['first']));
+					console.warn("full log_datum: ", log_datum[log_seniority]);
 					
 					if(current_precision == 'hours' && typeof log_datum[log_seniority]['log_data'] != 'undefined'){
 						//console.log("get_optimal_log_data: returning log_data");
@@ -7090,7 +7090,7 @@
 					}
 					
 					if(this.debug){
-						console.error("dashboard debug: render_log: get_optimal_log_data fell through.  current_precision, log_datum['first']: ", current_precision, typeof log_datum['first']);
+						console.error("dashboard debug: render_log: get_optimal_log_data fell through.  current_precision, log_datum['first']: ", current_precision, typeof log_datum['first'], log_datum['first']);
 					}
 				}
 				else{
@@ -8137,7 +8137,7 @@
 							
 							}
 							else{
-								console.warn("not trimming the end of daily_log_data because of odd daily_square_cut_off_point: ", daily_square_cut_off_point);
+								console.warn("not trimming the end of daily_log_data because of odd daily_square_cut_off_point.   daily_log_data.length,daily_square_cut_off_point: ", daily_log_data.length, daily_square_cut_off_point);
 							}
 							
 							
@@ -9974,8 +9974,9 @@
 
 
 			const change_precision = (provided_precision=null,transition=true) => {
-				//console.log("in change_precision.  current_precision,provided_precision: ", current_precision, provided_precision);
-				
+				if(this.debug){
+					console.log("dashboard debug: in change_precision.  current_precision,provided_precision: ", current_precision, provided_precision);
+				}
 				/*
 				if(typeof tooltip_container_g == 'undefined' || tooltip_container_g == null){
 					console.error("change_procision: tooltip_container_g was undefined or null. Aborting.");
@@ -9992,7 +9993,7 @@
 				}
 				else{
 					if(this.debug){
-						console.error("change_precision: aborting, no/invalid provided_prevision: ", provided_precision);
+						console.error("dashboard debug: change_precision: aborting, no/invalid provided_prevision: ", provided_precision);
 					}
 					return
 				}
@@ -10009,7 +10010,7 @@
 					console.log("dashboard debug: log: current_precision is now: ", current_precision);
 				}
 				
-				if(typeof widget_id == 'string' && typeof this.locally_saved_values[this.current_grid_id][widget_id] != 'undefined' && typeof this.locally_saved_values[this.current_grid_id][widget_id]['viz'] != 'undefined'){
+				if(typeof widget_id == 'string' && typeof this.current_grid_id == 'string' && typeof this.locally_saved_values[this.current_grid_id] != 'undefined' && typeof this.locally_saved_values[this.current_grid_id][widget_id] != 'undefined' && typeof this.locally_saved_values[this.current_grid_id][widget_id]['viz'] != 'undefined'){
 					this.locally_saved_values[this.current_grid_id][widget_id]['viz']['precision'] = current_precision;
 				}
 				localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
