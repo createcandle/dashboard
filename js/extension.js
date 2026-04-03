@@ -11718,11 +11718,11 @@
 				console.log("dashboard logging debug: show_logging: this.current_logs: ", this.current_logs);
 			}
 			
-			console.log("show_logging: calling load_logs_data. force_loading_log_data: ", force_loading_log_data);
+			//console.log("show_logging: calling load_logs_data. force_loading_log_data: ", force_loading_log_data);
 			this.load_logs_data(force_loading_log_data)
 			.then(() => {
 				
-				console.log("called this.load_logs_data. typeof this.logs_data is now: ", this.logs_data);
+				//console.log("called this.load_logs_data. typeof this.logs_data is now: ", this.logs_data);
 				
 				if(this.logs_data){
 					if(this.debug){
@@ -11751,8 +11751,8 @@
 		
 		update_logging(){
 			try{
-				console.log("in update_logging.  initial this.logging_meta: \n", JSON.stringify(this.logging_meta,null,2));
-				console.log("update logging: this.logs: ", this.logs);
+				//console.log("in update_logging.  initial this.logging_meta: \n", JSON.stringify(this.logging_meta,null,2));
+				//console.log("update logging: this.logs: ", this.logs);
 			
 				this.logging_content_el = this.view.querySelector('#extension-dashboard-logging-main-page');
 				if(this.logs && this.logs.length && this.logging_content_el){
