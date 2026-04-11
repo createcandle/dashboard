@@ -2753,13 +2753,14 @@
 								//if(typeof this.websockets[thing_id] == 'undefined'){
 								else{
 								
-									
+									let ws_protocol = 'ws';
 									let port = 8080;
 									if (location.protocol == 'https:') {
-										port = 443;
+										port = 4443;
+										ws_protocol = 'wss';
 									}
 					
-									const thing_websocket_url = 'ws://' + window.location.hostname + ':' + port + '/things/' + thing_id + '?jwt=' + window.API.jwt; // /properties/temperature
+									const thing_websocket_url = ws_protocol + '://' + window.location.hostname + ':' + port + '/things/' + thing_id + '?jwt=' + window.API.jwt; // /properties/temperature
 									//console.log("generate_widget_content: creating new websocket client:  new thing_websocket_url: ", thing_websocket_url);
 					
 									this.websockets[ thing_id ] = new WebSocketClient(thing_websocket_url, thing_id);
@@ -10010,10 +10011,21 @@
 					console.log("dashboard debug: log: current_precision is now: ", current_precision);
 				}
 				
-				if(typeof widget_id == 'string' && typeof this.current_grid_id == 'string' && typeof this.locally_saved_values[this.current_grid_id] != 'undefined' && typeof this.locally_saved_values[this.current_grid_id][widget_id] != 'undefined' && typeof this.locally_saved_values[this.current_grid_id][widget_id]['viz'] != 'undefined'){
+				if(typeof widget_id == 'string'){
+					if(typeof this.locally_saved_values[this.current_grid_id] == 'undefined'){
+						this.locally_saved_values[this.current_grid_id] = {};
+					}
+					if(typeof this.locally_saved_values[this.current_grid_id][widget_id] == 'undefined'){
+						this.locally_saved_values[this.current_grid_id][widget_id] = {};
+					}
+				
+					if(typeof this.locally_saved_values[this.current_grid_id][widget_id]['viz'] == 'undefined'){
+						this.locally_saved_values[this.current_grid_id][widget_id]['viz'] = {};
+					}
 					this.locally_saved_values[this.current_grid_id][widget_id]['viz']['precision'] = current_precision;
+					localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
 				}
-				localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
+				
 				
 				
 				// Change the scale of the axis
@@ -10052,8 +10064,13 @@
 					}
 					*/
 					
-					if(typeof widget_id == 'string'){
+					if(typeof widget_id == 'string' && typeof this.locally_saved_values[this.current_grid_id] != 'undefined' && typeof this.locally_saved_values[this.current_grid_id][widget_id] != 'undefined' && typeof this.locally_saved_values[this.current_grid_id][widget_id]['viz'] != 'undefined'){
 						this.locally_saved_values[this.current_grid_id][widget_id]['viz']['precision'] = current_precision;
+					}
+					else{
+						if(this.debug){
+							console.log("could not save current_precision to this.locally_saved_values.  this.current_grid_id,widget_id: ", this.current_grid_id,widget_id)
+						}
 					}
 					
 				}
@@ -10078,7 +10095,9 @@
 						//console.log("calling render_tooltip_lines with alt_log_data"); // , log_datum['first']['alt_log_data']
 						for( let ci = 0; ci < log_datum['first']['alt_log_data'].length; ci++){
 							if(typeof log_datum['first']['alt_log_data'][ci]['v'] != 'number'){
-								console.error("log_datum['first']['alt_log_data'] still had an invalid value: ", log_datum['first']['alt_log_data'][ci]['v']);
+								if(this.debug){
+									console.error("dashboard debug: log_datum['first']['alt_log_data'] still had an invalid value: ", log_datum['first']['alt_log_data'][ci]['v']);
+								}
 							}
 						}
 						
