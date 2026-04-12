@@ -7062,9 +7062,10 @@
 				
 				if(typeof log_datum[log_seniority] != 'undefined'){
 					
-					console.log("in get_optimal_log_data.  current_precision, first keys: ", current_precision, Object.keys(log_datum['first']));
-					console.warn("full log_datum: ", log_datum[log_seniority]);
-					
+					if(this.debug){
+						console.log("dashboard debug: in get_optimal_log_data.  current_precision, first keys: ", current_precision, Object.keys(log_datum['first']));
+						console.warn("dashboard debug: full log_datum: ", log_datum[log_seniority]);
+					}
 					if(current_precision == 'hours' && typeof log_datum[log_seniority]['log_data'] != 'undefined'){
 						//console.log("get_optimal_log_data: returning log_data");
 						return log_datum[log_seniority]['log_data'];
