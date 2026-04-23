@@ -110,9 +110,23 @@ body:not(.developer) #main-menu > ul > li:nth-child(3){
 
 #extension-dashboard-logging-main-page{
 	position:relative;
-	min-height:80vh;
+	min-height:10vh;
 }
 
+
+#extension-dashboard-logging-loading{
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	width:100%;
+	min-height:50vh;
+}
+
+#extension-dashboard-logging-main-page:not(:empty) + #extension-dashboard-logging-loading{
+	display:none;
+}
+
+/*
 #extension-dashboard-logging-main-page:empty::after{
 	content:'One moment...';
 	color:white;
@@ -126,6 +140,7 @@ body:not(.developer) #main-menu > ul > li:nth-child(3){
 	top:0;
 	left:0;
 }
+*/
 
 /* Tutorial */
 

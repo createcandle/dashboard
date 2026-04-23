@@ -78,7 +78,7 @@ class DashboardAPIHandler(APIHandler):
         self.things = [] # Holds all the things, updated via the API. Used to display a nicer thing name instead of the technical internal ID.
         
         self.interval = 30
-        self.screensaver_delay = 60
+        self.screensaver_delay = 30
         self.fit_to_screen = "mix"
         self.show_clock = False
         self.show_date = False
@@ -94,7 +94,6 @@ class DashboardAPIHandler(APIHandler):
 
             
         self.weather_addon_exists = False
-        
         
         self.icons_data = {}
         
@@ -128,8 +127,8 @@ class DashboardAPIHandler(APIHandler):
             if self.DEBUG:
                 print("self.manager_proxy = " + str(self.manager_proxy))
                 print("Created new API HANDLER: " + str(manifest['id']))
-        except Exception as e:
-            print("Failed to init UX extension API handler: " + str(e))
+        except Exception as ex:
+            print("Failed to init UX extension API handler: " + str(ex))
         
         try:
             
@@ -309,6 +308,10 @@ class DashboardAPIHandler(APIHandler):
             if self.DEBUG:
                 print("Animations preference was in config: " + str(self.animations))
 
+        if "Screensaver interval" in config:
+            self.screensaver_delay = int(config["Screensaver interval"])
+            if self.DEBUG:
+                print("Screensaver delay preference was in config: " + str(self.screensaver_delay))
     
     
     

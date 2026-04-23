@@ -66,6 +66,9 @@
 
 			this.slow_interval_counter = 57; // used to run some functions every 60 seconds
 			this.slow_interval = 60;
+			
+			this.screensaver_delay = 30;
+			this.screensaver_counter = 1;
 
 
             // Weather
@@ -422,6 +425,9 @@
 					this.logging_files = body['logging_files'];
 				}
 				
+				if(typeof body['screensaver_delay'] == 'number'){
+					this.screensaver_delay = body['screensaver_delay'];
+				}
 				
 				if(typeof body['icons'] != 'undefined'){
                     this.icons = body['icons'];
@@ -673,6 +679,35 @@
 						this.interval_counter++;
 						this.slow_interval_counter++
 						
+						if(document.body.classList.contains('screensaver')){
+							this.screensaver_counter++;
+							if(this.screensaver_counter > this.screensaver_delay){
+								this.screensaver_counter = 0;
+								const tab_button_els = this.view.querySelectorAll('.extension-dashboard-tab-button-wrapper');
+								if(tab_button_els.length > 1){
+									for(let tb = 0; tb < tab_button_els.length; tb++){
+										if(tab_button_els[tb].classList.contains('extension-dashboard-tab-button-selected')){
+											if(tb == tab_button_els.length - 1){
+												tab_button_els[0].classList.add('extension-dashboard-tab-button-selected');
+												if(this.debug){
+													console.log("dashboard debug: screensaver: going back to first tab");
+												}
+											}
+											else{
+												tab_button_els[tb].classList.add('extension-dashboard-tab-button-selected');
+												if(this.debug){
+													console.log("dashboard debug: screensaver: switching to next tab");
+												}
+											}
+											tab_button_els[tb].classList.remove('extension-dashboard-tab-button-selected');
+											break
+										}
+									}
+								}
+								
+							}
+						}
+						
 						
 						// Every X seconds run the slow update of settings
 						if (this.slow_interval_counter > this.slow_interval) {
@@ -730,7 +765,7 @@
 									this.voco_interval_counter = 0;
 									if(this.poll_fail_count > 0){
 										if(this.debug){
-											console.warn("dashboard: delaying voco polling after a failed poll. this.poll_fail_count: ", this.poll_fail_count);
+											console.warn("dashboard debug: delaying voco polling after a failed poll. this.poll_fail_count: ", this.poll_fail_count);
 										}
 										this.poll_fail_count--;
 									}
