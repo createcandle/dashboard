@@ -67,7 +67,7 @@
 			this.slow_interval_counter = 57; // used to run some functions every 60 seconds
 			this.slow_interval = 60;
 			
-			this.screensaver_delay = 30;
+			this.screensaver_interval = 20;
 			this.screensaver_counter = 1;
 
 
@@ -425,8 +425,8 @@
 					this.logging_files = body['logging_files'];
 				}
 				
-				if(typeof body['screensaver_delay'] == 'number'){
-					this.screensaver_delay = body['screensaver_delay'];
+				if(typeof body['screensaver_interval'] == 'number'){
+					this.screensaver_interval = body['screensaver_interval'];
 				}
 				
 				if(typeof body['icons'] != 'undefined'){
@@ -679,32 +679,14 @@
 						this.interval_counter++;
 						this.slow_interval_counter++
 						
-						if(document.body.classList.contains('screensaver')){
+						if(document.body.classList.contains('screensaver') && !this.editing){
 							this.screensaver_counter++;
-							if(this.screensaver_counter > this.screensaver_delay){
-								this.screensaver_counter = 0;
-								const tab_button_els = this.view.querySelectorAll('.extension-dashboard-tab-button-wrapper');
-								if(tab_button_els.length > 1){
-									for(let tb = 0; tb < tab_button_els.length; tb++){
-										if(tab_button_els[tb].classList.contains('extension-dashboard-tab-button-selected')){
-											if(tb == tab_button_els.length - 1){
-												tab_button_els[0].classList.add('extension-dashboard-tab-button-selected');
-												if(this.debug){
-													console.log("dashboard debug: screensaver: going back to first tab");
-												}
-											}
-											else{
-												tab_button_els[tb].classList.add('extension-dashboard-tab-button-selected');
-												if(this.debug){
-													console.log("dashboard debug: screensaver: switching to next tab");
-												}
-											}
-											tab_button_els[tb].classList.remove('extension-dashboard-tab-button-selected');
-											break
-										}
-									}
+							if(this.screensaver_counter > this.screensaver_interval){
+								if(this.debug){
+									console.log("dashboard debug: screensaver interval: showing next dashboard tab.  this.screensaver_interval: ", this.screensaver_interval);
 								}
-								
+								this.screensaver_counter = 0;
+								this.next_dashboard_tab();
 							}
 						}
 						

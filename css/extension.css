@@ -1093,6 +1093,14 @@ input[type="checkbox"]:not(:checked) ~ .extension-dashboard-widget-checkbox-togg
     align-items: end;
 }
 
+body.screensaver #extension-dashboard-content:not(.extension-dashboard-editing) #extension-dashboard-edit-button-container{
+	display:none;
+}
+
+body#path-extensions-dashboard.screensaver #menu-button{
+	opacity:.2!important;
+}
+
 #extension-dashboard-edit-button{
     width:5.6rem;
     height:5.6rem;

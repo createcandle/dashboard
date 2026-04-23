@@ -78,7 +78,7 @@ class DashboardAPIHandler(APIHandler):
         self.things = [] # Holds all the things, updated via the API. Used to display a nicer thing name instead of the technical internal ID.
         
         self.interval = 30
-        self.screensaver_delay = 30
+        self.screensaver_interval = 30
         self.fit_to_screen = "mix"
         self.show_clock = False
         self.show_date = False
@@ -309,9 +309,9 @@ class DashboardAPIHandler(APIHandler):
                 print("Animations preference was in config: " + str(self.animations))
 
         if "Screensaver interval" in config:
-            self.screensaver_delay = int(config["Screensaver interval"])
+            self.screensaver_interval = int(config["Screensaver interval"])
             if self.DEBUG:
-                print("Screensaver delay preference was in config: " + str(self.screensaver_delay))
+                print("Screensaver delay preference was in config: " + str(self.screensaver_interval))
     
     
     
