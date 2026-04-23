@@ -497,22 +497,6 @@
             } 
 			else {
                 this.view.innerHTML = this.content;
-				/*
-				// Attempt to avoid issues with hide();
-				if(this.delay_show_until_after_hide && retried == false){
-					
-					setTimeout(() => {
-						if(this.delay_show_until_after_hide == false){
-							this.show(true);
-						}
-						else{
-							this.show();
-						}
-						
-					},1000);
-					return
-				}
-				*/
             }
 			
 			
