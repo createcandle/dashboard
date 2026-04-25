@@ -53,6 +53,8 @@
 			this.last_time_clock_updated = 0;
 
 			this.at_logging = false;
+			this.thing_logs_container_el = null;
+			this.thing_logs_el = null;
 
 
             // Dashboard
@@ -146,13 +148,16 @@
 			this.all_things = null;
 			this.last_time_things_updated = 0;
 			
-			this.logs = []; // will hold info about the logs from window.API
+			// LOGS
 			this.last_time_logs_updated = 0;
 			this.current_logs = []; // which logs are visible on the current dashboard
 			this.newest_log_points = {}; // stores the date of the last datapoint from each log. Only re-render the log if there is a newer datapoint.
 			
+			this.logs = []; // will hold info about the logs from window.API
 			this.logs_data = {};	 // become a dictionary with the actual raw boolean and number datapoints from the logs
+
 			this.last_time_logs_loaded = 0;
+			this.should_update_logs_data = true;
 			
 			this.old_logs_data = {}; // stores old averaged data loaded from json files
 			
@@ -288,8 +293,216 @@
 				}
 			}
 			*/
+			setTimeout(() => {
+				if(this.thing_logs_el == null){
 
+					this.thing_logs_container_el = document.createElement('div');
+					this.thing_logs_container_el.setAttribute("id", "extension-dashboard-thing-logs-container");
+					this.thing_logs_container_el.classList.add('extension-dashboard-hidden');
+					
+					this.thing_logs_el = document.createElement('div');
+					this.thing_logs_el.setAttribute("id", "extension-dashboard-thing-logs");
+					this.thing_logs_container_el.appendChild(this.thing_logs_el);
+
+					let show_thing_logs_button_container = document.createElement('div');
+					show_thing_logs_button_container.setAttribute("id", "extension-dashboard-show-thing-logs-button-container");
+
+					let show_thing_logs_button = document.createElement('button');
+					show_thing_logs_button.setAttribute("id", "extension-dashboard-show-thing-logs-button");
+					show_thing_logs_button.classList.add('text-button');
+					show_thing_logs_button.textContent = 'Show logs';
+					show_thing_logs_button.addEventListener('click', () => {
+						this.thing_logs_container_el.classList.add('extension-dashoard-thing-logs-loading');
+						this.generate_thing_log();
+					});
+
+					show_thing_logs_button_container.appendChild(show_thing_logs_button);
+					this.thing_logs_container_el.appendChild(show_thing_logs_button_container);
+
+					document.getElementById("things-view").appendChild(this.thing_logs_container_el);
+					
+					window.addEventListener('locationchange', () => {
+						if(this.debug){
+							console.log('dashboard debug: location changed!  location.pathname: ', location.pathname);
+						}
+
+						// The user might visit these pages to add or remove logs, log data should be refreshed afterwards
+						if(location.pathname == '/extensions/dashboard' || location.pathname == '/logs'){
+							this.should_update_logs_data = true;
+						}
+						
+						this.reset_thing_log();
+						
+					});
+
+					this.reset_thing_log();
+				}
+			},1000);
+			
         }
+
+		// TODO: could make it so that if you scroll down the log is automatically revealed, so that no click is necessary
+		reset_thing_log(){
+			if(this.debug){
+				console.log("in reset_thing_log");
+			}
+			this.thing_logs_container_el.classList.remove('extension-dashoard-thing-logs-loading');
+			this.thing_logs_el.innerHTML = '';
+			this.current_logs = [];
+
+			
+
+			if(!location.pathname.startsWith('/things/')){
+				this.thing_logs_container_el.classList.add('extension-dashboard-hidden');
+			}
+			else{
+				if(this.debug){
+					console.log("dashboard debug: reset_thing_log: at a things detail page. Should check if this thing has logs, and if so, allow the user to reveal it");
+				}
+				//this.thing_logs_container_el.classList.add('extension-dashboard-hidden');
+			}
+
+			const check_if_thing_has_logs = () => {
+				if(location.pathname.startsWith('/things/')){
+					const thing_id = location.pathname.replace('/things/','');
+
+					for(let tl = 0; tl < this.logs.length; tl++){
+						//console.log("check_if_thing_has_logs: comparing: ", this.logs[tl].thing, ' =?= ', thing_id);
+						if(typeof this.logs[tl].thing == 'string' && this.logs[tl].thing == thing_id){
+							console.log("dashboard debug: reset_thing_log: this thing has at least one log: ", thing_id);
+							this.thing_logs_container_el.classList.remove('extension-dashboard-hidden');
+							break;
+						}
+					}
+				}
+				
+			}
+
+			//if(location.pathname.startsWith('/things/') && this.should_update_logs_data){
+			if(this.should_update_logs_data){
+				this.update_logs_data(true) // true = force refresh
+				.then(() => {
+					if(this.debug){
+						console.log("dashboard debug: reset_thing_log: update_logs_data seems to have succeeded");
+					}
+				})
+				.catch((err) => {
+					if(this.debug){
+						console.error("dashboard debug: reset_thing_log: caught error calling update_logs_data: ", err);
+					}
+				})
+				.finally(() => {
+					check_if_thing_has_logs();
+				})
+			}
+			else{
+				check_if_thing_has_logs();
+			}
+		}
+
+
+
+		generate_thing_log(){
+			if(this.debug){
+				console.log("dashboard debug: in generate_thing_log.  location.pathname: ", location.pathname);
+			}
+			if(location.pathname.startsWith('/things/')){
+				const thing_id = location.pathname.replace('/things/','');
+				if(this.debug){
+					console.log("dashboard debug: generate_thing_log: thing_id from pathname: ", thing_id);
+				}
+				this.thing_logs_el.innerHTML = ''; //'<div class="extension-dashboard-spinner"><div></div><div></div><div></div><div></div></div>';
+				this.current_logs = [];
+
+				if(this.logs){
+
+					for(let tl = 0; tl < this.logs.length; tl++){
+						if(typeof this.logs[tl].id == 'string'){
+							this.current_logs.push(this.logs[tl].id);
+						}
+					}
+					if(this.current_logs.length){
+
+						this.load_logs_data(true) // force actual loading of the data
+						.then(() => {
+
+
+							this.render_thing_logs(this.thing_logs_el, thing_id);
+
+							// Ensure that in a few seconds all these logs will be set as having been viewed now
+							setTimeout(() => {
+								for(let tl = 0; tl < this.logs.length; tl++){
+									if(typeof this.logs[tl].thing == 'string' && this.logs[tl].thing == thing_id && typeof this.logs[tl].id == 'string' && typeof this.logs[tl].property == 'string'){
+										//console.log("dashboard debug: generate_thing_log: spotted a relevant log for thing_id: ", thing_id, this.logs[tl]);
+										
+									
+										//const log_property_container_el = document.createElement('div');
+										//log_property_container_el.classList.add('extension-dashboard-logging-log-property-container');
+										//log_property_container_el.setAttribute('extension-dashboard-logging-log-property-container-thing_id',this.logs[tl].thing);
+										//log_property_container_el.setAttribute('extension-dashboard-logging-log-property-container-property_id',this.logs[tl].property);
+										//this.thing_logs_el.appendChild(log_property_container_el);
+										//this.render_log(log_property_container_el, this.logs[tl].id);
+
+										if(typeof this.logging_meta[ thing_id ] == 'undefined'){
+											this.logging_meta[ thing_id ] = {'properties':{}};
+										}
+										if(typeof this.logging_meta[ thing_id ]['properties'] == 'undefined'){
+											this.logging_meta[ thing_id ]['properties'] = {};
+										}
+										if(typeof this.logging_meta[ thing_id ]['properties'] == 'undefined'){
+											this.logging_meta[ thing_id ]['properties'][ this.logs[tl].property ] = {};
+										}
+										if(this.debug){
+											console.log("setting last_viewed of log to now for:  thing_id, property_id: ", thing_id, this.logs[tl].property);
+										}
+										this.logging_meta[ thing_id ]['properties'][ this.logs[tl].property ]['last_viewed'] = Date.now();
+
+										//this.logging_meta[ thing_id ]['properties'][ property_id ]['last_viewed'] = Date.now();
+										//if(this.should_save_logging_meta.indexOf(thing_id) == -1){
+										//	this.should_save_logging_meta.push(thing_id);
+										//}
+
+
+										/*
+										if(typeof this.logging_meta[thing_id] != 'undefined'){ // && typeof this.logging_meta[thing_id]['properties'] != 'undefined' && typeof this.logging_meta[thing_id]['properties'][ this.logs[tl].property ] != 'undefined'){
+											this.render_property_logs(this.thing_logs_el, thing_id);
+										}
+										break;
+										*/
+									}
+								}
+								if(this.should_save_logging_meta.indexOf(thing_id) == -1){
+									this.should_save_logging_meta.push(thing_id);
+								}
+							},5000);
+							
+
+							
+							
+
+						})
+						.catch((err) => {
+							if(this.debug){
+								console.error("dashboard debug: generate_thing_log: caught error loading actual logs data: ", err);
+							}
+						})
+
+					}
+					
+					
+
+				}
+				else{
+					if(this.debug){
+						console.error("dashboard: generate_thing_log: no valid this.logs? ", this.logs);
+					}
+				}
+
+			}
+		}
+
+
+
 
 		
 		get_initial_current_grid_id(){
@@ -1175,7 +1388,7 @@
 			
 			if(this.delay_show_until_after_hide == false){
 				if(this.debug){
-					console.warn("DASHBOARD: HIDE: CLEANING UP");
+					console.warn("dashboard debug: HIDE: CLEANING UP");
 				}
 	            try {
 					if(this.dashboard_interval){
@@ -1184,9 +1397,13 @@
 					this.dashboard_interval = null;
 	            } catch (err) {
 					if(this.debug){
-	                	console.warn("dashboard: error, could not clear dashboard_interval: ", err);
+	                	console.warn("dashboard debug: error, could not clear dashboard_interval: ", err);
 					}
 	            }
+
+				if(this.debug){
+	                console.warn("dashboard debug: clearing view");
+				}
 			
 				
 				this.update_clock = false;
@@ -1195,7 +1412,7 @@
 			
 				this.grids = {};
 			
-				this.view.innerHTML = '<h1>Loading the dashboard failed</h1>';
+				this.view.innerHTML = '<h1>Loading the dashboard or logs failed</h1>';
 				//console.log("hide(): closing all websockets");
 				for (const [websocket_thing_id, websocket_client] of Object.entries( this.websockets )) {
 					if(websocket_client){
@@ -6259,7 +6476,9 @@
 							}
 						}
 						else{
-							console.error("dashboard: no href attribute in thing data?", things[key]);
+							if(this.debug){
+								console.error("dashboard debug: no href attribute in thing data?", things[key]);
+							}
 						}
 						
 					}	
@@ -6267,11 +6486,13 @@
 				}
 			}
 			catch(err){
-				console.error("dashboard: caught error in generate_property_select: ", err);
+				if(this.debug){
+					console.error("dashboard debug: caught error in generate_property_select: ", err);
+				}
 			}
 			
 			if(this.debug){
-				console.error("dashboard: generate_property_select: fell through.  grid_id, widget_id, provided_thing_id: ", grid_id, widget_id, provided_thing_id);
+				console.error("dashboard debug: generate_property_select: fell through.  grid_id, widget_id, provided_thing_id: ", grid_id, widget_id, provided_thing_id);
 			}
 			
 			return null;
@@ -6294,17 +6515,23 @@
 		//
 		
 		
-		update_logs_data(){
-			//console.log("in update_logs_data.  last_time_logs_updated: ", this.last_time_logs_updated);
+		update_logs_data(forced=false){
+			if(this.debug){
+				console.log("dashboard debug: in update_logs_data.  forced, last_time_logs_updated: ", forced, this.last_time_logs_updated);
+			}
 			let promise = new Promise((resolve, reject) => {
 				
-				if(this.last_time_logs_updated < (Date.now() - 58000) || this.logs == null){
-					//console.log("it has been at least a minute since the logs data was last updated");
+				if(forced || this.last_time_logs_updated < (Date.now() - 58000) || this.logs == null){
+					if(this.debug){
+						console.log("dashboard debug: update_logs_data: calling window.API.getLogs");
+					}
 					
 					API.getLogs()
 					.then((logs) => {
 						
-						//console.log("dashboard: got fresh logs list from API");
+						if(this.debug){
+							console.log("dashboard debug:  got fresh logs list from API: ", logs);
+						}
 						
 		                function compare(a, b) {
                 
@@ -6321,27 +6548,30 @@
 
 						if(Object.keys(logs).length == 0){
 							if(this.debug){
-								console.error("dashboard: generate_log_selector: no logs?");
+								console.error("dashboard: update_logs_data: no logs?");
 							}
-							//alert("You don't seem to have any things");
 							reject(null);
 						}
 		                logs.sort(compare);
-		                //console.log("sorted things: ", things);
+		                if(this.debug){
+							console.log("dashboard debug: update_logs_data: sorted logs data: ", logs);
+						}
         
 		    			this.logs = logs;
 						this.last_time_logs_updated = Date.now();
-		    			//console.log("followers: all things: ", things);
-		    			//console.log(things);
+						this.should_update_logs_data = false;
 						resolve(logs);
 					})
 					.catch((err) => {
 						if(this.debug){
-							console.error("dashboard: caught error in update_logs_data: ", err);
+							console.error("dashboard debug: caught error in update_logs_data: ", err);
 						}
 					})
 				}
 				else{
+					if(this.debug){
+						console.log("dashboard debug: update_logs_data: resolving the cached this.logs instead of getting fresh data");
+					}
 					resolve(this.logs);
 				}
 			});
@@ -6355,12 +6585,12 @@
 			let promise = new Promise((resolve, reject) => {
 				
 				if(fresh_log_data_load == false && this.logs_data != null){
-					resolve();
+					resolve(); // done immediately
 				}
 				else if(this.last_time_logs_loaded < (Date.now() - 27000) || this.logs_data == null || fresh_log_data_load === true){
 					if(this.debug){
 						console.log("dashboard debug: requesting latest raw logs data from backend");
-						console.log("this.current_logs before: ", typeof this.current_logs, this.current_logs);
+						console.log("dashboard debug: this.current_logs before: ", typeof this.current_logs, this.current_logs);
 					}
 					if(this.current_logs && this.current_logs.length){
 			            window.API.postJson(
@@ -11786,22 +12016,6 @@
 					for(let lx = 0; lx < this.logs.length; lx++){
 						const thing_id = this.logs[lx]['thing'];
 					
-						// TODO DEBUG
-						/*
-						if(thing_id != 'internet-radio'){
-							continue
-						}
-						console.log("radio prop:> ", this.logs[lx]['property']);
-						*/
-						/*
-						if(this.logs[lx]['property'] != 'power'){
-							console.log("skipping property that is not 'power'");
-							continue
-						}
-						*/
-					
-					
-					
 						if(typeof this.logging_meta[ thing_id ] == 'undefined'){
 							this.logging_meta[ thing_id ] = {"thing_id": thing_id, "properties":{}}
 						}
@@ -11859,7 +12073,7 @@
 							///continue;
 							this.logging_meta[thing_id] = {'properties':{}};
 						}
-						let log_meta = this.logging_meta[thing_id];
+						//let log_meta = this.logging_meta[thing_id];
 					
 						let log_container_el = document.createElement('div');
 						log_container_el.classList.add('extension-dashboard-logging-log-thing-container');
@@ -11877,199 +12091,9 @@
 					
 						//let property_keys = Object.propertiesthis.logging_meta[ 
 						//for(let pr = 0; pr < )
-						if(typeof log_meta['properties'] != 'undefined'){
-							for (const [property_id, property_details] of Object.entries( log_meta['properties'] )) {
-							
-								// TODO DEBUG
-								/*
-								if(property_id != 'power'){
-									console.log("skipping property that is not 'power'");
-									continue
-								}
-								*/
-							
-								if(property_details && typeof property_details['log_id'] != 'undefined'){
-									let log_id = property_details['log_id'];
-									let log_property_container_el = document.createElement('div');
-									log_property_container_el.classList.add('extension-dashboard-logging-log-property-container');
-								
-									log_property_container_el.setAttribute('extension-dashboard-logging-log-property-container-thing_id', thing_id);
-									log_property_container_el.setAttribute('extension-dashboard-logging-log-property-container-property_id', property_id);
-								
-								
-									let property_container_title_el = document.createElement('h4');
-									property_container_title_el.textContent = this.get_property_title_by_ids(thing_id, property_id);
-								
-								
-								
-									log_property_container_el.appendChild(property_container_title_el);
-								
-									log_container_el.appendChild(log_property_container_el);
-								
-									if(this.debug){
-										console.log("dashboard debug: update_logs: calling render_log with log_id: ", log_id, 'from property_id: ', property_id);
-									}
-								
-							
-									this.render_log(log_property_container_el,log_id,true,false); // force re-render, but don't generate bar-chart
-							
-									const svg_el = log_property_container_el.querySelector('svg');
-									if(svg_el){
-										const observerOptions = {
-											root: null, // use the viewport
-											rootMargin: '0px',
-											threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
-										};
-									
-										let fully_visible = false;
-										const observer = new IntersectionObserver(entries => {
-											entries.forEach(entry => {
-										    	if(entry.isIntersecting){
-													//console.log("entry.intersectionRatio: ", entry.intersectionRatio);
-													//console.log('Log SVG is partially visible in the viewport.  thing_id,property_id: ', thing_id, property_id);
-													if(entry.intersectionRatio == 1){
-														fully_visible = true;
-														setTimeout(() => {
-															if(this.in_viewport(svg_el)){
-																//console.warn("two seconds later this log SVG is fully in the viewport.  thing_id,property_id: ", thing_id, property_id);
-																if(typeof thing_id == 'string'){
-																	if(typeof this.logging_meta[ thing_id ] == 'undefined'){
-																		this.logging_meta[ thing_id ] = {'properties':{}};
-																	}
-																	if(typeof property_id == 'string'){
-																		if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
-																			this.logging_meta[ thing_id ]['properties'][ property_id ] = {};
-																		}
-																	}
-																}
-																const new_last_viewed_time = Date.now();
-														
-																log_property_container_el.classList.add('extension-dashboard-logging-unblur');
-																if(typeof thing_id == 'string' && typeof property_id == 'string'){
-																	setTimeout(() => {
 
-																		if(typeof thing_id == 'string'){
-																			if(typeof this.logging_meta[ thing_id ] == 'undefined'){
-																				this.logging_meta[ thing_id ] = {'properties':{}};
-																			}
-																			if(typeof property_id == 'string'){
-																				if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
-																					this.logging_meta[ thing_id ]['properties'][ property_id ] = {};
-																				}
-																			}
-																		}
-																		this.logging_meta[ thing_id ]['properties'][ property_id ]['last_viewed'] = new_last_viewed_time;
-																		if(this.should_save_logging_meta.indexOf(thing_id) == -1){
-																			this.should_save_logging_meta.push(thing_id);
-																		}
-																	
-																		const last_viewed_el = log_property_container_el.querySelector('.extension-dashboard-logging-' + thing_id + '--x--' + property_id + '-last-viewed-time');
-																		if(last_viewed_el){
-																			//console.log("updating last_viewed element");
-																			last_viewed_el.textContent = 'Last viewed: now';
-																		}
-																		else{
-																			if(this.debug){
-																				console.error("dashboard: update_logging: could not find last_viewed_el.  thing_id,property_id: ", thing_id,property_id);
-																			}
-																		}
-																	
-																	},10000);
-																}
-																else{
-																	console.warn('update_logging: missing thing_id and/or property_id: ', thing_id, property_id);
-																}
-														
-														
-														
-															}
-														},2000)
-													}
-													else if(fully_visible == true && entry.intersectionRatio < 0.3){
-														fully_visible = false;
-														//console.log("SVG is no longer fully visible.  thing_id,property_id: ", thing_id, property_id);
-														if(log_property_container_el.classList.contains('extension-dashboard-logging-unblur')){
-														
-															log_property_container_el.classList.remove('extension-dashboard-logging-unblur');
-															if(typeof thing_id == 'string' && typeof property_id == 'string'){
-																this.logging_meta[ thing_id ]['properties'][ property_id ]['last_viewed'] = Date.now();
-																if(this.should_save_logging_meta.indexOf(thing_id) == -1){
-																	this.should_save_logging_meta.push(thing_id);
-																}
-															}
-															else{
-																console.warn('update_logging: cannot update last_viewed: missing thing_id and/or property_id: ', thing_id, property_id);
-															}
-														}
-													}
-												
-										    	}
-											});
-										}, observerOptions);
-								
-										observer.observe(svg_el);
-									}
-									else{
-										if(this.debug){
-											console.error("dashboard logging: render_log was called, but did not result in an SVG element? log_id: ", log_id);
-										}
-									
-										const log_viz_no_data_yet_el = document.createElement('div');
-										log_viz_no_data_yet_el.classList.add('extension-dashboard-logging-item-no-data-yet-hint');
-										log_viz_no_data_yet_el.textContent = 'No data (yet)';
-										log_property_container_el.appendChild(log_viz_no_data_yet_el);
-									
-										const privacy_button_el = log_property_container_el.querySelector('.extension-dashboard-logging-property-privacy-button');
-										//let log_viz_settings_footer_container_el = log_property_container_el.querySelector('.extension-dashboard-logging-settings-footer-container');
-										if( privacy_button_el == null){
-											let log_viz_settings_footer_container_el = document.createElement('div');
-										
-											log_viz_settings_footer_container_el.classList.add('extension-dashboard-logging-settings-footer-container');
-					
-											const log_viz_settings_delete_button_el = document.createElement('button');
-											log_viz_settings_delete_button_el.classList.add('text-button');
-											log_viz_settings_delete_button_el.classList.add('extension-dashboard-logging-settings-delete-button');
-											log_viz_settings_delete_button_el.textContent = 'Delete';
-											//log_viz_settings_delete_button_el.setAttribute('data-l10n-id','remove);
-					
-											log_viz_settings_delete_button_el.addEventListener('click', () => {
-												if(confirm("Are you sure you want to permanently delete this log?")){
-													if(this.debug){
-														console.warn("dashboard logging debug: calling this.delete_log with: thing_id, property_id: ", thing_id, property_id);
-													}
-													this.delete_log(thing_id,property_id)
-													.then((success) => {
-														log_viz_settings_delete_button_el.remove();
-														log_property_container_el.innerHTML = '';
-													})
-													.catch((err) => {
-														console.error("caught error from this.delete_log: ", err);
-													})
-												}
-											});
-					
-											log_viz_settings_footer_container_el.appendChild(log_viz_settings_delete_button_el);
-											log_property_container_el.appendChild(log_viz_settings_footer_container_el);
-									
-											log_property_container_el.setAttribute('style','height:auto; min-height:auto');
-										
-										}
-									
-									}
-								
-								
-								}
-							
-							}
+						this.render_thing_logs(log_container_el, thing_id);
 						
-						}
-						else{
-							if(this.debug){
-								console.warn("dashboard logging debug: update logging: missing a thing");
-							}
-						}
-					
-					
 					}
 					/*
 					const sortedDict = Object.fromEntries(
@@ -12090,10 +12114,207 @@
 			catch(err){
 				console.error("caught general error in update_logging: ", err);
 			}
-			
-			
 		}
 		
+
+
+		render_thing_logs(log_container_el, thing_id){
+
+			if(typeof thing_id != 'string'){
+				return
+			}
+			if(thing_id == ''){
+				return
+			}
+			if(!log_container_el){
+				return
+			}
+			if(typeof this.logging_meta[thing_id] == 'undefined'){
+				this.logging_meta[thing_id] = {'properties':{}};
+			}
+
+			if(typeof this.logging_meta[thing_id]['properties'] != 'undefined'){
+				for (const [property_id, property_details] of Object.entries( this.logging_meta[thing_id]['properties'] )) {
+				
+					if(property_details && typeof property_details['log_id'] != 'undefined'){
+						let log_id = property_details['log_id'];
+						let log_property_container_el = document.createElement('div');
+						log_property_container_el.classList.add('extension-dashboard-logging-log-property-container');
+					
+						log_property_container_el.setAttribute('extension-dashboard-logging-log-property-container-thing_id', thing_id);
+						log_property_container_el.setAttribute('extension-dashboard-logging-log-property-container-property_id', property_id);
+					
+					
+						let property_container_title_el = document.createElement('h4');
+						property_container_title_el.textContent = this.get_property_title_by_ids(thing_id, property_id);
+					
+						log_property_container_el.appendChild(property_container_title_el);
+					
+						log_container_el.appendChild(log_property_container_el);
+					
+						if(this.debug){
+							console.log("dashboard debug: update_logs: calling render_log with log_id: ", log_id, 'from property_id: ', property_id);
+						}
+
+						this.render_log(log_property_container_el,log_id,true,false); // force re-render, but don't generate bar-chart
+				
+						const svg_el = log_property_container_el.querySelector('svg');
+						if(svg_el){
+							const observerOptions = {
+								root: null, // use the viewport
+								rootMargin: '0px',
+								threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+							};
+						
+							let fully_visible = false;
+							const observer = new IntersectionObserver(entries => {
+								entries.forEach(entry => {
+									if(entry.isIntersecting){
+										//console.log("entry.intersectionRatio: ", entry.intersectionRatio);
+										//console.log('Log SVG is partially visible in the viewport.  thing_id,property_id: ', thing_id, property_id);
+										if(entry.intersectionRatio == 1){
+											fully_visible = true;
+											setTimeout(() => {
+												if(this.in_viewport(svg_el)){
+													//console.warn("two seconds later this log SVG is fully in the viewport.  thing_id,property_id: ", thing_id, property_id);
+													if(typeof thing_id == 'string'){
+														if(typeof this.logging_meta[ thing_id ] == 'undefined'){
+															this.logging_meta[ thing_id ] = {'properties':{}};
+														}
+														if(typeof property_id == 'string'){
+															if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
+																this.logging_meta[ thing_id ]['properties'][ property_id ] = {};
+															}
+														}
+													}
+													const new_last_viewed_time = Date.now();
+											
+													log_property_container_el.classList.add('extension-dashboard-logging-unblur');
+													if(typeof thing_id == 'string' && typeof property_id == 'string'){
+														setTimeout(() => {
+
+															if(typeof thing_id == 'string'){
+																if(typeof this.logging_meta[ thing_id ] == 'undefined'){
+																	this.logging_meta[ thing_id ] = {'properties':{}};
+																}
+																if(typeof property_id == 'string'){
+																	if(typeof this.logging_meta[ thing_id ]['properties'][ property_id ] == 'undefined'){
+																		this.logging_meta[ thing_id ]['properties'][ property_id ] = {};
+																	}
+																}
+															}
+															this.logging_meta[ thing_id ]['properties'][ property_id ]['last_viewed'] = new_last_viewed_time;
+															if(this.should_save_logging_meta.indexOf(thing_id) == -1){
+																this.should_save_logging_meta.push(thing_id);
+															}
+														
+															const last_viewed_el = log_property_container_el.querySelector('.extension-dashboard-logging-' + thing_id + '--x--' + property_id + '-last-viewed-time');
+															if(last_viewed_el){
+																//console.log("updating last_viewed element");
+																last_viewed_el.textContent = 'Last viewed: now';
+															}
+															else{
+																if(this.debug){
+																	console.error("dashboard: update_logging: could not find last_viewed_el.  thing_id,property_id: ", thing_id,property_id);
+																}
+															}
+														
+														},10000);
+													}
+													else{
+														console.warn('update_logging: missing thing_id and/or property_id: ', thing_id, property_id);
+													}
+											
+												}
+											},2000)
+										}
+										else if(fully_visible == true && entry.intersectionRatio < 0.3){
+											fully_visible = false;
+											//console.log("SVG is no longer fully visible.  thing_id,property_id: ", thing_id, property_id);
+											if(log_property_container_el.classList.contains('extension-dashboard-logging-unblur')){
+											
+												log_property_container_el.classList.remove('extension-dashboard-logging-unblur');
+												if(typeof thing_id == 'string' && typeof property_id == 'string'){
+													this.logging_meta[ thing_id ]['properties'][ property_id ]['last_viewed'] = Date.now();
+													if(this.should_save_logging_meta.indexOf(thing_id) == -1){
+														this.should_save_logging_meta.push(thing_id);
+													}
+												}
+												else{
+													console.warn('update_logging: cannot update last_viewed: missing thing_id and/or property_id: ', thing_id, property_id);
+												}
+											}
+										}
+									
+									}
+								});
+							}, observerOptions);
+					
+							observer.observe(svg_el);
+						}
+						else{
+							if(this.debug){
+								console.error("dashboard logging: render_log was called, but did not result in an SVG element? log_id: ", log_id);
+							}
+						
+							const log_viz_no_data_yet_el = document.createElement('div');
+							log_viz_no_data_yet_el.classList.add('extension-dashboard-logging-item-no-data-yet-hint');
+							log_viz_no_data_yet_el.textContent = 'No data (yet)';
+							log_property_container_el.appendChild(log_viz_no_data_yet_el);
+						
+							const privacy_button_el = log_property_container_el.querySelector('.extension-dashboard-logging-property-privacy-button');
+							//let log_viz_settings_footer_container_el = log_property_container_el.querySelector('.extension-dashboard-logging-settings-footer-container');
+							if( privacy_button_el == null){
+								let log_viz_settings_footer_container_el = document.createElement('div');
+							
+								log_viz_settings_footer_container_el.classList.add('extension-dashboard-logging-settings-footer-container');
+
+								const log_viz_settings_delete_button_el = document.createElement('button');
+								log_viz_settings_delete_button_el.classList.add('text-button');
+								log_viz_settings_delete_button_el.classList.add('extension-dashboard-logging-settings-delete-button');
+								log_viz_settings_delete_button_el.textContent = 'Delete';
+								//log_viz_settings_delete_button_el.setAttribute('data-l10n-id','remove);
+
+								log_viz_settings_delete_button_el.addEventListener('click', () => {
+									if(confirm("Are you sure you want to permanently delete this log?")){
+										if(this.debug){
+											console.warn("dashboard logging debug: calling this.delete_log with: thing_id, property_id: ", thing_id, property_id);
+										}
+										this.delete_log(thing_id,property_id)
+										.then((success) => {
+											log_viz_settings_delete_button_el.remove();
+											log_property_container_el.innerHTML = '';
+										})
+										.catch((err) => {
+											console.error("caught error from this.delete_log: ", err);
+										})
+									}
+								});
+
+								log_viz_settings_footer_container_el.appendChild(log_viz_settings_delete_button_el);
+								log_property_container_el.appendChild(log_viz_settings_footer_container_el);
+						
+								log_property_container_el.setAttribute('style','height:auto; min-height:auto');
+							
+							}
+						
+						}
+					
+					
+					}
+					
+				
+				}
+			
+			}
+			else{
+				if(this.debug){
+					console.warn("dashboard logging debug: update logging: missing a thing");
+				}
+			}
+
+			
+		}
 		
 		
 		update_logging_last_viewed_times(){

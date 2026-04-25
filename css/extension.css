@@ -129,9 +129,6 @@ body.candle-theme #extension-dashboard-main-page{
 }
 
 
-#extension-dashboard-view .extension-dashboard-hidden{
-	display:none;
-}
 
 #extension-dashboard-view .extension-dashboard-invisible{
 	visibility: hidden;
@@ -150,7 +147,7 @@ body.candle-theme #extension-dashboard-main-page{
 }
 
 .extension-dashboard-hidden{
-	display:none;
+	display:none!important;
 }
 
 

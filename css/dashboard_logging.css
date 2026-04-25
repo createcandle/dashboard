@@ -32,7 +32,114 @@ body:not(.developer) #main-menu > ul > li:nth-child(3){
 	font-weight: normal;
 	color:white;
 }
-	    
+
+
+
+/*  THING LOG  */
+
+
+
+
+#extension-dashboard-thing-logs-container{
+	min-height:20vh;
+	display:flex;
+	flex-direction:column;
+	align-items: center;
+	justify-content: center;
+	margin:4rem 0 10rem 0;
+	padding:0;
+}
+#extension-dashboard-thing-logs-container *{
+	box-sizing: border-box;
+	max-width: 100%;
+}
+/*
+#extension-dashboard-thing-logs:not(:empty){
+	width:100%;
+	min-height:30vh;
+	background-color:rgba(0,0,0,.1);
+	padding:2rem;
+	border-radius:1rem;
+}
+
+#extension-dashboard-thing-logs:not(:empty) + #extension-dashboard-show-thing-logs-button-container{
+	display:none;
+}
+*/
+
+#extension-dashboard-show-thing-logs-button-container{
+	min-height:30vh;
+	width:calc(100% - 4rem);
+	margin-left:auto;
+	margin-right:auto;
+	border-radius:1rem;
+	padding:2rem;
+	border:5px dotted rgba(0,0,0,.2);
+	display:flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#extension-dashboard-show-thing-logs-button{
+    background-image: url('/images/logs-icon.svg');
+    display: block;
+    padding: 2rem;
+    padding-left: 6.8rem;
+    font-size: 1.8rem;
+    color: #fff;
+    text-decoration: none;
+    background-size: 3.2rem;
+    background-repeat: no-repeat;
+    background-position: 2rem;
+    outline: 0;
+    opacity: .8;
+    border-radius: 1rem;
+}
+
+#extension-dashboard-thing-logs-container:not(.extension-dashoard-thing-logs-loading) > #extension-dashboard-thing-logs,
+#extension-dashboard-thing-logs-container.extension-dashoard-thing-logs-loading #extension-dashboard-show-thing-logs-button-container{
+	display:none;
+}
+
+#extension-dashboard-thing-logs-container.extension-dashoard-thing-logs-loading > #extension-dashboard-thing-logs{
+	width:calc(100% - 4rem);
+	min-height:30vh;
+	background-color:rgba(0,0,0,.1);
+	padding:2rem;
+	border-radius:1rem;
+	font-size:initial;
+}
+#extension-dashboard-thing-logs-container.extension-dashoard-thing-logs-loading > #extension-dashboard-thing-logs:empty{
+	opacity:.6;
+    /*background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.8));*/
+    background:transparent;
+    background-size: 300% 300%!important;
+    background-image: linear-gradient(
+          -90deg,
+          rgba(59,173,227,.5) 0%,
+		  rgba(59,173,227,.5) 30%,
+          rgba(87,111,230,.5) 50%,
+          rgba(152,68,183,.5) 51%,
+		  rgba(59,173,227,.5) 60%,
+          rgba(59,173,227,.5) 100%
+    )!important;
+    animation: extension-dashboard-bg-sweep-to-right 2s ease infinite;
+}
+
+@keyframes extension-dashboard-bg-sweep-to-right {
+  0%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+#extension-dashboard-thing-logs-container.extension-dashoard-thing-logs-loading > #extension-dashboard-thing-logs .extension-dashboard-logging-property-privacy-button{
+	pointer-events:none;
+	background-image: url(../images/privacy-icon-open.svg);
+	background-color:transparent;
+}
+
+
+
+
 
 
 #extension-dashboard-logging-content{
@@ -458,29 +565,62 @@ input[type='number'].extension-dashboard-logging-log-precision-slider-value-inpu
 
 
 
+@media screen and (max-width: 640px) {
+
+	#extension-dashboard-view{
+		background-color:red!important;
+	}
+	#extension-dashboard-thing-logs-container.extension-dashoard-thing-logs-loading > #extension-dashboard-thing-logs .extension-dashboard-logging-privacy-container{
+		position: initial;
+		justify-content: flex-end;
+		opacity:.7;
+	}
+	#extension-dashboard-thing-logs-container.extension-dashoard-thing-logs-loading > #extension-dashboard-thing-logs .extension-dashboard-logging-property-privacy-button{
+        width: 25px;
+        height: 25px;
+        background-size: 100%;
+        margin: .5rem 0;
+	}
+	#extension-dashboard-thing-logs-container.extension-dashoard-thing-logs-loading > #extension-dashboard-thing-logs{
+		/*width:100%;*/
+		padding:0;
+		background-color:transparent;
+	}
+	
+	#extension-dashboard-thing-logs-container .extension-dashboard-logging-log-property-container{
+		margin-bottom:2rem;
+	}
+	#extension-dashboard-thing-logs-container .extension-dashboard-logging-log-property-container h4{
+		font-size: 2rem;
+		margin-bottom:0;
+	}
+
+}
+
+
 
 
 
 /*  blinking eye  */
 
-
-      .eye {
-            width: 200px;
-            height: 200px;
-            background: #fff;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%,-50%) rotate(45deg);
-            border-radius: 75% 0;
-            overflow: hidden;
-            cursor: pointer;
-            background: radial-gradient(circle at 50%, #333333, #333333 30%, #eeeeee 31%, #666666 75%);
+/*
+.eye {
+	width: 200px;
+	height: 200px;
+	background: #fff;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%,-50%) rotate(45deg);
+	border-radius: 75% 0;
+	overflow: hidden;
+	cursor: pointer;
+	background: radial-gradient(circle at 50%, #333333, #333333 30%, #eeeeee 31%, #666666 75%);
             
         
-        }
+}
 
-  .eye::after{
+.eye::after{
     width: 300px;
     height: 160px;
     position: absolute;
@@ -489,7 +629,7 @@ input[type='number'].extension-dashboard-logging-log-precision-slider-value-inpu
     transform: translate(-50%, -50%) rotate(-45deg);
     z-index: 999;
     
-  }
+}
         
 .eye::before{
     display:block;
@@ -502,9 +642,9 @@ input[type='number'].extension-dashboard-logging-log-precision-slider-value-inpu
 	animation: blink 4s cubic-bezier(0.785, 0.135, 0.15, 0.86) infinite;
 }
     
- .eye::before:hover{
-            height:100%;
-        }
+.eye::before:hover{
+	height:100%;
+}
 
 
 @keyframes blink {
@@ -552,7 +692,5 @@ input[type='number'].extension-dashboard-logging-log-precision-slider-value-inpu
     height: 100%;
   }
 }
-
-
-
+*/
 
