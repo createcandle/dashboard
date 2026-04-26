@@ -569,6 +569,11 @@ input[type='number'].extension-dashboard-logging-log-precision-slider-value-inpu
 	#extension-dashboard-view{
 		background-color:red!important;
 	}
+	
+	#extension-dashboard-thing-logs-container{
+		margin:10rem auto;
+	}
+	
 	#extension-dashboard-thing-logs-container.extension-dashoard-thing-logs-loading > #extension-dashboard-thing-logs .extension-dashboard-logging-privacy-container{
 		position: initial;
 		justify-content: flex-end;
