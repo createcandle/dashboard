@@ -314,6 +314,7 @@
 					show_thing_logs_button.addEventListener('click', () => {
 						this.thing_logs_container_el.classList.add('extension-dashoard-thing-logs-loading');
 						this.generate_thing_log();
+						this.thing_logs_container_el.scrollIntoView({'behavior':'smooth', 'block':'center'});
 					});
 
 					show_thing_logs_button_container.appendChild(show_thing_logs_button);

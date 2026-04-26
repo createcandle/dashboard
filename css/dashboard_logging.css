@@ -41,12 +41,11 @@ body:not(.developer) #main-menu > ul > li:nth-child(3){
 
 
 #extension-dashboard-thing-logs-container{
-	min-height:20vh;
 	display:flex;
 	flex-direction:column;
 	align-items: center;
 	justify-content: center;
-	margin:4rem 0 10rem 0;
+	margin:0;
 	padding:0;
 }
 #extension-dashboard-thing-logs-container *{
@@ -68,13 +67,9 @@ body:not(.developer) #main-menu > ul > li:nth-child(3){
 */
 
 #extension-dashboard-show-thing-logs-button-container{
-	min-height:30vh;
-	width:calc(100% - 4rem);
+	width:calc(100% - 16rem);
 	margin-left:auto;
 	margin-right:auto;
-	border-radius:1rem;
-	padding:2rem;
-	border:5px dotted rgba(0,0,0,.2);
 	display:flex;
 	align-items: center;
 	justify-content: center;
@@ -96,6 +91,10 @@ body:not(.developer) #main-menu > ul > li:nth-child(3){
     border-radius: 1rem;
 }
 
+#extension-dashboard-thing-logs-container.extension-dashoard-thing-logs-loading{
+	margin-bottom:20rem;
+}
+
 #extension-dashboard-thing-logs-container:not(.extension-dashoard-thing-logs-loading) > #extension-dashboard-thing-logs,
 #extension-dashboard-thing-logs-container.extension-dashoard-thing-logs-loading #extension-dashboard-show-thing-logs-button-container{
 	display:none;
@@ -103,7 +102,7 @@ body:not(.developer) #main-menu > ul > li:nth-child(3){
 
 #extension-dashboard-thing-logs-container.extension-dashoard-thing-logs-loading > #extension-dashboard-thing-logs{
 	width:calc(100% - 4rem);
-	min-height:30vh;
+	min-height:300px;
 	background-color:rgba(0,0,0,.1);
 	padding:2rem;
 	border-radius:1rem;
