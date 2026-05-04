@@ -345,7 +345,7 @@
 		// TODO: could make it so that if you scroll down the log is automatically revealed, so that no click is necessary
 		reset_thing_log(){
 			if(this.debug){
-				console.log("in reset_thing_log");
+				console.log("dashboard debug: in reset_thing_log");
 			}
 			this.thing_logs_container_el.classList.remove('extension-dashoard-thing-logs-loading');
 			this.thing_logs_el.innerHTML = '';
@@ -3083,20 +3083,40 @@
 											}
 											for (let [property_id, property_value] of Object.entries( data['data'] )) {
 												
+												//let elements_to_update = this.view.querySelectorAll('[data-extension-dashboard-update-thing="' + thing_id + '"][data-extension-dashboard-update-property="' + property_id + '"]');
+												let elements_to_update = this.view.querySelectorAll('[data-extension-dashboard-update-thing-combo="' + thing_id + '--x--' + property_id + '"]');
+												
+
 												if(typeof this.recent_events[thing_id] == 'undefined'){
 													this.recent_events[thing_id] = {};
 												}
 												if(typeof this.recent_events[thing_id][property_id] != 'undefined' && this.recent_events[thing_id][property_id]['timestamp'] > Date.now() - 1000){
-													if(this.debug){
-														console.warn("dashboard debug: info: received a websocket message that is already in recent_events: ", property_id, property_value, ", vs recent event: ", JSON.stringify(this.recent_events[thing_id][property_id],null,4));
-													}
-													if(this.recent_events[thing_id][property_id]['value'] == property_value){
+													if(elements_to_update.length){
+
 														if(this.debug){
-															console.warn("dashboard debug:  > > > and the value matches too: ", property_value);
+															console.warn("dashboard debug: incoming websocket message -> elements_to_update: ", elements_to_update);
+															//console.warn("dashboard debug: incoming websocket message -> elements_to_update count for thing_id,property_id: ", elements_to_update.length, thing_id, property_id);
 														}
-														//this.recent_events[thing_id][property_id]['timestamp'] = Date.now();
-														//continue
+
+														if(this.debug){
+															console.warn("dashboard debug: info: received a websocket message that is already in recent_events: ", property_id, property_value, ", vs recent event: ", JSON.stringify(this.recent_events[thing_id][property_id],null,4));
+														}
+														if(this.recent_events[thing_id][property_id]['value'] == property_value){
+															if(this.debug){
+																console.warn("dashboard debug:  > > > and the value matches too: ", property_value);
+															}
+															//this.recent_events[thing_id][property_id]['timestamp'] = Date.now();
+															//continue
+														}
+														else{
+															if(this.debug){
+																console.warn("dashboard debug:  > > > but the value doesn't match: ", property_value);
+															}
+															//this.recent_events[thing_id][property_id] = {"timestamp":Date.now(), "value":property_value, "type":"received"};
+														}
+														
 													}
+													
 												}
 												else{
 													this.recent_events[thing_id][property_id] = {"timestamp":Date.now(), "value":property_value, "type":"received"};
@@ -3104,8 +3124,6 @@
 												
 												
 												
-												//let elements_to_update = this.view.querySelectorAll('[data-extension-dashboard-update-thing="' + thing_id + '"][data-extension-dashboard-update-property="' + property_id + '"]');
-												let elements_to_update = this.view.querySelectorAll('[data-extension-dashboard-update-thing-combo="' + thing_id + '--x--' + property_id + '"]');
 												
 												/*
 												if(elements_to_update.length == 0){
@@ -3116,10 +3134,7 @@
 												*/
 												
 												
-												if(this.debug){
-													console.warn("dashboard debug: incoming websocket message -> elements_to_update: ", elements_to_update);
-													//console.warn("dashboard debug: incoming websocket message -> elements_to_update count for thing_id,property_id: ", elements_to_update.length, thing_id, property_id);
-												}
+												
 												
 												
 												
@@ -3371,7 +3386,11 @@
 																	if(this.debug){
 																		console.log("dashboard debug: setting number or range input to (hopefully) a number value: ", typeof property_value, property_value);
 																	}
-																	el_to_update.value = property_value;
+																	//if(property_value != null){
+																		el_to_update.value = property_value;
+																	//	el_to_update.setAttribute('value',property_value);
+																	//}
+																	
 																
 																
 																
@@ -3542,7 +3561,11 @@
 															}
 														
 															if(el_to_update.classList.contains('extension-dashboard-widget-adjust-width-to-input-length')){
-																el_to_update.style.width = (el_to_update.value.length) + "ch";
+																const ch_width = (("" + el_to_update.value).length);
+																if(ch_width > 0){
+																	el_to_update.style.width = ch_width + "ch";
+																}
+																
 															}
 															
 															//const change_event = new Event('change');
@@ -4289,7 +4312,7 @@
 																				if(typeof this.recent_events[thing_id][property_id] != 'undefined'){
 																					if(this.recent_events[thing_id][property_id]['timestamp'] > Date.now() - 1000){
 																						if(this.debug){
-																							console.warn("dashboard: ABORT SENDING, as something was already sent/received for this property in the last 1 seconds: \nproperty_id: " + property_id + "\n" + JSON.stringify(this.recent_events[thing_id][property_id],null,4));
+																							console.log("dashboard: something was already sent/received for this property in the last 1 seconds: \nproperty_id: " + property_id + "\n" + JSON.stringify(this.recent_events[thing_id][property_id],null,4));
 																						}
 																						if(this.recent_events[thing_id][property_id]['value'] == event.target.value){
 																							if(this.debug){
@@ -4704,15 +4727,38 @@
 														else if(class_name.indexOf('-increase-') != -1){
 															child_els[ix].addEventListener('click', (event) => {
 																event.stopPropagation();
-																//console.log("increasing: ", last_spotted_number_input_el.value, " by ", input_step);
+																if(this.debug){
+																	console.log("dashboard debug: increasing:  last_spotted_number_input_el: ", last_spotted_number_input_el, last_spotted_number_input_el.value, ", by input_step: ", input_step);
+																}
 																let new_value = parseFloat(last_spotted_number_input_el.value);
-																//console.log("new_value before step complicance: ", new_value);
-																new_value = (new_value - (new_value % input_step));
-																//console.log("new_value after step complicance: ", new_value);
+																if(typeof new_value == 'number'){
+																	if(typeof input_step == 'number'){
+																		new_value = new_value + input_step;
+																		if(this.debug){
+																			console.log("increased new_value before step complicance: ", new_value);
+																		}
+																		if(input_step >= 1){
+																			new_value = (new_value - (new_value % input_step));
+																		}
+																		else{
+																			new_value = ((new_value * 1000) - ((new_value * 1000) % (input_step * 1000))) / 1000;
+																		}
+																		
+																		if(this.debug){
+																			console.log("dashboard debug: increasing: new_value after step complicance: ", new_value);
+																		}
+																	}
+																	last_spotted_number_input_el.value = new_value; //(new_value + input_step);
+																	last_spotted_number_input_el.setAttribute('value', new_value)
+																	last_spotted_number_input_el.dispatchEvent(new Event('change')); // , { bubbles: true }
+																	//last_spotted_number_input_el.dispatchEvent(new Event('input', { bubbles: true }));
+																}
+																else{
+																	if(this.debug){
+																		console.error("dashboard debug: increasing:: new value was not a number?");
+																	}
+																}
 																
-																last_spotted_number_input_el.value = new_value + input_step;
-																last_spotted_number_input_el.dispatchEvent(new Event('change')); // , { bubbles: true }
-																//last_spotted_number_input_el.dispatchEvent(new Event('input', { bubbles: true }));
 															});
 														}
 														
@@ -4722,7 +4768,7 @@
 											}
 											catch(err){
 												if(this.debug){
-													console.error("caught error in dealing with -last-number-input element: ", err);
+													console.error("dashboard debug: caught error in dealing with -last-number-input element: ", err);
 												}
 											}
 										}
@@ -8371,7 +8417,9 @@
 							
 							}
 							else{
-								console.warn("not trimming the end of daily_log_data because of odd daily_square_cut_off_point.   daily_log_data.length,daily_square_cut_off_point: ", daily_log_data.length, daily_square_cut_off_point);
+								if(this.debug){
+									console.warn("dashboard debug: not trimming the end of daily_log_data because of odd daily_square_cut_off_point.   daily_log_data.length,daily_square_cut_off_point: ", daily_log_data.length, daily_square_cut_off_point);
+								}
 							}
 							
 							

@@ -3500,7 +3500,7 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w] .extension-dashboard-y-tick{
-	font-size:1.4rem;
+	/*font-size:1.4rem;*/
 	font-weight: 100;
 }
 
@@ -3776,7 +3776,9 @@ g.extension-dashboard-log-tooltip-data-container > rect{
 }
 
 
-
+body.developer .extension-dashboard-widget-thermostat input:invalid{
+	border:1px solid red;
+}
 /*
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"]:not([gs-h]) .extension-dashboard-widget-thermostat{
 	padding-bottom:2rem;
@@ -5499,7 +5501,7 @@ body.developer .extension-dashboard-widget-weather_description-needs-update:empt
 
 /*  TODO: ENABLE ON PRODUCTION: */
 
-#extension-dashboard-view :not(input):not(select):not(textarea) *,
+#extension-dashboard-view *:not(input):not(select):not(textarea),
 
 .extension-dashboard-widget-setpoint-arrow,
 .extension-dashboard-widget-temperature-value,
