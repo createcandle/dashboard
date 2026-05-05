@@ -704,7 +704,7 @@
 		really_show() {
 			
             if(this.debug){
-				console.warn("\n\ndashboard debug: in dashboard really_show()\n\n");
+				console.log("\n\ndashboard debug: in dashboard really_show()\n\n");
 			}
 			
             if (this.content == '') {
@@ -3186,8 +3186,7 @@
 															if('' + new_value != '' + property_value){
 																//console.log("parseInt value was not the same as the original value: " + new_value + " =?= " + property_value);
 																new_value = parseFloat(property_value);
-															
-															
+
 																//console.log("initial new_value: ", typeof new_value, new_value);
 																if(Math.abs(new_value) % 0.001 > 0){
 																	//new_value = (new_value - (new_value % 0.001));
@@ -4016,17 +4015,12 @@
 															}
 														}
 														
-														
 													});
-													
 													
 												}
 												
-												
 											}
 							
-										
-										
 										}
 										
 										
@@ -4040,7 +4034,9 @@
 								
 											let what_property_is_needed = class_name.replaceAll('-needs-update','');
 											what_property_is_needed = what_property_is_needed.replaceAll('extension-dashboard-widget-','');
-											//console.log("generate_widget_content: what_property_is_needed: ", what_property_is_needed);
+											if(this.debug){
+												console.log("dashboard debug: generate_widget_content: needs-update: what_property_is_needed: ", what_property_is_needed);
+											}
 								
 											if(typeof needs['update'] == 'undefined'){
 												needs['update'] = {};
@@ -4087,7 +4083,7 @@
 													}
 													catch(err){
 														if(this.debug){
-															console.error("dashboard: generate_widget_content: could not set textContent of this element: ", child_els[ix]);
+															console.error("dashboard debug: caught error: generate_widget_content: could not set textContent of this element: ", child_els[ix]);
 														}
 													}
 											
@@ -4107,8 +4103,14 @@
 												if(typeof input_el_type == 'string'){
 											
 													if(input_el_type == 'number' || input_el_type == 'range'){
+
+														if(typeof needs['update'][what_property_is_needed]['property_details'] != 'undefined' && typeof needs['update'][what_property_is_needed]['property_details']['multipleOf'] == 'number'){
+															child_els[ix].setAttribute('step', needs['update'][what_property_is_needed]['property_details']['multipleOf']);
+															// In theory the minumum and maximum could also be copied from the property, but it's more useful if the user can set a range manually
+														}
 														last_spotted_number_input_el = child_els[ix];
 														//console.log("last_spotted_number_input_el is now: ", last_spotted_number_input_el);
+														
 														
 														/*
 														child_els[ix].addEventListener('change', (event) => {
@@ -4687,9 +4689,10 @@
 													let input_min = last_spotted_number_input_el.getAttribute('min');
 													let input_max = last_spotted_number_input_el.getAttribute('max');
 													if(input_step && !isNaN(parseFloat(input_step))){
-														
 														input_step = parseFloat(input_step);
-														//console.log("input element seemed to have a valid step attribute: ", input_step);
+														if(this.debug){
+															console.log("dashboard debug: input element seemed to have a valid step attribute: ", input_step);
+														}
 													}
 													else{
 														input_step = 1;
@@ -4702,6 +4705,9 @@
 															if(input_step > 1){
 																input_step = Math.floor(input_step);
 															}
+														}
+														if(this.debug){
+															console.warn("dashboard debug: guessing a reasonable input step ", input_step);
 														}
 														
 													}
@@ -5940,7 +5946,6 @@
 										
 									}
 									
-									
 								}
 								else{
 									if(this.debug){
@@ -5960,7 +5965,7 @@
 						}
 						else{
 							if(this.debug){
-								console.error("dashboard: could not get selection option element from log select element?");
+								console.error("dashboard debug: could not get selection option element from log select element?");
 							}
 						}
 						
@@ -5971,7 +5976,7 @@
 				})
 				.catch((err) => {
 					if(this.debug){
-						console.error("dashboard: generate_log_selector: caught error calling update_logs_data: ", err);
+						console.error("dashboard debug: generate_log_selector: caught error calling update_logs_data: ", err);
 					}
 					reject(null);
 				})
@@ -6073,9 +6078,9 @@
 		    					}
 				
 		    				}
-		    				catch(e){
+		    				catch(err){
 		                        if(this.debug){
-									console.log("dashboard: error in creating list of things for item: " + e);
+									console.log("dashboard debug: caught error in creating list of things for item: ", err);
 								}
 		                    }
 					
@@ -7074,7 +7079,7 @@
 			}
 			
 			if(this.debug){
-				console.warn("\n\ndashboard debug: render_log: thing_id, property_id: \n\n",thing_id,"\n", property_id,"\n\n");
+				console.log("ashboard debug: render_log: thing_id, property_id: \n\n",thing_id,"\n", property_id,"\n\n");
 			}
 			
 			
@@ -7099,10 +7104,10 @@
 			const what_log_id_needed = log_viz_container_el.getAttribute('data-extension-dashboard-log-what_log_id_needed');
 			
 			if(this.debug){
-				console.warn("dashboard debug: log: thing_id: ", thing_id);
-				console.warn("dashboard debug: log: property_id: ", property_id);
-				console.warn("dashboard debug: log: widget ID: ", widget_id);
-				console.warn("dashboard debug: log: what_log_id_needed: ", what_log_id_needed);
+				console.log("dashboard debug: log: thing_id: ", thing_id);
+				console.log("dashboard debug: log: property_id: ", property_id);
+				console.log("dashboard debug: log: widget ID: ", widget_id);
+				console.log("dashboard debug: log: what_log_id_needed: ", what_log_id_needed);
 			}
 			//console.log("what_log_id_needed: ", what_log_id_needed);
 			
@@ -7123,7 +7128,7 @@
 				if(typeof this.locally_saved_values[this.current_grid_id] != 'undefined' && typeof this.locally_saved_values[this.current_grid_id][widget_id] != 'undefined' && typeof this.locally_saved_values[this.current_grid_id][widget_id]['viz'] != 'undefined' && typeof this.locally_saved_values[this.current_grid_id][widget_id]['viz']['precision'] == 'string'){
 					current_precision = this.locally_saved_values[this.current_grid_id][widget_id]['viz']['precision'];
 					if(this.debug){
-						console.warn("dashboard debug: log: got current_precision from locally_saved_values: ", current_precision);
+						console.log("dashboard debug: log: got current_precision from locally_saved_values: ", current_precision);
 					}
 					log_viz_container_el.classList.add('extension-dashboard-log-precision-' + current_precision);
 				}
@@ -7605,7 +7610,7 @@
 					// If could be that the first datapoint is in the previous hour, or even hours old
 					if(this_date_stamp < start_of_this_hour){ //   || dp == 0
 						if(this.debug){
-							console.warn("\ndashboard debug: log averages:\n\n\nDONGGGGG\n\nShifting to an earlier hour for: ", log_property_id, "\n\n - hours_into_the_past: ", hours_into_the_past);
+							console.warn("\ndashboard debug: log averages:\n\n\nShifting to an earlier hour for: ", log_property_id, "\n\n - hours_into_the_past: ", hours_into_the_past);
 						}
 						
 						
@@ -7617,7 +7622,7 @@
 						//if(is_boolean_log == false){
 							
 							if(this.debug){
-								console.warn("\n\n\ndashboard debug: CALCULATING NUMERIC AVERAGES FOR THE HOUR THAT IS NOW COMPLETE: " + start_of_this_hour + " of " + log_property_id + "\n\n\n");
+								console.log("\ndashboard debug: CALCULATING NUMERIC AVERAGES FOR THE HOUR THAT IS NOW COMPLETE: " + start_of_this_hour + " of " + log_property_id + "\n\n\n");
 								console.log("dashboard debug: values_to_average: ", hours_data[hours_into_the_past]['values_to_average'].length);
 							}
 							let nuanced_values = [];
@@ -7627,7 +7632,7 @@
 							// for completeness, remember what datapoint ended the hour loop. This will be useful to calculate averages later that take into account how the value was changing over time
 							hours_data[hours_into_the_past]['beyond_start_value'] = {'t':this_date_stamp, 'v':this_value};
 							
-							if(hours_data[hours_into_the_past]['values_to_average']){
+							if(hours_data[hours_into_the_past]['values_to_average'].length){
 								
 								let raw_nuance = [];
 								let total_millis_accounted_for = 0;
@@ -7685,8 +7690,16 @@
 								
 								for(let vt = 1; vt < hours_data[hours_into_the_past]['values_to_average'].length; vt++){
 									//Update the 'dumb' total too, just to check if the end result is in the correct ballpark during debugging.
-									dumb_total += hours_data[hours_into_the_past]['values_to_average'][vt]['v'];
-								
+									if(typeof hours_data[hours_into_the_past]['values_to_average'][vt]['v'] == 'number'){
+										dumb_total += hours_data[hours_into_the_past]['values_to_average'][vt]['v'];
+									}
+									
+									if(typeof hours_data[hours_into_the_past]['values_to_average'][vt - 1]['v'] != 'number' || typeof hours_data[hours_into_the_past]['values_to_average'][vt]['v'] != 'number'){
+										if(this.debug){
+											console.error("dashboard debug: error, calculating hourly average: one of the two values to take an average of was not a number: ", hours_data[hours_into_the_past]['values_to_average'][vt - 1]['v'], typeof hours_data[hours_into_the_past]['values_to_average'][vt]['v']);
+										}
+										continue
+									}
 									// Calculate the average for two consecutive datapoints
 									const average_value = (hours_data[hours_into_the_past]['values_to_average'][vt - 1]['v'] + hours_data[hours_into_the_past]['values_to_average'][vt]['v']) / 2;
 								
@@ -7695,12 +7708,27 @@
 									const duration = hours_data[hours_into_the_past]['values_to_average'][vt - 1]['t'] - hours_data[hours_into_the_past]['values_to_average'][vt]['t'];
 									//console.log("normal duration, in seconds: ", duration/1000);
 									//raw_nuance.push({'m':duration,'v':average_value});
-									total_millis_accounted_for += duration;
-								
-									const normal_point_score = (duration/1000) * average_value;
-									//console.log("+ average_value, duration (in seconds), and normal_point_score: ", average_value, (duration/1000) + "s", " -> ", normal_point_score);
-									total_score += normal_point_score;
+									if(typeof duration == 'number'){
+										
+										const normal_point_score = (duration/1000) * average_value;
+										//console.log("+ average_value, duration (in seconds), and normal_point_score: ", average_value, (duration/1000) + "s", " -> ", normal_point_score);
+										if(typeof normal_point_score == 'number'){
+											total_millis_accounted_for += duration;
+											total_score += normal_point_score;
+										}
+										else{
+											if(this.debug){
+												console.error("dashboard debug: error, calculating hourly average: normal_point_score was not a number: ", typeof normal_point_score, normal_point_score);
+											}
+										}
 									//nuanced_values.push( average_value * duration );
+									}
+									else{
+										if(this.debug){
+											console.error("dashboard debug: error, calculating hourly average: duration was not a number: ", typeof duration, duration);
+										}
+									}
+									
 								}
 							
 							
@@ -7738,8 +7766,15 @@
 								
 									const beyond_start_score = ((hypothetical_value_at_start_of_hour + oldest_point_inside_the_hour['v']) / 2 ) * (start_millis_in_this_hour / 1000);
 									//console.log("adding beyond_startscore, in seconds: ", beyond_start_score / 1000);
-								
-									total_score += beyond_start_score;
+									if(typeof beyond_start_score == 'number'){
+										total_score += beyond_start_score;
+									}
+									else{
+										if(this.debug){
+											console.error("dashboard debug: error, calculating hourly average: beyond_start_score was not a number: ", typeof beyond_start_score, beyond_start_score);
+										}
+									}
+									
 									delete hours_data[hours_into_the_past]['beyond_start_value'];
 								}
 							
@@ -7750,39 +7785,48 @@
 							
 								const final_average = Math.round((total_score / (total_millis_accounted_for / 1000)) * 1000) / 1000;
 								if(this.debug){
-									console.warn("\n\n\ndashboard debug: log: hour's final_average: ", hours_into_the_past, " -> ", final_average, "\n\n\n");
+									console.log("dashboard debug: log: total_score,total_millis_accounted_for: ", total_score, total_millis_accounted_for);
+									console.log("dashboard debug: log: hour's final_average: ", hours_into_the_past, " -> ", final_average, "\n");
 								}
-								hours_data[hours_into_the_past]['average'] = final_average;
-							
-								if(typeof alt_log_data[ ((alt_log_data.length - 1) - hours_into_the_past) ] == 'undefined'){
-									if(this.debug){
-										console.error("dashboard debug:  log: missing index in alt_log_data: ", (alt_log_data.length - hours_into_the_past));
+								if(typeof final_average == 'number'){
+									hours_data[hours_into_the_past]['average'] = final_average;
+									
+									if(typeof alt_log_data[ ((alt_log_data.length - 1) - hours_into_the_past) ] == 'undefined'){
+										if(this.debug){
+											console.error("dashboard debug:  log: missing index in alt_log_data: ", (alt_log_data.length - hours_into_the_past));
+										}
 									}
-								}
-								else if(final_average != null){
-									alt_log_data[ ( (alt_log_data.length - 1) - hours_into_the_past) ]['v'] = final_average;
-								}
-								
-								//console.log(dp, ". pancaked_log_data: squishing datapoints: ", dp + 1, " up to ", last_squished_dp);
-								for(let hl = dp + 1; hl < last_squished_dp; hl++){
-									//console.log(hl, ". squish! " + pancaked_log_data[hl]['v'] + " -> " + final_average);
-									pancaked_log_data[hl]['v'] = final_average;
-								}
-								last_squished_dp = dp + 1;
-								if(dp == 0){
-									//console.log("done squishin'.  final_average: ", final_average);
-									if(final_average != null){
-										
-										pancaked_log_data[0]['v'] = final_average;
-										last_squished_dp = 0;
-										//console.log("squishin'.  fully squished the hourly averaged version of the log data.  pancaked_log_data: ", pancaked_log_data);
-										//console.log("squishin'.  alt_log_data before setting the last index: ", JSON.stringify(alt_log_data,null,2));
-										//console.log("squishin'.  also setting alt_log_data to the final_average at index: ", ( (alt_log_data.length - 1) - hours_into_the_past), alt_log_data[ ( (alt_log_data.length - 1) - hours_into_the_past) ])
-										
+									else if(final_average != null){
 										alt_log_data[ ( (alt_log_data.length - 1) - hours_into_the_past) ]['v'] = final_average;
 									}
-									
+
+									//console.log(dp, ". pancaked_log_data: squishing datapoints: ", dp + 1, " up to ", last_squished_dp);
+									for(let hl = dp + 1; hl < last_squished_dp; hl++){
+										//console.log(hl, ". squish! " + pancaked_log_data[hl]['v'] + " -> " + final_average);
+										pancaked_log_data[hl]['v'] = final_average;
+									}
+									last_squished_dp = dp + 1;
+									if(dp == 0){
+										//console.log("done squishin'.  final_average: ", final_average);
+										if(final_average != null){
+											
+											pancaked_log_data[0]['v'] = final_average;
+											last_squished_dp = 0;
+											//console.log("squishin'.  fully squished the hourly averaged version of the log data.  pancaked_log_data: ", pancaked_log_data);
+											//console.log("squishin'.  alt_log_data before setting the last index: ", JSON.stringify(alt_log_data,null,2));
+											//console.log("squishin'.  also setting alt_log_data to the final_average at index: ", ( (alt_log_data.length - 1) - hours_into_the_past), alt_log_data[ ( (alt_log_data.length - 1) - hours_into_the_past) ])
+											
+											alt_log_data[ ( (alt_log_data.length - 1) - hours_into_the_past) ]['v'] = final_average;
+										}
+										
+									}
 								}
+								else{
+									if(this.debug){
+										console.error("dashboard debug: error, final average was not a number: ", final_average);
+									}
+								}
+								
 								
 							}
 					
