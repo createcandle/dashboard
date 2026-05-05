@@ -566,10 +566,6 @@ input[type='number'].extension-dashboard-logging-log-precision-slider-value-inpu
 
 
 @media screen and (max-width: 640px) {
-
-	#extension-dashboard-view{
-		background-color:red!important;
-	}
 	
 	#extension-dashboard-thing-logs-container{
 		margin:10rem auto;
