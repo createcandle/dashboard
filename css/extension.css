@@ -2102,8 +2102,32 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 
+.extension-dashboard-widget-double-property-switch{
+	display:flex;
+	flex-direction:column;
+}
+.extension-dashboard-widget-double-property-switch > div{
+	position:relative;
+	flex-grow:1;
+	background-color: var(--extension-dashboard-widget-background-color);
+	border-radius:2rem;
+}
+.extension-dashboard-widget-double-property-switch > div:not(:last-of-type){
+	margin-bottom:1rem;
+}
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-double-property-switch > div:not(:last-of-type){
+	margin-bottom:30px;
+}
+
+.extension-dashboard-widget-double-property-switch > div label{
+	height:100%;
+	display: flex;
+	align-items: center;
+	padding:1rem;
+}
 
 .extension-dashboard-widget-property-switch label,
+.extension-dashboard-widget-double-property-switch label,
 .extension-dashboard-widget-property-slider label,
 .extension-dashboard-widget-property-color  label{
 	width:100%;
@@ -2112,8 +2136,8 @@ body:not(.screensaver) .extension-dashboard-effect{
 	/*padding-bottom:1rem;*/
 	box-sizing:border-box;
 }
-
-.extension-dashboard-widget-property-switch label::before {
+.extension-dashboard-widget-property-switch label::before,
+.extension-dashboard-widget-double-property-switch label::before {
     border-radius: 2rem;
     position: absolute;
     top: 0;
@@ -2125,11 +2149,13 @@ body:not(.screensaver) .extension-dashboard-effect{
 	background-color: #97bedb;*/
     content: "";
 }
-.extension-dashboard-widget-property-switch label * {
+.extension-dashboard-widget-property-switch label * ,
+.extension-dashboard-widget-double-property-switch label * {
     position: relative;
     /*transition: 200ms;*/
 }
 .extension-dashboard-widget-property-switch label small,
+.extension-dashboard-widget-double-property-switch label small,
 .extension-dashboard-widget-property-slider label small,
 .extension-dashboard-widget-property-color  label small{
     position: absolute;
@@ -2141,14 +2167,32 @@ body:not(.screensaver) .extension-dashboard-effect{
     right: 2rem;
     transition: 200ms;
 }
+.extension-dashboard-widget-double-property-switch label small{
+	background-color: var(--extension-dashboard-widget-editable-text-color);
+    transition: 200ms;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-w]) .extension-dashboard-widget-double-property-switch label small{
+	right:1rem;
+}
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-double-property-switch label small{
+	width: 30px;
+    height: 30px;
+	border-radius: 20px;
+	position:relative;
+	top:0;
+	right:0;
+}
 
 .extension-dashboard-widget-property-switch label small::after, .extension-dashboard-widget-property-switch label small::before,
+.extension-dashboard-widget-double-property-switch label small::after, .extension-dashboard-widget-double-property-switch label small::before,
 .extension-dashboard-widget-property-slider label small::after, .extension-dashboard-widget-property-slider label small::before,
 .extension-dashboard-widget-property-color  label small::after, .extension-dashboard-widget-property-color  label small::before{
     content: "";
 }
 
 .extension-dashboard-widget-property-switch input:not(:checked) + label::before,
+.extension-dashboard-widget-double-property-switch input:not(:checked) + label::before,
 .extension-dashboard-widget-property-slider input:not(:checked) + label::before,
 .extension-dashboard-widget-property-color  input:not(:checked) + label::before {
     content: "";
@@ -2161,6 +2205,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 */
 .extension-dashboard-widget-property-switch input[type="checkbox"].extension-dashboard-widget-switch_state-needs-update:not([data-extension-dashboard-update-property]) + label small,
+.extension-dashboard-widget-double-property-switch input[type="checkbox"].extension-dashboard-widget-switch_state-needs-update:not([data-extension-dashboard-update-property]) + label small,
 .extension-dashboard-widget-property-slider input[type="checkbox"].extension-dashboard-widget-switch_state-needs-update:not([data-extension-dashboard-update-property]) + label small,
 .extension-dashboard-widget-property-color input[type="checkbox"].extension-dashboard-widget-switch_state-needs-update:not([data-extension-dashboard-update-property]) + label small{
 	display:none;
@@ -2172,6 +2217,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 
 
 .extension-dashboard-widget-property-switch input:not(:checked) + label small,
+.extension-dashboard-widget-double-property-switch input + label small,
 .extension-dashboard-widget-property-slider input:not(:checked) + label small,
 .extension-dashboard-widget-property-color  input:not(:checked) + label small{
     width: 30px;
@@ -2179,7 +2225,22 @@ body:not(.screensaver) .extension-dashboard-effect{
     background-color: var(--extension-dashboard-widget-editable-text-color); /*#3976f6;*/
 }
 
+.extension-dashboard-widget-double-property-switch{
+	--editable-text-darker: color-mix(in sRGB, var(--extension-dashboard-widget-editable-text-color) 50%, 0000);
+}
+
+.extension-dashboard-widget-double-property-switch input:not(:checked) + label small{
+	/*background-color: var(--editable-text-darker);*/
+	background-color: color-mix(in oklab, var(--extension-dashboard-widget-editable-text-color), black 30%)
+}
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-double-property-switch input:not(:checked) + label small,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-double-property-switch input:checked + label small{
+	width: 60px;
+    height: 30px;
+}
+
 .extension-dashboard-widget-property-switch input:not(:checked) + label small::before,
+.extension-dashboard-widget-double-property-switch input + label small::before,
 .extension-dashboard-widget-property-slider input:not(:checked) + label small::before,
 .extension-dashboard-widget-property-color  input:not(:checked) + label small::before{
     width: 13px;
@@ -2190,13 +2251,43 @@ body:not(.screensaver) .extension-dashboard-effect{
     top: 1px;
     position: absolute;
 }
+.extension-dashboard-widget-double-property-switch input:not(:checked) + label small::before{
+	left:1px;
+}
+.extension-dashboard-widget-double-property-switch input:checked + label small::before{
+	left:16px;
+}
+.extension-dashboard-widget-double-property-switch input:not(:checked) + label small::before,
+.extension-dashboard-widget-double-property-switch input:checked + label small::before{
+	background-color: white;
+    display: block;
+    position: absolute;
+	transition: left .1s ease-out;
+}
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-double-property-switch input:not(:checked) + label small::before{
+	width: 26px;
+    height: 26px;
+    border-radius: 26px;
+	top: 2px;
+	left: 2px;
+}
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-w] .extension-dashboard-widget-double-property-switch input:checked + label small::before{
+	width: 26px;
+    height: 26px;
+    border-radius: 26px;
+	top: 2px;
+	left: 31px;
+}
+
 
 .extension-dashboard-widget-property-switch input:checked + label span::before,
+.extension-dashboard-widget-double-property-switch input:checked + label span::before,
 .extension-dashboard-widget-property-slider input:checked + label span::before,
 .extension-dashboard-widget-property-color  input:checked + label span::before{
     opacity: 0;
 }
 .extension-dashboard-widget-property-switch input:checked + label span::after,
+.extension-dashboard-widget-double-property-switch input:checked + label span::after,
 .extension-dashboard-widget-property-slider input:checked + label span::after,
 .extension-dashboard-widget-property-color  input:checked + label span::after{
     opacity: 1;
@@ -2236,6 +2327,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 .extension-dashboard-widget-property-switch input[type="checkbox"][data-extension-dashboard-update-property] + label,
+.extension-dashboard-widget-double-property-switch input[type="checkbox"][data-extension-dashboard-update-property] + label,
 .extension-dashboard-widget-property-color input[type="checkbox"][data-extension-dashboard-update-property] + label{
 	cursor:pointer;
 }
@@ -2254,6 +2346,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 .extension-dashboard-widget-property-switch input[type="checkbox"][data-extension-dashboard-update-property] + label strong,
+.extension-dashboard-widget-double-property-switch input[type="checkbox"][data-extension-dashboard-update-property] + label strong,
 .extension-dashboard-widget-property-slider input[type="checkbox"][data-extension-dashboard-update-property] + label strong,
 .extension-dashboard-widget-property-color input[type="checkbox"][data-extension-dashboard-update-property] + label strong{
 	width: calc(100% - 55px);
@@ -3332,7 +3425,7 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 	background-color:rgba(0,0,0,.1);
 }
 
-
+.extension-dashboard-widget-double-property-switch,
 .extension-dashboard-widget-transparent-text{
 	background:none!important;
 	box-shadow:none!important;
