@@ -341,6 +341,7 @@ body:not(.developer) #main-menu > ul > li:nth-child(3){
 .extension-dashboard-logging-last-viewed-time{
 	margin-right:1rem;
 	font-style:italic;
+	opacity:.5;
 }
 
 .extension-dashboard-logging-property-privacy-button{

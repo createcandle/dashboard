@@ -1545,12 +1545,12 @@ body:not(.screensaver) .extension-dashboard-effect{
 	position: absolute;
 	width: auto;
 	overflow: visible;
-	border-radius:3rem;
+	border-radius:2rem;
 }
 
 .grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button){
 	background-color: var(--extension-dashboard-widget-background-color);
-	border-radius: 3rem;
+	border-radius: 2rem;
 	overflow: hidden;
 	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
@@ -2096,7 +2096,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 
-@-webkit-keyframes extensionDashboardWidgetWeatherBGslide {
+@keyframes extensionDashboardWidgetWeatherBGslide {
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
 }
@@ -2114,7 +2114,7 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 .extension-dashboard-widget-property-switch label::before {
-    border-radius: 30px;
+    border-radius: 2rem;
     position: absolute;
     top: 0;
     left: 0;
@@ -2206,9 +2206,6 @@ body:not(.screensaver) .extension-dashboard-effect{
 
 /*  second icon  */
 
-.extension-dashboard-widget-property-switch input:checked + label span.extension-dashboard-widget-checkbox-toggle-checked-content[style]{
-	
-}
 #extension-dashboard-content .extension-dashboard-widget-property-switch input:checked + label span.extension-dashboard-widget-checkbox-toggle-checked-content[style] + span{
 	display:none;
 }
@@ -2261,7 +2258,11 @@ body:not(.screensaver) .extension-dashboard-effect{
 .extension-dashboard-widget-property-color input[type="checkbox"][data-extension-dashboard-update-property] + label strong{
 	width: calc(100% - 55px);
 }
-
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-property-switch input[type="checkbox"][data-extension-dashboard-update-property] + label strong,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-property-slider input[type="checkbox"][data-extension-dashboard-update-property] + label strong,
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-property-color input[type="checkbox"][data-extension-dashboard-update-property] + label strong{
+	font-size:1.3rem;
+}
 .extension-dashboard-widget-property-slider input[type="checkbox"][data-extension-dashboard-update-property] + label strong:not(:empty){
 	padding-bottom:1rem;
 }
@@ -2396,7 +2397,7 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 */
 
 .extension-dashboard-widget-property-color label{
-	font-size:80%;
+	font-size:1.3rem;
 	display:block;
     margin-bottom: 1rem;
     padding-bottom: 1rem;
@@ -2779,6 +2780,7 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 /*   RANGE SLIDER  */
 
 #extension-dashboard-content input[type="range"] {
+	appearance: none; 
     -webkit-appearance: none; 
     width: calc(100% - 2rem);
     background: transparent;
@@ -3093,6 +3095,7 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 
 
 #extension-dashboard-content input[type="range"]::-moz-range-thumb{
+	appearance: none;
     -webkit-appearance: none;
     width: 3em;
     height: 3em;
@@ -3335,7 +3338,7 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 	box-shadow:none!important;
 }
 
-
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="2"] .extension-dashboard-widget-transparent-text,
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="4"] .extension-dashboard-widget-transparent-text,
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="5"] .extension-dashboard-widget-transparent-text{
 	padding:0;
@@ -3343,15 +3346,27 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 	display:flex;
 	align-items:end;
 }
-.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="4"] .extension-dashboard-widget-transparent-text h2,
-.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="5"] .extension-dashboard-widget-transparent-text h2{
-	font-size:4rem;
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="2"] .extension-dashboard-widget-transparent-text > h2,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="4"] .extension-dashboard-widget-transparent-text > h2,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="5"] .extension-dashboard-widget-transparent-text > h2{
 	margin:0;
 }
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="2"] .extension-dashboard-widget-transparent-text > h2 + p:not(:empty),
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="4"] .extension-dashboard-widget-transparent-text > h2 + p:not(:empty),
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="5"] .extension-dashboard-widget-transparent-text > h2 + p:not(:empty){
+	margin-top:1rem;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="4"] .extension-dashboard-widget-transparent-text > h2,
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="5"] .extension-dashboard-widget-transparent-text > h2{
+	font-size:4rem;
+}
+
+
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="6"] .extension-dashboard-widget-transparent-text{
 	padding:0;
 }
-.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="6"] .extension-dashboard-widget-transparent-text h2{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="6"] .extension-dashboard-widget-transparent-text > h2{
 	font-size:6rem;
 	padding:0;
 	margin:0;
@@ -3363,7 +3378,7 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 	align-items:center;
 	justify-content:center;
 }
-.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="8"] .extension-dashboard-widget-transparent-text h2{
+.grid-stack-item:not(.grid-stack-sub-grid):not([gs-h])[gs-w="8"] .extension-dashboard-widget-transparent-text > h2{
 	font-size:4rem;
 	padding:0;
 	margin:0;
@@ -3415,7 +3430,7 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 	font-weight:100;
 }
 .grid-stack-item:not(.grid-stack-sub-grid):not([gs-h]):not([gs-w]) .extension-dashboard-widget-log strong{
-	font-size:80%;
+	font-size:1.3rem;
 }
 
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-log strong{
@@ -5432,10 +5447,6 @@ body.developer .extension-dashboard-widget-weather_description-needs-update:empt
 
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w][gs-h] .extension-dashboard-widget-number input{
 	font-size:6rem;
-}
-
-.extension-dashboard-widget-number .extension-dashboard-widget-icon-needs-icon:not(:empty) + .xtension-dashboard-widget-number-display{
-	
 }
 
 
