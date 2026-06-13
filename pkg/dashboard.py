@@ -359,7 +359,8 @@ class DashboardAPIHandler(APIHandler):
         
         
     def average_log_data(self, raw_log_data='', log_type='numeric'):
-        print("in average_log_data. log_type: ", log_type);
+        if self.DEBUG:
+            print("debug: in average_log_data. log_type: ", log_type);
         
         sorted_points = {}
         for line in split_lines_generator(raw_log_data):
@@ -368,7 +369,7 @@ class DashboardAPIHandler(APIHandler):
                 line_parts = line.split("|")
                 log_id = line_parts[0]
                 if not log_id in sorted_points:
-                    print("\n\nfiltering out log_id: ", log_id)
+                    #print("\n\nfiltering out log_id: ", log_id)
                     sorted_points[log_id] = []
                     #oldest = int(time.time()) * 1000
                     #newest = 0
@@ -499,7 +500,7 @@ class DashboardAPIHandler(APIHandler):
                         if millis_accounted_for != 0:
                             day_average = total_score / millis_accounted_for
                             if self.DEBUG:
-                                print("day_average: " + str(day_average) + ",  hours_accounted_for: ", millis_accounted_for / 3600000)
+                                print("debug: day_average: " + str(day_average) + ",  hours_accounted_for: ", millis_accounted_for / 3600000)
                         
                         
                             if day_average != None:
@@ -509,8 +510,8 @@ class DashboardAPIHandler(APIHandler):
                         
                         
         #self.log_day_averages = sorted_points                
-        print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nLOG DAY AVERAGES: ")
-        print(json.dumps(self.log_day_averages,indent=2))
+        #print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nLOG DAY AVERAGES: ")
+        #print(json.dumps(self.log_day_averages,indent=2))
         
         
         for log_id in sorted_points:

@@ -415,8 +415,6 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 }
 
 
-
-
 .extension-dashboard-template-container{
 	border-radius:2.5rem;
 	margin:1rem;
@@ -843,6 +841,20 @@ body.kiosk #extension-dashboard-widget-modal-ui-container:not(:empty){
 }
 
 
+#extension-dashboard-content .extension-dashboard-widget-thing-small-icon-container{
+	background-repeat:no-repeat;
+	background-size:contain;
+	background-position:center;
+	pointer-events:none;
+	opacity:.4;
+	transition: all 1s ease-in;
+    box-sizing: border-box;
+	width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
 #extension-dashboard-content .extension-dashboard-widget-thing-icon-container{
 	position:absolute;
@@ -859,6 +871,7 @@ body.kiosk #extension-dashboard-widget-modal-ui-container:not(:empty){
     border: 3rem solid transparent;
 	border-top: 5rem solid transparent;
 }
+
 
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="2"][gs-h="2"] .extension-dashboard-widget-thing-icon-container,
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-w="3"][gs-h="2"] .extension-dashboard-widget-thing-icon-container,
@@ -1058,9 +1071,6 @@ input[type="checkbox"]:not(:checked) ~ .extension-dashboard-widget-checkbox-togg
     font-size: 2.1rem;
     
 }
-
-
-
 
 #extension-dashboard-add-dashboard-button{
 	width:56px;
@@ -2113,11 +2123,13 @@ body:not(.screensaver) .extension-dashboard-effect{
 	border-radius:2rem;
 }
 .extension-dashboard-widget-double-property-switch > div:not(:last-of-type){
-	margin-bottom:1rem;
+	margin-bottom:30px;
 }
+/*
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h] .extension-dashboard-widget-double-property-switch > div:not(:last-of-type){
 	margin-bottom:30px;
 }
+*/
 
 .extension-dashboard-widget-double-property-switch > div label{
 	height:100%;
@@ -2125,6 +2137,8 @@ body:not(.screensaver) .extension-dashboard-effect{
 	align-items: center;
 	padding:1rem;
 }
+
+
 
 .extension-dashboard-widget-property-switch label,
 .extension-dashboard-widget-double-property-switch label,
@@ -2276,7 +2290,7 @@ body:not(.screensaver) .extension-dashboard-effect{
     height: 26px;
     border-radius: 26px;
 	top: 2px;
-	left: 31px;
+	left: 27px;
 }
 
 
@@ -2304,6 +2318,141 @@ body:not(.screensaver) .extension-dashboard-effect{
 
 
 
+/*   ACTION WIDGET   */
+
+div[data-template-name="action-button"]{
+	--widget-lighter: color-mix(in sRGB, var(--extension-dashboard-widget-background-color) 50%, #fff);
+	cursor: pointer;
+}
+
+/*
+.grid-stack > .grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w] > .grid-stack-item-content > div[data-template-name="action-button-grid"]:not(.extension-dashboard-configure-widget-button) .extension-dashboard-widget-action_button-button::after,
+*/
+.grid-stack > .grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w] > .grid-stack-item-content > div[data-template-name="action-button-grid"]:not(.extension-dashboard-configure-widget-button) .extension-dashboard-widget-action_button-button[data-extension-dashboard-action-id]:hover::after,
+div[data-template-name="double-action-button"].extension-dashboard-widget-double-property-switch > div::after,
+.grid-stack > .grid-stack-item:not(.grid-stack-sub-grid) > .grid-stack-item-content > div[data-template-name="action-button"]:not(.extension-dashboard-configure-widget-button)::after{
+	content:'';
+	position:absolute;
+	top:0;
+	left:0;
+	right:0;
+	width:0;
+	width:100%;
+	height:100%;
+	pointer-events:none;
+	border-radius: 2rem;
+	border:10px solid rgba(0,0,0,.1);
+	box-sizing: border-box;
+}
+
+div[data-template-name="double-action-button"].extension-dashboard-widget-double-property-switch > div:hover::after,
+.grid-stack > .grid-stack-item > .grid-stack-item-content > div[data-template-name="action-button"]:not(.extension-dashboard-configure-widget-button):hover::after{
+	border-color: rgba(0,0,0,.2);
+}
+
+.extension-dashboard-widget-action_button-button{
+	height:100%;
+}
+div[data-template-name="action-button"] strong{
+	position:absolute;
+	top:0;
+}
+
+div[data-template-name="double-action-button"] .extension-dashboard-widget-action_button-button{
+	height:100%;
+	display:flex;
+	align-items:center;
+	justify-content: center;
+}
+
+/*
+#extension-dashboard-content .extension-dashboard-widget-action_button-button .extension-dashboard-widget-thing-icon-container{
+	background-position:center center;
+	border-top-width: 3rem;
+}
+*/
+
+.grid-stack > .grid-stack-item > .grid-stack-item-content > div[data-template-name="double-action-button"]:not(.extension-dashboard-configure-widget-button) > div.extension-dashboard-action-occured-animation::after,
+.grid-stack > .grid-stack-item > .grid-stack-item-content > div.extension-dashboard-action-occured-animation[data-template-name="action-button"]:not(.extension-dashboard-configure-widget-button)::after{
+	border-color: rgba(0,186,0,.5);
+}
+
+
+
+/*  DOUBLE ACTION BUTTON WIDGET */
+
+div[data-template-name="double-action-button"].extension-dashboard-widget-double-property-switch > div{
+	display:flex;
+	align-items: center;
+	justify-content: center;
+	cursor:pointer;
+	position:relative;
+}
+
+
+
+
+
+/*  ACTION BUTTONS GRID */
+
+
+div[data-template-name="action-button-grid"]{
+	display:flex;
+	flex-direction: column;
+	width:100%;
+	max-height:100%;
+}
+
+.grid-stack-item:not(.grid-stack-sub-grid)[gs-h][gs-w] div[data-template-name="action-button-grid"] .extension-dashboard-widget-grid9 > div{
+	position: relative;
+	padding:2rem;
+}
+
+.extension-dashboard-widget-grid9{
+	flex-grow: 1;
+	border: 20px solid transparent;
+	/*
+    width: calc(100% - 8rem);
+    height: calc(100% - 8rem);
+    position: absolute;
+    top: 4rem;
+    right: 4rem;
+    left: 4rem;
+    bottom: 4rem;
+	*/
+	display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+	align-content: center;
+	justify-content: center;
+    grid-gap: 10px;
+    align-items: stretch;
+	
+}
+
+.extension-dashboard-widget-grid9 > div{
+	width:100%;
+	max-width:100%;
+	height:100%;
+	max-height:100%;
+}
+.extension-dashboard-widget-action_button-button[data-extension-dashboard-action-id]{
+	cursor:pointer;
+}
+/*
+.extension-dashboard-widget-grid9 > div:hover{
+	background-color: rgba(0,0,0,.1);
+	border-radius: .5rem;
+}
+*/
+
+.extension-dashboard-widget-grid9 img{
+	width:60%;
+	height: auto;
+}
+
+
+
 
 
 /*   PROPERTY SLIDER WIDGET   */
@@ -2318,6 +2467,11 @@ body:not(.screensaver) .extension-dashboard-effect{
     display: inline-block;
 	width:100%;
 	font-weight:100;
+}
+.extension-dashboard-widget-property-switch strong:empty,
+.extension-dashboard-widget-property-slider strong:empty,
+.extension-dashboard-widget-property-color strong:empty{
+	display:none;
 }
 
 .extension-dashboard-widget-slider-container{
@@ -2346,11 +2500,14 @@ body:not(.screensaver) .extension-dashboard-effect{
 }
 
 .extension-dashboard-widget-property-switch input[type="checkbox"][data-extension-dashboard-update-property] + label strong,
-.extension-dashboard-widget-double-property-switch input[type="checkbox"][data-extension-dashboard-update-property] + label strong,
 .extension-dashboard-widget-property-slider input[type="checkbox"][data-extension-dashboard-update-property] + label strong,
 .extension-dashboard-widget-property-color input[type="checkbox"][data-extension-dashboard-update-property] + label strong{
 	width: calc(100% - 55px);
 }
+.extension-dashboard-widget-double-property-switch input[type="checkbox"][data-extension-dashboard-update-property] + label strong{
+	width: calc(100% - 35px);
+}
+
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-property-switch input[type="checkbox"][data-extension-dashboard-update-property] + label strong,
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-property-slider input[type="checkbox"][data-extension-dashboard-update-property] + label strong,
 .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-property-color input[type="checkbox"][data-extension-dashboard-update-property] + label strong{
@@ -3269,7 +3426,6 @@ li.extension-dashboard-list-selector-item:not(.extension-dashboard-widget-list-s
 
 
 /*  vertical range slider */
-
 
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-property-slider input[type=range],
 #extension-dashboard-content .grid-stack-item:not(.grid-stack-sub-grid)[gs-h]:not([gs-w]) .extension-dashboard-widget-allow-vertical-slider-if-thin input[type=range],

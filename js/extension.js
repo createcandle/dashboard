@@ -2925,833 +2925,891 @@
 				for (const [widget_id, details] of Object.entries( this.dashboards[this.current_grid_id]['widgets'] )) {
 					//console.log("widget_id: ", widget_id);
 					
-					if(details && typeof details['needs'] != 'undefined' && typeof details['needs']['update'] != 'undefined'){
+					const websocket_categories = ['update','action'];
+
+					if(details && typeof details['needs'] != 'undefined'){
+
+						for(let wc = 0; wc < websocket_categories.length; wc++){
+							const websocket_category = websocket_categories[wc];
 						
-						const needs_update = details['needs']['update'];
-						for (const [what_property_is_neededX, needs_update_detailsX] of Object.entries( needs_update )) {
-							//console.log("what_property_is_needed: ", what_property_is_needed);
-							//console.log("- needs_update_details: ", needs_update_details);
-							
-							const what_property_is_needed = what_property_is_neededX;
-							const needs_update_details = needs_update_detailsX;
-							
-							if(typeof needs_update_details['thing_id'] == 'string' && typeof needs_update_details['property_id'] == 'string'){
-								
-								const thing_id = needs_update_details['thing_id'];
-								const property_id = needs_update_details['property_id'];
-								
-								/*
-								if(currently_relevant_thing_ids.indexOf(thing_id) == -1){
-									currently_relevant_thing_ids.push(thing_id); // TODO: this.websockets_lookup does basically the same..
-								}
-								*/
-								
-								
-								if(typeof this.websockets_lookup[thing_id] == 'undefined'){
-									this.websockets_lookup[thing_id] = [];
-								}
-								if(this.websockets_lookup[thing_id].indexOf(property_id) == -1){
-									this.websockets_lookup[thing_id].push(property_id);
-								}
-								
-								
-								if(typeof this.websockets[thing_id] != 'undefined'){
-									//console.log("the websocket client already exists:  thing_id,client: ", thing_id, this.websockets[thing_id]);
-									if(this.currently_relevant_thing_ids.indexOf(thing_id) != -1){
-										//console.error("could reconnect to websocket... for thing_id: ", thing_id, "\n -- connecting: ", this.websockets[thing_id].connecting, "\n -- isConnected: ", this.websockets[thing_id].isConnected );
-										if(this.websockets[thing_id].connecting == false && this.websockets[thing_id].isConnected == false){
-											this.websockets[thing_id].connect();
-										}
-										else{
-											//console.log("... but the websocket is already on it?")
-										}
-									}
-								
-								
-								}
-								//if(typeof this.websockets[thing_id] == 'undefined'){
-								else{
-								
-									let ws_protocol = 'ws';
-									let port = 8080;
-									if (location.protocol == 'https:') {
-										port = 4443;
-										ws_protocol = 'wss';
-									}
-					
-									const thing_websocket_url = ws_protocol + '://' + window.location.hostname + ':' + port + '/things/' + thing_id + '?jwt=' + window.API.jwt; // /properties/temperature
-									//console.log("generate_widget_content: creating new websocket client:  new thing_websocket_url: ", thing_websocket_url);
-					
-									this.websockets[ thing_id ] = new WebSocketClient(thing_websocket_url, thing_id);
-					
-									const client = this.websockets[ thing_id ];
-									//console.log("new client: ", client);
-					
-									client.on('open', () => {
-										if(this.debug){
-											console.warn('\n\ndashboard debug: a websocket is connected and ready.  thing_id: ' + client.thing_id + '\n\n');
-										}
-									});
+							if(typeof details['needs'][websocket_category] != 'undefined'){
 
 
-									client.on('error', (error) => {
-										if(this.debug){
-											console.error('dashboard debug: websocket connection error:', error);
-										}
-										setTimeout(() => {
-											client.scheduleReconnect();
-										},2000);
-									});
+								const needs_update = details['needs'][websocket_category];
 
-									client.on('close', (event) => {
-									  if(this.debug){
-										  console.warn('dashboard debug: WEBSOCKET CLOSED:', event.code, event.reason, event.thing_id);
-									  }
-									  if(event.code != 1000){
-										  if(this.debug){
-											  console.error("dashboard debug: websocket client close seems unexpected. Will attempt to re-open it in a few seconds");
-										  }
-										  setTimeout(() => {
-											  client.scheduleReconnect();
-										  },5000 + (Math.floor(Math.random() * 1000)));
-									  }
-									  else if(typeof event.thing_id == 'string'){
-										  //console.log("websocket just closed, and it provided a thing_id so that it can potentially be re-opened: ", event.thing_id);
-										  if(typeof this.websockets[event.thing_id] != 'undefined'){
-											  if(this.debug){
-												  //console.log("dashboard debug: websocket was closed. thing_id: ", event.thing_id);
-											  }
-											  
-											  if(this.currently_relevant_thing_ids.indexOf(event.thing_id) != -1){
-												  if(this.debug){
-													  console.log("dashboard debug: telling existing websocket client to immediately reconnect for still_relevant thing_id: ", event.thing_id);
-												  }
-												  try{
-													  if(client.connecting == false && client.isConnected == false){
-														  if(this.debug){
-															  console.log("dashboard debug: CALLING Websocket CLIENT.CONNECT after it was closed");
-														  }
-														  client.connect();
-													  }
-													  else{
-														  if(this.debug){
-															  console.error("\ndashboard debug:  END.\n\nre-opening websocket after close: something beat me to it?");
-														  }
-													  }
-													  
-												  }
-												  catch(err){
-													  if(this.debug){
-														  console.error("dashboard debug: caught error trying to re-connect to websocket client: ", err);
-													  }
-												  }
-											  }
-											  else{
-												  if(this.debug){
-													  console.log("\ndashboard debug: END.\n\n websocket closed, and thing_id is no longer relevant: ", event.thing_id);
-												  }
-											  }
-											  
-										  }
-										  else{
-											  if(this.debug){
-												  console.error("dashboard debug: websocket that just closed no longer exists in this.websockets? ", event.thing_id, this.websockets);
-											  }
-										  }
-										  //console.warn("HURRAY, received thing_id from websocket client that finished closing: ", event.thing_id);
-									  }
-									});
+								for (const [what_property_is_neededX, needs_update_detailsX] of Object.entries( needs_update )) {
+									//console.log("what_property_is_needed: ", what_property_is_needed);
+									//console.log("- needs_update_details: ", needs_update_details);
 									
-
-									client.on('message', (data) => {
-										if(this.debug){
-											console.log('\n\n\ndashboard debug: websocket received:', JSON.stringify(data,null,2));
+									const what_property_is_needed = what_property_is_neededX;
+									const needs_update_details = needs_update_detailsX;
+									
+									if(typeof needs_update_details['thing_id'] == 'string' && typeof needs_update_details['property_id'] == 'string'){
+										
+										const thing_id = needs_update_details['thing_id'];
+										const property_id = needs_update_details['property_id'];
+										
+										/*
+										if(currently_relevant_thing_ids.indexOf(thing_id) == -1){
+											currently_relevant_thing_ids.push(thing_id); // TODO: this.websockets_lookup does basically the same..
+										}
+										*/
+										
+										
+										if(typeof this.websockets_lookup[thing_id] == 'undefined'){
+											this.websockets_lookup[thing_id] = [];
+										}
+										if(this.websockets_lookup[thing_id].indexOf(property_id) == -1){
+											this.websockets_lookup[thing_id].push(property_id);
 										}
 										
-										if(typeof this.websockets_lookup[thing_id] != 'undefined'){
-											if(this.debug){
-												console.log("dashboard debug: in theory these properties could be updated in the dashboard, according to this.websockets_lookup: ", this.websockets_lookup[thing_id]);
-											}
-										}
 										
-										if(this.view && this.content && typeof data['id'] == 'string' && data['id'] == thing_id && typeof data['messageType'] == 'string' && data['messageType'] == 'propertyStatus' && typeof data['data'] != 'undefined'){
-											//console.log(" -- the websocket message contains a propertyStatus");
-												
-												
-											if(this.debug){
-												console.log("dashboard debug: as expected, received a websocket message for this thing: " + thing_id + " with keys: " + JSON.stringify(Object.keys(data['data'])));
-											}
-											for (let [property_id, property_value] of Object.entries( data['data'] )) {
-												
-												//let elements_to_update = this.view.querySelectorAll('[data-extension-dashboard-update-thing="' + thing_id + '"][data-extension-dashboard-update-property="' + property_id + '"]');
-												let elements_to_update = this.view.querySelectorAll('[data-extension-dashboard-update-thing-combo="' + thing_id + '--x--' + property_id + '"]');
-												
-
-												if(typeof this.recent_events[thing_id] == 'undefined'){
-													this.recent_events[thing_id] = {};
+										if(typeof this.websockets[thing_id] != 'undefined'){
+											//console.log("the websocket client already exists:  thing_id,client: ", thing_id, this.websockets[thing_id]);
+											if(this.currently_relevant_thing_ids.indexOf(thing_id) != -1){
+												//console.error("could reconnect to websocket... for thing_id: ", thing_id, "\n -- connecting: ", this.websockets[thing_id].connecting, "\n -- isConnected: ", this.websockets[thing_id].isConnected );
+												if(this.websockets[thing_id].connecting == false && this.websockets[thing_id].isConnected == false){
+													this.websockets[thing_id].connect();
 												}
-												if(typeof this.recent_events[thing_id][property_id] != 'undefined' && this.recent_events[thing_id][property_id]['timestamp'] > Date.now() - 1000){
-													if(elements_to_update.length){
+												else{
+													//console.log("... but the websocket is already on it?")
+												}
+											}
+										
+										
+										}
+										//if(typeof this.websockets[thing_id] == 'undefined'){
+										else{
+										
+											let ws_protocol = 'ws';
+											let port = 8080;
+											if (location.protocol == 'https:') {
+												port = 4443;
+												ws_protocol = 'wss';
+											}
+							
+											const thing_websocket_url = ws_protocol + '://' + window.location.hostname + ':' + port + '/things/' + thing_id + '?jwt=' + window.API.jwt; // /properties/temperature
+											//console.log("generate_widget_content: creating new websocket client:  new thing_websocket_url: ", thing_websocket_url);
+							
+											this.websockets[ thing_id ] = new WebSocketClient(thing_websocket_url, thing_id);
+							
+											const client = this.websockets[ thing_id ];
+											//console.log("new client: ", client);
+							
+											client.on('open', () => {
+												if(this.debug){
+													console.warn('\n\ndashboard debug: a websocket is connected and ready.  thing_id: ' + client.thing_id + '\n\n');
+												}
+											});
 
-														if(this.debug){
-															console.warn("dashboard debug: incoming websocket message -> elements_to_update: ", elements_to_update);
-															//console.warn("dashboard debug: incoming websocket message -> elements_to_update count for thing_id,property_id: ", elements_to_update.length, thing_id, property_id);
-														}
 
+											client.on('error', (error) => {
+												if(this.debug){
+													console.error('dashboard debug: websocket connection error:', error);
+												}
+												setTimeout(() => {
+													client.scheduleReconnect();
+												},2000);
+											});
+
+											client.on('close', (event) => {
+											if(this.debug){
+												console.warn('dashboard debug: WEBSOCKET CLOSED:', event.code, event.reason, event.thing_id);
+											}
+											if(event.code != 1000){
+												if(this.debug){
+													console.error("dashboard debug: websocket client close seems unexpected. Will attempt to re-open it in a few seconds");
+												}
+												setTimeout(() => {
+													client.scheduleReconnect();
+												},5000 + (Math.floor(Math.random() * 1000)));
+											}
+											else if(typeof event.thing_id == 'string'){
+												//console.log("websocket just closed, and it provided a thing_id so that it can potentially be re-opened: ", event.thing_id);
+												if(typeof this.websockets[event.thing_id] != 'undefined'){
+													if(this.debug){
+														//console.log("dashboard debug: websocket was closed. thing_id: ", event.thing_id);
+													}
+													
+													if(this.currently_relevant_thing_ids.indexOf(event.thing_id) != -1){
 														if(this.debug){
-															console.warn("dashboard debug: info: received a websocket message that is already in recent_events: ", property_id, property_value, ", vs recent event: ", JSON.stringify(this.recent_events[thing_id][property_id],null,4));
+															console.log("dashboard debug: telling existing websocket client to immediately reconnect for still_relevant thing_id: ", event.thing_id);
 														}
-														if(this.recent_events[thing_id][property_id]['value'] == property_value){
-															if(this.debug){
-																console.warn("dashboard debug:  > > > and the value matches too: ", property_value);
+														try{
+															if(client.connecting == false && client.isConnected == false){
+																if(this.debug){
+																	console.log("dashboard debug: CALLING Websocket CLIENT.CONNECT after it was closed");
+																}
+																client.connect();
 															}
-															//this.recent_events[thing_id][property_id]['timestamp'] = Date.now();
-															//continue
-														}
-														else{
-															if(this.debug){
-																console.warn("dashboard debug:  > > > but the value doesn't match: ", property_value);
+															else{
+																if(this.debug){
+																	console.error("\ndashboard debug:  END.\n\nre-opening websocket after close: something beat me to it?");
+																}
 															}
-															//this.recent_events[thing_id][property_id] = {"timestamp":Date.now(), "value":property_value, "type":"received"};
+															
 														}
-														
+														catch(err){
+															if(this.debug){
+																console.error("dashboard debug: caught error trying to re-connect to websocket client: ", err);
+															}
+														}
+													}
+													else{
+														if(this.debug){
+															console.log("\ndashboard debug: END.\n\n websocket closed, and thing_id is no longer relevant: ", event.thing_id);
+														}
 													}
 													
 												}
 												else{
-													this.recent_events[thing_id][property_id] = {"timestamp":Date.now(), "value":property_value, "type":"received"};
-												}
-												
-												
-												
-												
-												/*
-												if(elements_to_update.length == 0){
 													if(this.debug){
-														console.warn("DID NOT FIND ANY ELEMENT TO UPDATE WITH NEW VALUE: ", thing_id, property_id, property_value);
+														console.error("dashboard debug: websocket that just closed no longer exists in this.websockets? ", event.thing_id, this.websockets);
 													}
 												}
-												*/
-												
-												
-												
-												
-												
-												
-												for(let eu = 0; eu < elements_to_update.length; eu++){
-													
-													const el_to_update = elements_to_update[eu];
-													
-													//console.error("\nel_to_update # " + eu);
-													
-													try{
-														//console.log("\nel_to_update: ", el_to_update.tagName, el_to_update);
-													
-													
-												
-													
-												
-													
-														//
-														//   OPTIMIZE THE RECEIVED VALUE FOR IT'S INTENDED TARGET ELEMENT
-														//
-													
-													
-													
-														// Special case: if the internet radio sends a 'none' value for the artist or song, force it to be empty instead.
-														if(typeof property_value == 'string' && property_value == 'None' && thing_id == 'internet-radio' && (property_id == 'artist' || property_id == 'song')){
-															//console.warn("SETTING INCOMING INTERNET RADIO VALUE TO EMPTY STRING: ", property_value);
-															property_value = '';
-														}
-													
-													
-														// Adjust the decimals if the target element has a 'step' attribute
-													
-														// New value is not a number
-														if((typeof property_value == 'string' && property_value == "") || typeof property_value == 'boolean' || typeof property_value == 'object' || isNaN('' + property_value)){
-															if(this.debug){
-																console.log("dashboard debug: the incoming value is not a number, so no need to clean it: ", typeof property_value, property_value);
-															}
-														}
-													
-														// If the provided value is a number, clean it up to match any 'step' attribute that element it will be placed into may have
-														else{
-														
-															if(this.debug){
-																console.log("dashboard debug: incoming value seems to be a number: ", property_value);
-															}
-														
-															let new_value = parseInt(property_value);
-												
-															if('' + new_value != '' + property_value){
-																//console.log("parseInt value was not the same as the original value: " + new_value + " =?= " + property_value);
-																new_value = parseFloat(property_value);
+												//console.warn("HURRAY, received thing_id from websocket client that finished closing: ", event.thing_id);
+											}
+											});
+											
 
-																//console.log("initial new_value: ", typeof new_value, new_value);
-																if(Math.abs(new_value) % 0.001 > 0){
-																	//new_value = (new_value - (new_value % 0.001));
-																	new_value = Math.round(new_value*1000)/1000;
-																	if(this.debug){
-																		//console.log("dashboard debug: initial new_value after quick adjustment to maximum of three decimals: ", new_value);
-																	}
-																}
-													
-											
-											
-																let input_step_raw = el_to_update.getAttribute('step');
-																if(this.debug){
-																	console.log("dashboard debug: input_step_raw: ", typeof input_step_raw, input_step_raw);
-																}
-											
-																if(typeof input_step_raw == 'string' && !isNaN(parseFloat(input_step_raw))){
-																	if(this.debug){
-																		console.log("dashboard debug: input element seemed to have a valid step attribute: ", input_step_raw);
-																	}
-																	let input_step = parseInt(input_step_raw);
-																	if(('' + input_step != '' + input_step_raw) || (parseFloat(input_step_raw) > 0 && parseFloat(input_step_raw) < 0.9)){
-																		input_step = parseFloat(input_step_raw);
-																		if(this.debug){
-																			console.log("dashboard debug: step seems to be a float: " + input_step);
-																		}
-																	}
+											client.on('message', (data) => {
+												if(this.debug){
+													console.log('\n\n\ndashboard debug: websocket received message:\n', JSON.stringify(data,null,2));
+												}
 												
-																	if(typeof input_step == 'number' && input_step != 0){
-																		if(Math.abs(new_value) % input_step > 0){
-																			if(this.debug){
-																				console.log("dashboard debug: value did not conform to step: " + new_value, input_step);
-																			}
-																			//new_value = (new_value - (new_value % input_step));
-																			let below_zero_flipper = 1;
-																			if(new_value < 0){
-																				below_zero_flipper = -1;
-																			}
-																			if(input_step < 0.01){
-																				new_value = Math.round(Math.abs(new_value)*1000)/1000;
-																			}
-																			else if(input_step < 0.1){
-																				new_value = Math.round(Math.abs(new_value)*100)/100;
-																			}
-																			else if(input_step < 1){
-																				new_value = Math.round(Math.abs(new_value)*10)/10;
-																			}
-																			else if(input_step < 10){
-																				new_value = Math.round(Math.abs(new_value));
-																			}
-																			if(below_zero_flipper < 0){
-																				if(this.debug){
-																					console.log("dashboard debug: flipping value back to negative");
-																				}
-																				new_value = new_value * below_zero_flipper;
-																			}
-														
-																			if(this.debug){
-																				console.log("dashboard debug: value should conform to step now: " + new_value, input_step);
-																			}
-																		}
+												if(typeof this.websockets_lookup[thing_id] != 'undefined'){
+													if(this.debug){
+														console.log("dashboard debug: in theory these properties could be updated in the dashboard, according to this.websockets_lookup: ", this.websockets_lookup[thing_id]);
+													}
+												}
+
+
+												// RECEIVED ACTION RESPONSE
+												if(this.view && this.content && typeof data['id'] == 'string' && data['id'] == thing_id && typeof data['messageType'] == 'string' && data['messageType'] == 'actionStatus' && typeof data['data'] != 'undefined'){
 													
-																	}
-												
-																}
-														
-																if(!isNaN("" + new_value)){
-																	if(this.debug){
-																		console.log("NUMBER CLEANING COMPLETE. CHANGE: ", typeof property_value, property_value, " ->> ", typeof new_value, new_value);
-																	}
-																}
-															
-															}
-															if(!isNaN("" + new_value)){
-																property_value = new_value;
-															}
-														
-														
+													/*
+													{
+													"messageType": "actionStatus",
+													"data": {
+														"Coolio": {
+														"input": {},
+														"href": "/things/infrared/actions/Coolio/1",
+														"status": "created",
+														"timeRequested": "2026-06-13T06:58:23+00:00"
 														}
+													},
+													"id": "infrared"
+													}
+													*/
 													
-													
-														//console.log("next..  el_to_update.tagName: ", el_to_update.tagName);
-														
-														
-														//
-														//  UPDATE LIST SELECTOR
-														//
-														
-														if(el_to_update.tagName == 'UL'){
-														
+													for (let [action_id, action_details] of Object.entries( data['data'] )) {
+														try{
 															if(this.debug){
-																console.log("dashboard debug: attempting to updated highlighted item in list: ", typeof property_value, property_value);
+																console.log("dashboard debug: parsing websocket action update for:  thing_id,action_id: ", thing_id,action_id);
 															}
-															
-															for(let li = 0; li < el_to_update.children.length; li++){
-																if(el_to_update.children[li].textContent == '' + property_value){
-																	//console.log("FOUND THE LIST ITEM TO HIGHLIGHT: ", property_value);
-																	el_to_update.children[li].classList.add('extension-dashboard-widget-list-selector-highlighted-item');
+															let action_elements_to_update =  this.view.querySelectorAll('[data-extension-dashboard-action-thing="' + thing_id + '"][data-extension-dashboard-action-id="' + action_id + '"]');
+															for(let aeu = 0; aeu < action_elements_to_update.length; aeu++){
+																const action_el_to_update = action_elements_to_update[aeu];
+																if(action_el_to_update){
+																	action_el_to_update.parentElement.classList.add('extension-dashboard-action-occured-animation');
+																	setTimeout(() => {
+																		action_el_to_update.parentElement.classList.remove('extension-dashboard-action-occured-animation');
+																	},500);
+																}
+															}
+
+														}catch(err){
+															console.error("caught error finding action widget to update status for: ", err);
+														}
+													}
+												}
+
+
+												// RECEIVED THING PROPERTY UPDATE
+												else if(this.view && this.content && typeof data['id'] == 'string' && data['id'] == thing_id && typeof data['messageType'] == 'string' && data['messageType'] == 'propertyStatus' && typeof data['data'] != 'undefined'){
+													//console.log(" -- the websocket message contains a propertyStatus");
+														
+														
+													if(this.debug){
+														console.log("dashboard debug: as expected, received a websocket message for this thing: " + thing_id + " with keys: " + JSON.stringify(Object.keys(data['data'])));
+													}
+													for (let [property_id, property_value] of Object.entries( data['data'] )) {
+														
+														//let elements_to_update = this.view.querySelectorAll('[data-extension-dashboard-update-thing="' + thing_id + '"][data-extension-dashboard-update-property="' + property_id + '"]');
+														let elements_to_update = this.view.querySelectorAll('[data-extension-dashboard-update-thing-combo="' + thing_id + '--x--' + property_id + '"]');
+														
+
+														if(typeof this.recent_events[thing_id] == 'undefined'){
+															this.recent_events[thing_id] = {};
+														}
+														if(typeof this.recent_events[thing_id][property_id] != 'undefined' && this.recent_events[thing_id][property_id]['timestamp'] > Date.now() - 1000){
+															if(elements_to_update.length){
+
+																if(this.debug){
+																	console.warn("dashboard debug: incoming websocket message -> elements_to_update: ", elements_to_update);
+																	//console.warn("dashboard debug: incoming websocket message -> elements_to_update count for thing_id,property_id: ", elements_to_update.length, thing_id, property_id);
+																}
+
+																if(this.debug){
+																	console.warn("dashboard debug: info: received a websocket message that is already in recent_events: ", property_id, property_value, ", vs recent event: ", JSON.stringify(this.recent_events[thing_id][property_id],null,4));
+																}
+																if(this.recent_events[thing_id][property_id]['value'] == property_value){
+																	if(this.debug){
+																		console.warn("dashboard debug:  > > > and the value matches too: ", property_value);
+																	}
+																	//this.recent_events[thing_id][property_id]['timestamp'] = Date.now();
+																	//continue
 																}
 																else{
-																	el_to_update.children[li].classList.remove('extension-dashboard-widget-list-selector-highlighted-item');
+																	if(this.debug){
+																		console.warn("dashboard debug:  > > > but the value doesn't match: ", property_value);
+																	}
+																	//this.recent_events[thing_id][property_id] = {"timestamp":Date.now(), "value":property_value, "type":"received"};
 																}
+																
 															}
 															
-															//el_to_update.value = '' + property_value;
-														
-														
 														}
-														
-														//
-														//  UPDATE SELECT OR TEXTAREA
-														//
-													
-														else if(el_to_update.tagName == 'TEXTAREA' || el_to_update.tagName == 'SELECT'){
-														
-														
-															if(this.debug){
-																console.log("dashboard debug: attempting to set select or textarea to value: ", typeof property_value, property_value);
-															}
-															el_to_update.value = '' + property_value;
-														
-														}
-													
-													
-														//
-														//  UPDATE TEXTCONTENT
-														//
-													
-														else if(el_to_update.tagName != 'INPUT'){
-														
-															if(this.debug){
-																console.log("dashboard debug: attempting to set the element's textContent to value: ", typeof property_value, property_value);
-															}
-															el_to_update.textContent = "" + property_value;
-														
-														}
-													
-													
-														//
-														//  UPDATE INPUT ELEMENT
-														//
-													
 														else{
+															this.recent_events[thing_id][property_id] = {"timestamp":Date.now(), "value":property_value, "type":"received"};
+														}
 														
-															//console.log("going to update input el");
 														
-															let input_type = el_to_update.getAttribute('type');
+														
+														
+														/*
+														if(elements_to_update.length == 0){
 															if(this.debug){
-																console.log("dashboard debug: INPUT el to update [type]: ", input_type);
+																console.warn("DID NOT FIND ANY ELEMENT TO UPDATE WITH NEW VALUE: ", thing_id, property_id, property_value);
 															}
+														}
+														*/
 														
-															if(typeof input_type != 'string'){
+														
+														
+														
+														
+														
+														for(let eu = 0; eu < elements_to_update.length; eu++){
 															
-																if(this.debug){
-																	console.error("dashboard debug: INPUT ELEMENT WITHOUT A TYPE ATTRIBUTE. Will attempt to set it's value to: ", property_value);
+															const el_to_update = elements_to_update[eu];
+															
+															//console.error("\nel_to_update # " + eu);
+															
+															try{
+																//console.log("\nel_to_update: ", el_to_update.tagName, el_to_update);
+															
+															
+														
+															
+														
+															
+																//
+																//   OPTIMIZE THE RECEIVED VALUE FOR IT'S INTENDED TARGET ELEMENT
+																//
+															
+															
+															
+																// Special case: if the internet radio sends a 'none' value for the artist or song, force it to be empty instead.
+																if(typeof property_value == 'string' && property_value == 'None' && thing_id == 'internet-radio' && (property_id == 'artist' || property_id == 'song')){
+																	//console.warn("SETTING INCOMING INTERNET RADIO VALUE TO EMPTY STRING: ", property_value);
+																	property_value = '';
 																}
-																el_to_update.value = property_value;
 															
 															
-															}
-															else{
-																
-																//console.log("GOING TO SET AN INPUT ELEMENT TO: ", typeof property_value, property_value);
-																
-																input_type = input_type.toLowerCase();
+																// Adjust the decimals if the target element has a 'step' attribute
 															
-																if(input_type == 'checkbox'){
+																// New value is not a number
+																if((typeof property_value == 'string' && property_value == "") || typeof property_value == 'boolean' || typeof property_value == 'object' || isNaN('' + property_value)){
+																	if(this.debug){
+																		console.log("dashboard debug: the incoming value is not a number, so no need to clean it: ", typeof property_value, property_value);
+																	}
+																}
+															
+																// If the provided value is a number, clean it up to match any 'step' attribute that element it will be placed into may have
+																else{
 																
+																	if(this.debug){
+																		console.log("dashboard debug: incoming value seems to be a number: ", property_value);
+																	}
 																
-																	//
-																	//  UPDATE CHECKBOX
-																	//
-																
-																	if(typeof property_value != 'boolean'){
+																	let new_value = parseInt(property_value);
+														
+																	if('' + new_value != '' + property_value){
+																		//console.log("parseInt value was not the same as the original value: " + new_value + " =?= " + property_value);
+																		new_value = parseFloat(property_value);
+
+																		//console.log("initial new_value: ", typeof new_value, new_value);
+																		if(Math.abs(new_value) % 0.001 > 0){
+																			//new_value = (new_value - (new_value % 0.001));
+																			new_value = Math.round(new_value*1000)/1000;
+																			if(this.debug){
+																				//console.log("dashboard debug: initial new_value after quick adjustment to maximum of three decimals: ", new_value);
+																			}
+																		}
+															
+													
+													
+																		let input_step_raw = el_to_update.getAttribute('step');
 																		if(this.debug){
-																			console.warn("dashboard debug: user seem to want to update a checkbox using a property that is not a boolean");
+																			console.log("dashboard debug: input_step_raw: ", typeof input_step_raw, input_step_raw);
+																		}
+													
+																		if(typeof input_step_raw == 'string' && !isNaN(parseFloat(input_step_raw))){
+																			if(this.debug){
+																				console.log("dashboard debug: input element seemed to have a valid step attribute: ", input_step_raw);
+																			}
+																			let input_step = parseInt(input_step_raw);
+																			if(('' + input_step != '' + input_step_raw) || (parseFloat(input_step_raw) > 0 && parseFloat(input_step_raw) < 0.9)){
+																				input_step = parseFloat(input_step_raw);
+																				if(this.debug){
+																					console.log("dashboard debug: step seems to be a float: " + input_step);
+																				}
+																			}
+														
+																			if(typeof input_step == 'number' && input_step != 0){
+																				if(Math.abs(new_value) % input_step > 0){
+																					if(this.debug){
+																						console.log("dashboard debug: value did not conform to step: " + new_value, input_step);
+																					}
+																					//new_value = (new_value - (new_value % input_step));
+																					let below_zero_flipper = 1;
+																					if(new_value < 0){
+																						below_zero_flipper = -1;
+																					}
+																					if(input_step < 0.01){
+																						new_value = Math.round(Math.abs(new_value)*1000)/1000;
+																					}
+																					else if(input_step < 0.1){
+																						new_value = Math.round(Math.abs(new_value)*100)/100;
+																					}
+																					else if(input_step < 1){
+																						new_value = Math.round(Math.abs(new_value)*10)/10;
+																					}
+																					else if(input_step < 10){
+																						new_value = Math.round(Math.abs(new_value));
+																					}
+																					if(below_zero_flipper < 0){
+																						if(this.debug){
+																							console.log("dashboard debug: flipping value back to negative");
+																						}
+																						new_value = new_value * below_zero_flipper;
+																					}
+																
+																					if(this.debug){
+																						console.log("dashboard debug: value should conform to step now: " + new_value, input_step);
+																					}
+																				}
+															
+																			}
+														
+																		}
+																
+																		if(!isNaN("" + new_value)){
+																			if(this.debug){
+																				console.log("NUMBER CLEANING COMPLETE. CHANGE: ", typeof property_value, property_value, " ->> ", typeof new_value, new_value);
+																			}
+																		}
+																	
+																	}
+																	if(!isNaN("" + new_value)){
+																		property_value = new_value;
+																	}
+																
+																
+																}
+															
+															
+																//console.log("next..  el_to_update.tagName: ", el_to_update.tagName);
+																
+																
+																//
+																//  UPDATE LIST SELECTOR
+																//
+																
+																if(el_to_update.tagName == 'UL'){
+																
+																	if(this.debug){
+																		console.log("dashboard debug: attempting to updated highlighted item in list: ", typeof property_value, property_value);
+																	}
+																	
+																	for(let li = 0; li < el_to_update.children.length; li++){
+																		if(el_to_update.children[li].textContent == '' + property_value){
+																			//console.log("FOUND THE LIST ITEM TO HIGHLIGHT: ", property_value);
+																			el_to_update.children[li].classList.add('extension-dashboard-widget-list-selector-highlighted-item');
+																		}
+																		else{
+																			el_to_update.children[li].classList.remove('extension-dashboard-widget-list-selector-highlighted-item');
 																		}
 																	}
+																	
+																	//el_to_update.value = '' + property_value;
 																
-																	if(this.debug){
-																		console.log("dashboard debug: setting checkbox to: ", typeof property_value, property_value);
-																	}
-																	el_to_update.checked = Boolean(property_value);
 																
 																}
-																else if(input_type == 'range' || input_type == 'number'){
 																
-																	
-																	//console.log("OK The input element is a number (or range)");
-																	
-																	
-																	//
-																	//  UPDATE NUMBER INPUT
-																	//
+																//
+																//  UPDATE SELECT OR TEXTAREA
+																//
+															
+																else if(el_to_update.tagName == 'TEXTAREA' || el_to_update.tagName == 'SELECT'){
+																
 																
 																	if(this.debug){
-																		console.log("dashboard debug: setting number or range input to (hopefully) a number value: ", typeof property_value, property_value);
+																		console.log("dashboard debug: attempting to set select or textarea to value: ", typeof property_value, property_value);
 																	}
-																	//if(property_value != null){
-																		el_to_update.value = property_value;
-																	//	el_to_update.setAttribute('value',property_value);
-																	//}
+																	el_to_update.value = '' + property_value;
+																
+																}
+															
+															
+																//
+																//  UPDATE TEXTCONTENT
+																//
+															
+																else if(el_to_update.tagName != 'INPUT'){
+																
+																	if(this.debug){
+																		console.log("dashboard debug: attempting to set the element's textContent to value: ", typeof property_value, property_value);
+																	}
+																	el_to_update.textContent = "" + property_value;
+																
+																}
+															
+															
+																//
+																//  UPDATE INPUT ELEMENT
+																//
+															
+																else{
+																
+																	//console.log("going to update input el");
+																
+																	let input_type = el_to_update.getAttribute('type');
+																	if(this.debug){
+																		console.log("dashboard debug: INPUT el to update [type]: ", input_type);
+																	}
+																
+																	if(typeof input_type != 'string'){
 																	
-																
-																
-																
-																	//
-																	//  MOVING THE NEEDLE
-																	//
-													
-																	// Some elements have needle to indicate a value (dial, thermostat). Here the dial is found and updated.
-																
-																	if(typeof property_value == 'number'){
-																		const widget_root_el = el_to_update.closest('div.extension-dashboard-template');
-																		//console.log("widget_root_el: ", widget_root_el);
-																		if(widget_root_el && widget_root_el.getAttribute('data-widget-has-dial')){
-																			const widget_needle_el = widget_root_el.querySelector('.extension-dashboard-widget-dial-needle');
-																			if(widget_needle_el){
-																				//console.log("widget_needle_el: ", widget_needle_el);
-																				const minimum_value_el = widget_root_el.querySelector('.extension-dashboard-widget-minimum-value');
-																				if(minimum_value_el && minimum_value_el.tagName == 'INPUT'){
-																					let minimum_value = parseFloat("" + minimum_value_el.value);
-																					//console.log("minimum_value: ", minimum_value);
-																					if(typeof minimum_value == 'number' && !isNaN(minimum_value)){
-																						const maximum_value_el = widget_root_el.querySelector('.extension-dashboard-widget-maximum-value');
-																						if(maximum_value_el && maximum_value_el.tagName == 'INPUT'){
-																							let maximum_value = parseFloat("" + maximum_value_el.value);
-																							if(typeof maximum_value == 'number' && !isNaN(maximum_value)){
-																								const range = maximum_value - minimum_value;
-																								if(range != 0){
-																									if(this.debug){
-																										console.log("dashboard debug: dial range: ", minimum_value, maximum_value, " --> ", range);
-																									}
-																									if(property_value >= minimum_value && property_value <= maximum_value){
-																										//console.log("OK, value is in the range");
-																									}
-																							
-																							
-																									let percentage = ((property_value - minimum_value) / range) * 100;
-																									//console.log("percentage: ", percentage);
-																							
-																									if(property_value < minimum_value){
-																										//console.log("forcing percentage to 0");
-																										percentage = 0;
-																									}
-																									if(property_value > maximum_value){
-																										//console.log("forcing percentage to 100");
-																										percentage = 100;
-																									}
-																							
-																									if(percentage < 0){
-																										percentage = 0;
-																									}
-																									else if(percentage > 100){
-																										percentage = 100;
-																									}
-																									if(this.debug){
-																										console.log("dashboard debug: percentage for moving needle: ", percentage);
-																									}
-																									widget_needle_el.setAttribute('style',"transform:rotateZ(" + (180 + (percentage * 1.8)) + "deg);");
-																									widget_needle_el.classList.remove('extension-dashboard-hidden');
-																									// Also try to update the dial ticks
-																									if(Math.abs(range) > 2){
-																										const widget_ticks_el = widget_root_el.querySelector('.extension-dashboard-widget-dial-ticks');
-																								
-																										if(widget_ticks_el){
-																											let read_only = false;
-																											if(el_to_update.disabled){
-																												widget_ticks_el.classList.add('extension-dashboard-widget-dial-disabled');
-																												read_only = true;
+																		if(this.debug){
+																			console.error("dashboard debug: INPUT ELEMENT WITHOUT A TYPE ATTRIBUTE. Will attempt to set it's value to: ", property_value);
+																		}
+																		el_to_update.value = property_value;
+																	
+																	
+																	}
+																	else{
+																		
+																		//console.log("GOING TO SET AN INPUT ELEMENT TO: ", typeof property_value, property_value);
+																		
+																		input_type = input_type.toLowerCase();
+																	
+																		if(input_type == 'checkbox'){
+																		
+																		
+																			//
+																			//  UPDATE CHECKBOX
+																			//
+																		
+																			if(typeof property_value != 'boolean'){
+																				if(this.debug){
+																					console.warn("dashboard debug: user seem to want to update a checkbox using a property that is not a boolean");
+																				}
+																			}
+																		
+																			if(this.debug){
+																				console.log("dashboard debug: setting checkbox to: ", typeof property_value, property_value);
+																			}
+																			el_to_update.checked = Boolean(property_value);
+																		
+																		}
+																		else if(input_type == 'range' || input_type == 'number'){
+																		
+																			
+																			//console.log("OK The input element is a number (or range)");
+																			
+																			
+																			//
+																			//  UPDATE NUMBER INPUT
+																			//
+																		
+																			if(this.debug){
+																				console.log("dashboard debug: setting number or range input to (hopefully) a number value: ", typeof property_value, property_value);
+																			}
+																			//if(property_value != null){
+																				el_to_update.value = property_value;
+																			//	el_to_update.setAttribute('value',property_value);
+																			//}
+																			
+																		
+																		
+																		
+																			//
+																			//  MOVING THE NEEDLE
+																			//
+															
+																			// Some elements have needle to indicate a value (dial, thermostat). Here the dial is found and updated.
+																		
+																			if(typeof property_value == 'number'){
+																				const widget_root_el = el_to_update.closest('div.extension-dashboard-template');
+																				//console.log("widget_root_el: ", widget_root_el);
+																				if(widget_root_el && widget_root_el.getAttribute('data-widget-has-dial')){
+																					const widget_needle_el = widget_root_el.querySelector('.extension-dashboard-widget-dial-needle');
+																					if(widget_needle_el){
+																						//console.log("widget_needle_el: ", widget_needle_el);
+																						const minimum_value_el = widget_root_el.querySelector('.extension-dashboard-widget-minimum-value');
+																						if(minimum_value_el && minimum_value_el.tagName == 'INPUT'){
+																							let minimum_value = parseFloat("" + minimum_value_el.value);
+																							//console.log("minimum_value: ", minimum_value);
+																							if(typeof minimum_value == 'number' && !isNaN(minimum_value)){
+																								const maximum_value_el = widget_root_el.querySelector('.extension-dashboard-widget-maximum-value');
+																								if(maximum_value_el && maximum_value_el.tagName == 'INPUT'){
+																									let maximum_value = parseFloat("" + maximum_value_el.value);
+																									if(typeof maximum_value == 'number' && !isNaN(maximum_value)){
+																										const range = maximum_value - minimum_value;
+																										if(range != 0){
+																											if(this.debug){
+																												console.log("dashboard debug: dial range: ", minimum_value, maximum_value, " --> ", range);
+																											}
+																											if(property_value >= minimum_value && property_value <= maximum_value){
+																												//console.log("OK, value is in the range");
 																											}
 																									
-																											let modulo_factor = 2; // only a portion of the ticks will have a line on them
 																									
-																											let do_halves = 1;
-																											if(Math.abs(range) < 31){
-																												do_halves = 2;
+																											let percentage = ((property_value - minimum_value) / range) * 100;
+																											//console.log("percentage: ", percentage);
+																									
+																											if(property_value < minimum_value){
+																												//console.log("forcing percentage to 0");
+																												percentage = 0;
 																											}
-																											else{
-																												modulo_factor = Math.round((Math.abs(range)/2) / 30) * 2; // what modulo to use
-																												if(modulo_factor == 0){
-																													modulo_factor = 2;
-																												}
+																											if(property_value > maximum_value){
+																												//console.log("forcing percentage to 100");
+																												percentage = 100;
+																											}
+																									
+																											if(percentage < 0){
+																												percentage = 0;
+																											}
+																											else if(percentage > 100){
+																												percentage = 100;
 																											}
 																											if(this.debug){
-																												console.log("dashboard debug:  do_halves, modulo_factor: ", do_halves, modulo_factor);
+																												console.log("dashboard debug: percentage for moving needle: ", percentage);
 																											}
-																									
-																											let expected_span_els_count = 0;
-																											if(read_only){
-																												expected_span_els_count = Math.floor((range*do_halves)/modulo_factor) + 1;
-																											}
-																											else{
-																												expected_span_els_count = Math.floor(range*do_halves) + 1;
-																											}
-																											if(this.debug){
-																												console.log("dashboard debug: expected span el count in the dial: ", expected_span_els_count, " vs actual count: ", widget_ticks_el.children.length, ", read_only:", read_only);
-																											}
-																									
-																											if(widget_ticks_el.children.length != expected_span_els_count){
-																												if(this.debug){
-																													console.log("dashboard debug: re-drawing the dial ticks");
-																												}
-																												widget_ticks_el.innerHTML = '';
-																												let tick_counter = 0;
-																												for(let ti = 0; ti <= range * do_halves; ti++){
-																													tick_counter++;
-																								
-																													let uneven = ti % modulo_factor;
-																													let tick_el = document.createElement('span');
-																													tick_el.setAttribute('style','transform: rotate(' + (180 + ((180 / range) * (ti / do_halves))) + 'deg) translate(480%)'); // rotate(292.5deg) translate(80px) rotate(90deg)
-																													if(!uneven){
-																														tick_el.textContent = minimum_value + (ti/do_halves);
-																														tick_el.classList.add('extension-dashboard-widget-dial-tick-even');
-																													}
-																													else{
-																														tick_el.classList.add('extension-dashboard-widget-dial-tick-uneven');
-																													}
-																								
-																													if(el_to_update.disabled){ // sic, as it could be both false or undefined
-																														// not adding a click listener is the attached thing-property is read-only.
-																													}
-																													else{
-																														tick_el.addEventListener('click', () => {
-																															if(this.debug){
-																																console.log("dashboard debug: dial tick value: ", minimum_value + (ti/do_halves));
-																															}
-																									
-																															let dial_message = {
-																																"messageType": "setProperty",
-																																//"id":thing_id,
-																																"data":{}
-																															};
-																															dial_message['data'][property_id] = minimum_value + (ti/do_halves);
-																									
-																															this.websockets[thing_id].send(dial_message);
-																								
-																														});
+																											widget_needle_el.setAttribute('style',"transform:rotateZ(" + (180 + (percentage * 1.8)) + "deg);");
+																											widget_needle_el.classList.remove('extension-dashboard-hidden');
+																											// Also try to update the dial ticks
+																											if(Math.abs(range) > 2){
+																												const widget_ticks_el = widget_root_el.querySelector('.extension-dashboard-widget-dial-ticks');
+																										
+																												if(widget_ticks_el){
+																													let read_only = false;
+																													if(el_to_update.disabled){
+																														widget_ticks_el.classList.add('extension-dashboard-widget-dial-disabled');
+																														read_only = true;
 																													}
 																											
-																													if(read_only && uneven){ 
-																														// do not add an invisible tick if it can't be clicked anyway
+																													let modulo_factor = 2; // only a portion of the ticks will have a line on them
+																											
+																													let do_halves = 1;
+																													if(Math.abs(range) < 31){
+																														do_halves = 2;
 																													}
 																													else{
-																														widget_ticks_el.appendChild(tick_el);
+																														modulo_factor = Math.round((Math.abs(range)/2) / 30) * 2; // what modulo to use
+																														if(modulo_factor == 0){
+																															modulo_factor = 2;
+																														}
+																													}
+																													if(this.debug){
+																														console.log("dashboard debug:  do_halves, modulo_factor: ", do_halves, modulo_factor);
+																													}
+																											
+																													let expected_span_els_count = 0;
+																													if(read_only){
+																														expected_span_els_count = Math.floor((range*do_halves)/modulo_factor) + 1;
+																													}
+																													else{
+																														expected_span_els_count = Math.floor(range*do_halves) + 1;
+																													}
+																													if(this.debug){
+																														console.log("dashboard debug: expected span el count in the dial: ", expected_span_els_count, " vs actual count: ", widget_ticks_el.children.length, ", read_only:", read_only);
+																													}
+																											
+																													if(widget_ticks_el.children.length != expected_span_els_count){
+																														if(this.debug){
+																															console.log("dashboard debug: re-drawing the dial ticks");
+																														}
+																														widget_ticks_el.innerHTML = '';
+																														let tick_counter = 0;
+																														for(let ti = 0; ti <= range * do_halves; ti++){
+																															tick_counter++;
+																										
+																															let uneven = ti % modulo_factor;
+																															let tick_el = document.createElement('span');
+																															tick_el.setAttribute('style','transform: rotate(' + (180 + ((180 / range) * (ti / do_halves))) + 'deg) translate(480%)'); // rotate(292.5deg) translate(80px) rotate(90deg)
+																															if(!uneven){
+																																tick_el.textContent = minimum_value + (ti/do_halves);
+																																tick_el.classList.add('extension-dashboard-widget-dial-tick-even');
+																															}
+																															else{
+																																tick_el.classList.add('extension-dashboard-widget-dial-tick-uneven');
+																															}
+																										
+																															if(el_to_update.disabled){ // sic, as it could be both false or undefined
+																																// not adding a click listener is the attached thing-property is read-only.
+																															}
+																															else{
+																																tick_el.addEventListener('click', () => {
+																																	if(this.debug){
+																																		console.log("dashboard debug: dial tick value: ", minimum_value + (ti/do_halves));
+																																	}
+																											
+																																	let dial_message = {
+																																		"messageType": "setProperty",
+																																		//"id":thing_id,
+																																		"data":{}
+																																	};
+																																	dial_message['data'][property_id] = minimum_value + (ti/do_halves);
+																											
+																																	this.websockets[thing_id].send(dial_message);
+																										
+																																});
+																															}
+																													
+																															if(read_only && uneven){ 
+																																// do not add an invisible tick if it can't be clicked anyway
+																															}
+																															else{
+																																widget_ticks_el.appendChild(tick_el);
+																															}
+																														}
+																									
+																														//console.log("tick_counter: ", tick_counter, (range*2) + 1);
 																													}
 																												}
-																							
-																												//console.log("tick_counter: ", tick_counter, (range*2) + 1);
 																											}
+																					
 																										}
 																									}
-																			
 																								}
 																							}
+														
 																						}
+													
 																					}
-												
 																				}
-											
 																			}
+																		
+															
+																		}
+																		else{
+																			//console.log("OK, setting an input element's value to: ", property_value);
+																			el_to_update.value = property_value;
 																		}
 																	}
 																
-													
-																}
-																else{
-																	//console.log("OK, setting an input element's value to: ", property_value);
-																	el_to_update.value = property_value;
+																	if(el_to_update.classList.contains('extension-dashboard-widget-adjust-width-to-input-length')){
+																		const ch_width = (("" + el_to_update.value).length);
+																		if(ch_width > 0){
+																			el_to_update.style.width = ch_width + "ch";
+																		}
+																		
+																	}
+																	
+																	//const change_event = new Event('change');
+																	//el_to_update.dispatchEvent(change_event);
+																
 																}
 															}
-														
-															if(el_to_update.classList.contains('extension-dashboard-widget-adjust-width-to-input-length')){
-																const ch_width = (("" + el_to_update.value).length);
-																if(ch_width > 0){
-																	el_to_update.style.width = ch_width + "ch";
+															catch(err){
+																if(this.debug){
+																	console.error("dashboard: websockets: caught error while trying to update element: ", err);
 																}
-																
 															}
 															
-															//const change_event = new Event('change');
-															//el_to_update.dispatchEvent(change_event);
+															
+														}
 														
-														}
+														
+														
+														
+														
+														
+														//
+														//  WEATHER ANIMATIONS
+														//
+														
+														// If this websocket message is for a weather widget, then check if it contains a weather prediction.
+														// If it does, use that to set some CSS classes for fancy animations
+														//console.log("this.animations: ", this.animations);
+														
+														if(this.animations && elements_to_update.length){
+															
+															// Loop over all widgets in the current dashboard until we find a match. 
+															// We need to look up to see if a thing-property is set for, for example, the weather widget's description. 
+															// And then check if that matches with the received thing-property combo.
+															
+															if(typeof this.dashboards[this.current_grid_id] != 'undefined' && typeof this.dashboards[this.current_grid_id]['widgets'] != 'undefined'){
+																for (const [widget_id, widget_details] of Object.entries(this.dashboards[this.current_grid_id]['widgets'])) {
+																	//console.log("checking widget: ", widget_id);
+																	if(typeof this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs'] != 'undefined'){
+																		//console.log("this widget has needs: ", this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs']);
+																		//const needs = this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs'];
+																		if(typeof this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs'][websocket_category] != 'undefined'){
+																			//console.log("this widget has update needs: ", this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs'][websocket_category]);
+																			
+																			for (const [what_property_is_needed2, needs_update_details2] of Object.entries( this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs'][websocket_category] )) {
+																				//console.log("looping over needs for this dashboard. widget -> update -> what_property_is_needed:\n", widget_id, what_property_is_needed, needs_update_details);
+																				//console.log(" ... looking for: ", thing_id, property_id);
+																				
+																				
+																				//console.log(needs_update_details2['thing_id'], " =?= ", thing_id);
+																				//console.log(needs_update_details2['property_id'], " =?= ", property_id);
+																				
+																				if(needs_update_details2['thing_id'] == thing_id && needs_update_details2['property_id'] == property_id){
+																					
+																					//console.warn("OK MATCHING");
+																					
+																					/*
+																					if(this.debug){
+																						console.error("dashboard debug: OK, found a widget that uses the thing_id and property_id from the incoming websocket update message. All variables: \n__grid_id: ", grid_id, "\n__widget_id: ", widget_id, "\n__thing_id:", thing_id, "__property_id:", property_id);
+																					}
+																					*/
+																					
+																					
+																					
+																					//
+																					// SPECIALS
+																					//
+																					
+																					// WEATHER
+																					
+																					// First, double-check that the message is a weather update, and that the widget we're looking at is a weather widget
+																					//console.log("checking for specials");
+																					if(
+																						// It's a weather widget
+																						typeof this.dashboards[this.current_grid_id]['widgets'][widget_id]['type'] == 'string' &&
+																						this.dashboards[this.current_grid_id]['widgets'][widget_id]['type'] == 'weather' && 
+																						
+																						// The widget indeed needs a weather description update
+																						what_property_is_needed2 == 'weather_description' && 
+																						
+																						// The incoming websocket update is a from a Candle Weather addon thing
+																						thing_id == 'candle-weather-today' &&
+																						// And it's delivering a weather description property update
+																						property_id == 'current_description' && 
+																						
+																						// Just to be absurdly sure, there is (still) content to update CSS classes for, right?
+																						this.content_el &&
+																						
+																						// And weather widget animations are allowed?
+																						this.animations
+																						
+																				
+																					){
+																						//console.log("dashboard debug: FULL WEBSOCKET + WEATHER WIDGET MATCH");
+																						
+																					
+																						this.content_el.classList.remove('extension-dashboard-widget-weather-show-rain');
+																						this.content_el.classList.remove('extension-dashboard-widget-weather-show-rain-impact');
+																						this.content_el.classList.remove('extension-dashboard-widget-weather-show-clouds');
+																						this.content_el.classList.remove('extension-dashboard-widget-weather-show-dark-clouds');
+																						this.content_el.classList.remove('extension-dashboard-widget-weather-show-snow');
+																						this.content_el.classList.remove('extension-dashboard-widget-weather-show-hail');
+																						this.content_el.classList.remove('extension-dashboard-widget-weather-show-fog');
+																					
+																						setTimeout(() => {
+																							if(property_value.toLowerCase().indexOf('storm') != -1){
+																								this.content_el.classList.add('extension-dashboard-widget-weather-show-rain');
+																								this.content_el.classList.add('extension-dashboard-widget-weather-show-rain-impact');
+																								this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
+																								this.content_el.classList.add('extension-dashboard-widget-weather-show-dark-clouds');
+																								if(this.debug){
+																									console.log("dashboard debug: weather update: storm: ", property_value);
+																								}
+																							}
+																							else if(property_value.toLowerCase().indexOf('rain') != -1){
+																								this.content_el.classList.add('extension-dashboard-widget-weather-show-rain');
+																								this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
+																								if(this.debug){
+																									console.log("dashboard debug: weather update: rain: ", property_value);
+																								}
+																							}
+																							else if(property_value.toLowerCase().indexOf('cloud') != -1){
+																								if(this.debug){
+																									console.log("dashboard debug: weather update: cloudy: ", property_value);
+																								}
+																								this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
+																							}
+																							else if(property_value.toLowerCase().indexOf('snow') != -1){
+																								if(this.debug){
+																									console.log("dashboard debug: weather update: snowy: ", property_value);
+																								}
+																								this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
+																								this.content_el.classList.add('extension-dashboard-widget-weather-show-snow');
+																							}
+																							else if(property_value.toLowerCase().indexOf('hail') != -1){
+																								if(this.debug){
+																									console.log("dashboard debug: weather update: hail: ", property_value);
+																								}
+																								// fast moving snow with an impact animation
+																								this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
+																								this.content_el.classList.add('extension-dashboard-widget-weather-show-dark-clouds');
+																								this.content_el.classList.add('extension-dashboard-widget-weather-show-snow');
+																								this.content_el.classList.add('extension-dashboard-widget-weather-show-hail');
+																								this.content_el.classList.add('extension-dashboard-widget-weather-show-rain-impact');
+																							}
+																							else if(property_value.toLowerCase().indexOf('fog') != -1 || property_value.toLowerCase().indexOf('mist') != -1){
+																								if(this.debug){
+																									console.log("dashboard debug: weather update: fog: ", property_value);
+																								}
+																								// fast moving snow with an impact animation
+																								this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
+																								this.content_el.classList.add('extension-dashboard-widget-weather-show-fog');
+																							}
+																						},10);
+																						
+																					
+																			
+																					}
+																					
+																				}
+																				
+																				
+																				
+																			}
+																		}
+																		
+																	}
+																	
+																}
+															}
+															
+														} // end of weather animations
+														
+														
+														
+														
 													}
-													catch(err){
-														if(this.debug){
-															console.error("dashboard: websockets: caught error while trying to update element: ", err);
-														}
-													}
-													
-													
 												}
 												
-												
-												
-												
-												
-												
-												//
-												//  WEATHER ANIMATIONS
-												//
-												
-												// If this websocket message is for a weather widget, then check if it contains a weather prediction.
-												// If it does, use that to set some CSS classes for fancy animations
-												//console.log("this.animations: ", this.animations);
-												
-												if(this.animations && elements_to_update.length){
-													
-													// Loop over all widgets in the current dashboard until we find a match. 
-													// We need to look up to see if a thing-property is set for, for example, the weather widget's description. 
-													// And then check if that matches with the received thing-property combo.
-													
-													if(typeof this.dashboards[this.current_grid_id] != 'undefined' && typeof this.dashboards[this.current_grid_id]['widgets'] != 'undefined'){
-														for (const [widget_id, widget_details] of Object.entries(this.dashboards[this.current_grid_id]['widgets'])) {
-															//console.log("checking widget: ", widget_id);
-															if(typeof this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs'] != 'undefined'){
-																//console.log("this widget has needs: ", this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs']);
-																//const needs = this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs'];
-																if(typeof this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs']['update'] != 'undefined'){
-																	//console.log("this widget has update needs: ", this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs']['update']);
-																	
-																	for (const [what_property_is_needed2, needs_update_details2] of Object.entries( this.dashboards[this.current_grid_id]['widgets'][widget_id]['needs']['update'] )) {
-																		//console.log("looping over needs for this dashboard. widget -> update -> what_property_is_needed:\n", widget_id, what_property_is_needed, needs_update_details);
-																		//console.log(" ... looking for: ", thing_id, property_id);
-																		
-																		
-																		//console.log(needs_update_details2['thing_id'], " =?= ", thing_id);
-																		//console.log(needs_update_details2['property_id'], " =?= ", property_id);
-																		
-																		if(needs_update_details2['thing_id'] == thing_id && needs_update_details2['property_id'] == property_id){
-																			
-																			//console.warn("OK MATCHING");
-																			
-																			/*
-																			if(this.debug){
-																				console.error("dashboard debug: OK, found a widget that uses the thing_id and property_id from the incoming websocket update message. All variables: \n__grid_id: ", grid_id, "\n__widget_id: ", widget_id, "\n__thing_id:", thing_id, "__property_id:", property_id);
-																			}
-																			*/
-																			
-																			
-																			
-																			//
-																			// SPECIALS
-																			//
-																			
-																			// WEATHER
-																			
-																			// First, double-check that the message is a weather update, and that the widget we're looking at is a weather widget
-																			//console.log("checking for specials");
-																			if(
-																				// It's a weather widget
-																				typeof this.dashboards[this.current_grid_id]['widgets'][widget_id]['type'] == 'string' &&
-																				this.dashboards[this.current_grid_id]['widgets'][widget_id]['type'] == 'weather' && 
-																				
-																				// The widget indeed needs a weather description update
-																				what_property_is_needed2 == 'weather_description' && 
-																				
-																				// The incoming websocket update is a from a Candle Weather addon thing
-																				thing_id == 'candle-weather-today' &&
-																				// And it's delivering a weather description property update
-																				property_id == 'current_description' && 
-																				
-																				// Just to be absurdly sure, there is (still) content to update CSS classes for, right?
-																				this.content_el &&
-																				
-																				// And weather widget animations are allowed?
-																				this.animations
-																				
-																		
-																			){
-																				//console.log("dashboard debug: FULL WEBSOCKET + WEATHER WIDGET MATCH");
-																				
-																			
-																				this.content_el.classList.remove('extension-dashboard-widget-weather-show-rain');
-																				this.content_el.classList.remove('extension-dashboard-widget-weather-show-rain-impact');
-																				this.content_el.classList.remove('extension-dashboard-widget-weather-show-clouds');
-																				this.content_el.classList.remove('extension-dashboard-widget-weather-show-dark-clouds');
-																				this.content_el.classList.remove('extension-dashboard-widget-weather-show-snow');
-																				this.content_el.classList.remove('extension-dashboard-widget-weather-show-hail');
-																				this.content_el.classList.remove('extension-dashboard-widget-weather-show-fog');
-																			
-																				setTimeout(() => {
-																					if(property_value.toLowerCase().indexOf('storm') != -1){
-																						this.content_el.classList.add('extension-dashboard-widget-weather-show-rain');
-																						this.content_el.classList.add('extension-dashboard-widget-weather-show-rain-impact');
-																						this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
-																						this.content_el.classList.add('extension-dashboard-widget-weather-show-dark-clouds');
-																						if(this.debug){
-																							console.log("dashboard debug: weather update: storm: ", property_value);
-																						}
-																					}
-																					else if(property_value.toLowerCase().indexOf('rain') != -1){
-																						this.content_el.classList.add('extension-dashboard-widget-weather-show-rain');
-																						this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
-																						if(this.debug){
-																							console.log("dashboard debug: weather update: rain: ", property_value);
-																						}
-																					}
-																					else if(property_value.toLowerCase().indexOf('cloud') != -1){
-																						if(this.debug){
-																							console.log("dashboard debug: weather update: cloudy: ", property_value);
-																						}
-																						this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
-																					}
-																					else if(property_value.toLowerCase().indexOf('snow') != -1){
-																						if(this.debug){
-																							console.log("dashboard debug: weather update: snowy: ", property_value);
-																						}
-																						this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
-																						this.content_el.classList.add('extension-dashboard-widget-weather-show-snow');
-																					}
-																					else if(property_value.toLowerCase().indexOf('hail') != -1){
-																						if(this.debug){
-																							console.log("dashboard debug: weather update: hail: ", property_value);
-																						}
-																						// fast moving snow with an impact animation
-																						this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
-																						this.content_el.classList.add('extension-dashboard-widget-weather-show-dark-clouds');
-																						this.content_el.classList.add('extension-dashboard-widget-weather-show-snow');
-																						this.content_el.classList.add('extension-dashboard-widget-weather-show-hail');
-																						this.content_el.classList.add('extension-dashboard-widget-weather-show-rain-impact');
-																					}
-																					else if(property_value.toLowerCase().indexOf('fog') != -1 || property_value.toLowerCase().indexOf('mist') != -1){
-																						if(this.debug){
-																							console.log("dashboard debug: weather update: fog: ", property_value);
-																						}
-																						// fast moving snow with an impact animation
-																						this.content_el.classList.add('extension-dashboard-widget-weather-show-clouds');
-																						this.content_el.classList.add('extension-dashboard-widget-weather-show-fog');
-																					}
-																				},10);
-																				
-																			
-																	
-																			}
-																			
-																		}
-																		
-																		
-																		
-																	}
-																}
-																
-															}
-															
-														}
-													}
-													
-												} // end of weather animations
-												
-												
-												
-												
-											}
-										}
-										
-									});
+											});
 
+											
+										}
+									}
 									
 								}
+
+
 							}
-							
-						}
 						
+						
+						}
+
 						
 					}
 					
@@ -3942,16 +4000,23 @@
 											
 											// No thing-action set for this widget value yet
 											if(typeof needs['action'][what_action_is_needed] == 'undefined'){
-							
-												needs['action'][what_action_is_needed] = {};
 												
+												needs['action'][what_action_is_needed] = {};
+												if(self.debug){
+													console.warn("dashboard debug: adding empty action to needs.  what_action_is_needed: ", what_action_is_needed);
+												}
 												
 											}
 											else{
 												//console.log("action needs exists");
-												
+												if(self.debug){
+													console.warn("dashboard debug: needs['action'] exists: ", typeof needs['action'][what_action_is_needed]);
+												}
+
 												if(typeof needs['action'][what_action_is_needed]['thing_id'] == 'string' && typeof needs['action'][what_action_is_needed]['action_id'] == 'string'){
-													//console.log("nice, this part of the template it already connected to a thing-action combo");
+													if(self.debug){
+														console.log("dashboard debug: nice, this part of the template it already connected to a thing-action combo");
+													}
 													child_els[ix].setAttribute('data-extension-dashboard-action-thing', needs['action'][what_action_is_needed]['thing_id']);
 													child_els[ix].setAttribute('data-extension-dashboard-action-id', needs['action'][what_action_is_needed]['action_id']);
 													//child_els[ix].setAttribute('data-extension-dashboard-update-thing-combo', needs['update'][what_property_is_needed]['thing_id'] + '--x--' + needs['update'][what_property_is_needed]['property_id'] );
@@ -3962,7 +4027,9 @@
 													//console.log("ACTION!  action_thing_id, action_id", action_thing_id, action_id);
 													
 													child_els[ix].addEventListener('click', () => {
-														//console.log("clicked on action button. websocket client?", typeof this.websockets[action_thing_id]);
+														if(self.debug){
+															console.log("dashboard debug: clicked on action button. websocket client?", typeof this.websockets[action_thing_id]);
+														}
 														
 														
 														if(typeof this.websockets[action_thing_id] != 'undefined'){
@@ -5104,6 +5171,61 @@
 								icons_per_page = 200;
 							}
 							
+
+							if(widget_type == 'action-button-grid'){
+								//"icon": {
+								//	"icon": "/iconoir_regular/small-lamp.svg",
+								//	"optional_different_icon_when_on": null
+								//},
+								const pre_made_icons = {
+									"icon1": "/iconoir_regular/arrow-up-left.svg",
+									"icon2": "/iconoir_regular/arrow-up.svg",
+									"icon3": "/iconoir_regular/arrow-up-right.svg",
+									"icon4":"/iconoir_regular/arrow-left.svg",
+									"icon5": "/iconoir_regular/circle.svg",
+									"icon6": "/iconoir_regular/arrow-right.svg",
+									"icon7": "/iconoir_regular/arrow-down-left.svg",
+									"icon8": "/iconoir_regular/arrow-down.svg",
+									"icon9": "/iconoir_regular/arrow-down-right.svg"
+								}
+								
+								if(typeof needs['icon'] == 'object' && needs['icon'] != null){
+
+									if(Object.values(needs['icon']).every(value => value === null)){
+										needs['icon'] = Object.assign({}, needs['icon'], pre_made_icons);
+										if(this.debug){
+											console.log("dashboard debug: assigning pre-filled icons for the action button grid");
+										}
+									}
+									else{
+										if(this.debug){
+											console.log("dashboard debug: (some of) the grid icons have already been set, no need to pre-fill them with arrow icons");
+										}
+									}
+									/*
+									let all_null = true;
+									for(let ni = 0; ni < needs['icon'].length; ni++){
+										if(needs['icon'][ni] != null){
+											all_null = false; // a shrubbery
+										}
+									}
+									*/
+									//if(all_null){
+										
+									
+								}
+								else{
+									needs['icon'] = pre_made_icons;
+									if(this.debug){
+										console.log("dashboard debug: adding pre-filled icons for the action button grid");
+									}
+								}
+								
+							}
+
+								
+
+
 							
 							widget_ui_el.appendChild(icon_container_el);
 					
