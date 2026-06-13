@@ -150,6 +150,9 @@ body.candle-theme #extension-dashboard-main-page{
 	display:none!important;
 }
 
+.extension-dashboard-allow-overflow{
+	overflow:visible!important;
+}
 
 #extension-dashboard-content a{
 	text-decoration:none;
@@ -1561,9 +1564,20 @@ body:not(.screensaver) .extension-dashboard-effect{
 .grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button){
 	background-color: var(--extension-dashboard-widget-background-color);
 	border-radius: 2rem;
+}
+.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button):not(.extension-dashboard-allow-overflow){
 	overflow: hidden;
+}
+
+.grid-stack > .grid-stack-item > .grid-stack-item-content .extension-dashboard-give-me-box-shadow{
 	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
+/*
+.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button).extension-dashboard-give-me-box-shadow,
+.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button):not(.extension-dashboard-give-me-box-shadow) .extension-dashboard-give-me-box-shadow{
+	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+*/
 
 .grid-stack > .grid-stack-item.size-to-content:not(.size-to-content-max) > .grid-stack-item-content {
 	overflow-y: hidden
@@ -4534,9 +4548,9 @@ body.developer .extension-dashboard-widget-thermostat input:invalid{
 	height: 20px;
 	font-size:1rem;
 	font-weight:bold;
-	pointer-events:auto;
-	border-top-right-radius:10px;
-	border-bottom-right-radius:10px;
+	pointer-events:all;
+	border-top-right-radius:0px;
+	border-bottom-right-radius:0px;
 	/*clip-path: polygon(0% 0%, 100% 10%, 100% 90%, 0% 100%);*/
 	/*
 	clip-path: polygon(0% 0%, 100% 50%, 100% 50%, 0% 100%);
@@ -4550,7 +4564,7 @@ body.developer .extension-dashboard-widget-thermostat input:invalid{
 }
 .extension-dashboard-widget-dial-ticks:not(.extension-dashboard-widget-dial-disabled) span{
 	cursor:pointer;
-	pointer-events:auto;
+	pointer-events:all;
 }
 
 .extension-dashboard-widget-dial-ticks span.extension-dashboard-widget-dial-tick-even{
@@ -4566,7 +4580,7 @@ body.developer .extension-dashboard-widget-thermostat input:invalid{
 
 
 .extension-dashboard-widget-dial-ticks:not(.extension-dashboard-widget-dial-disabled) span:hover{
-	background: var(--extension-dashboard-widget-editable-text-color);
+	background-color: var(--extension-dashboard-widget-editable-text-color);
 	align-items:center;
 	justify-content:center;
 }
@@ -4575,7 +4589,9 @@ body.developer .extension-dashboard-widget-thermostat input:invalid{
 	font-size:130%;
 	text-align:center;
 	color:white;
-	height:25px;
+	/*height:25px;*/
+	transform: scale(1.5);
+	font-weight: bold;
 }
 
 

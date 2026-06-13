@@ -1269,7 +1269,9 @@
 			});
 			
 			if(typeof this.locally_saved_values['widget_shadow'] == 'string'){
-				this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button)', 'box-shadow', this.locally_saved_values['widget_shadow']);
+				//this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button).extension-dashboard-give-me-box-shadow', 'box-shadow', this.locally_saved_values['widget_shadow']);
+				//this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button):not(.extension-dashboard-give-me-box-shadow) .extension-dashboard-give-me-box-shadow', 'box-shadow', this.locally_saved_values['widget_shadow']);
+				this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content .extension-dashboard-give-me-box-shadow', 'box-shadow', this.locally_saved_values['widget_shadow']);
 				document.getElementById('extension-dashboard-setting-widget-shadow').value = this.locally_saved_values['widget_shadow'];
 			}
 			
@@ -1278,8 +1280,11 @@
 				if(fresh_shadow == ''){
 					fresh_shadow = 'none';
 				}
-				this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button)','box-shadow',fresh_shadow);
-			
+				
+				//this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button).extension-dashboard-give-me-box-shadow','box-shadow',fresh_shadow);
+				//this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button):not(.extension-dashboard-give-me-box-shadow) .extension-dashboard-give-me-box-shadow', 'box-shadow', fresh_shadow);
+				this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content .extension-dashboard-give-me-box-shadow', 'box-shadow', fresh_shadow);
+
 				this.locally_saved_values['widget_shadow'] = fresh_shadow;
 				localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
 			});
@@ -1583,8 +1588,13 @@
 				console.log("dashboard debug: random_shadow: ", random_shadow);
 			}
 			document.getElementById('extension-dashboard-setting-widget-shadow').value = random_shadow;
-			this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button)','box-shadow',random_shadow);
-			
+			//this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button)','box-shadow',random_shadow);
+			//this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button)','box-shadow',random_shadow);
+			//this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button).extension-dashboard-give-me-box-shadow', 'box-shadow', random_shadow);
+			//this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content > div:not(.extension-dashboard-configure-widget-button):not(.extension-dashboard-give-me-box-shadow) .extension-dashboard-give-me-box-shadow', 'box-shadow', random_shadow);
+
+			this.modify_css('.grid-stack > .grid-stack-item > .grid-stack-item-content .extension-dashboard-give-me-box-shadow', 'box-shadow', random_shadow);
+
 			this.locally_saved_values['widget_shadow'] = random_shadow;
 			localStorage.setItem('extension_dashboard_locally_saved_values', JSON.stringify(this.locally_saved_values));
 		}
@@ -4059,7 +4069,7 @@
 														
 																if(this.websockets[action_thing_id].isConnected == false && this.websockets[action_thing_id].connecting == false){
 																	if(this.debug){
-																		console.warn("dashboard debug: unexpectedly had to re-connect the websocket client on action button click for thing_id: ", thing_id);
+																		console.warn("dashboard debug: unexpectedly had to re-connect the websocket client on action button click for thing_id: ", action_thing_id);
 																	}
 																	this.websockets[action_thing_id].connect();
 																}
