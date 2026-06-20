@@ -254,6 +254,9 @@ body:not(.developer) .extension-dashboard-show-if-developer,
 		margin:2.5rem .5rem;
 	}
 	
+	.extension-dashboard-widget-log-change-buttons-container{
+		padding:1rem .5rem;
+	}
 	
 	
 }
@@ -3884,6 +3887,7 @@ g.extension-dashboard-log-tooltip-data-container > rect{
 	display:flex;
 	justify-content: flex-end;
 	z-index:2;
+	overflow:hidden;
 }
 
 .grid-stack-item .extension-dashboard-widget-log-change-buttons-container{

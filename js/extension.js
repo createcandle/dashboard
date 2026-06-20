@@ -612,10 +612,8 @@
 					this.debug = body.debug;
 				}
             	
-                if (this.debug) {
-                    console.log("dashboard debug: early init response: ");
-                    console.log(body);
-					
+                if (this.debug && location.pathname == '/extensions/dashboard') {
+                    console.log("dashboard debug: early init response: \n", body);
 					console.log("dashboard debug: initial this.locally_saved_values: ", this.locally_saved_values);
                 }
 				
@@ -6713,7 +6711,7 @@
 					API.getLogs()
 					.then((logs) => {
 						
-						if(this.debug){
+						if(this.debug && location.pathname == '/extensions/dashboard'){
 							console.log("dashboard debug:  got fresh logs list from API: ", logs);
 						}
 						
@@ -6737,7 +6735,7 @@
 							reject(null);
 						}
 		                logs.sort(compare);
-		                if(this.debug){
+		                if(this.debug && location.pathname == '/extensions/dashboard'){
 							console.log("dashboard debug: update_logs_data: sorted logs data: ", logs);
 						}
         
@@ -7477,10 +7475,11 @@
 				
 				if(typeof log_datum[log_seniority] != 'undefined'){
 					
-					if(this.debug){
+					if(this.debug && location.pathname == '/extensions/dashboard'){
 						console.log("dashboard debug: in get_optimal_log_data.  current_precision, first keys: ", current_precision, Object.keys(log_datum['first']));
 						console.warn("dashboard debug: full log_datum: ", log_datum[log_seniority]);
 					}
+
 					if(current_precision == 'hours' && typeof log_datum[log_seniority]['log_data'] != 'undefined'){
 						//console.log("get_optimal_log_data: returning log_data");
 						return log_datum[log_seniority]['log_data'];
