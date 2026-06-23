@@ -137,6 +137,7 @@ class DashboardAPIHandler(APIHandler):
             self.logs_db_path = os.path.join(self.user_profile['logDir'], 'logs.sqlite3')
             
             self.data_dir_path = os.path.join(self.user_profile['dataDir'], self.addon_name)
+            self.initial_persistence_file_path = os.path.join(self.addon_path, 'persistence.json')
             self.persistence_file_path = os.path.join(self.data_dir_path, 'persistence.json')
             
             self.log_day_averages_file_path = os.path.join(self.data_dir_path, 'logging_day_averages.json')
@@ -164,11 +165,15 @@ class DashboardAPIHandler(APIHandler):
             self.tutorial_persistent_data_path = os.path.join(self.user_profile['dataDir'], 'tutorial', 'persistence.json')
             
         except Exception as ex:
-            print("Failed to make paths: " + str(ex))
+            print("caught error preparing paths: " + str(ex))
             
         # Get persistent data
         self.persistent_data = {}
         try:
+
+            if not os.path.isfile(str(self.persistence_file_path)) and os.path.isfile(str(self.initial_persistence_file_path)):
+                os.system('cp ' + str(self.initial_persistence_file_path) + ' ' + str(self.persistence_file_path))
+
             if os.path.isfile(self.persistence_file_path):
                 try:
                     with open(self.persistence_file_path) as f:

@@ -832,9 +832,17 @@
 					this.content_el.classList.add('extension-dashboard-editing');
 					this.editing = true;
 					
-					if(this.grids[this.current_grid_id]){
-						this.grids[this.current_grid_id].setStatic( false );
+					
+					try{
+						if(this.grids[this.current_grid_id]){
+							this.grids[this.current_grid_id].setStatic( false );
+						}
 					}
+					catch(err){
+						console.error("dashboard: caught error setting grid to static: ", err)
+					}
+						
+					
 					this.set_tab_buttons_draggable(true);
 				}
 				
@@ -1662,9 +1670,9 @@
 
 				
 			}
-            catch(e){
+            catch(err){
             	if (this.debug) {
-					console.error("dashboard: error parsing update list data: ", e);
+					console.error("dashboard debug: caught error parsing update list data: ", err);
 				}
             }
 			
@@ -1775,7 +1783,9 @@
 					new_grid_id = 'grid' + new_grid_index;
 					this.dashboards[new_grid_id] = {"widgets":{}};
 					this.current_grid_id = new_grid_id;
-					console.log("update_sidebar:  add_dashboard:  this.current_grid_id is now: ", this.current_grid_id);
+					if(this.debug){
+						console.log("dashboard debug: update_sidebar:  add_dashboard:  this.current_grid_id is now: ", this.current_grid_id);
+					}
 					setTimeout(() => {
 						this.show_dashboard();
 						//this.update_sidebar();
